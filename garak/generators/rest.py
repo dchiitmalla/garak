@@ -36,6 +36,7 @@ class RestGenerator(Generator):
         "req_template": "$INPUT",
         "request_timeout": 20,
         "proxies": None,
+        "verify_ssl": True,
     }
 
     ENV_VAR = "REST_API_KEY"
@@ -61,6 +62,7 @@ class RestGenerator(Generator):
         "temperature",
         "top_k",
         "proxies",
+        "verify_ssl",
     )
 
     def __init__(self, uri=None, config_root=_config):
@@ -204,6 +206,7 @@ class RestGenerator(Generator):
             "headers": request_headers,
             "timeout": self.request_timeout,
             "proxies": self.proxies,
+            "verify": self.verify_ssl,
         }
         resp = self.http_function(self.uri, **req_kArgs)
 
