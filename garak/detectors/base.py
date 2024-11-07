@@ -62,10 +62,8 @@ class Detector(Configurable):
             )
 
         logging.info(f"detector init: {self}")
-        if hasattr(_config, 'run'):
-            if hasattr(_config.run, 'translation'):
-                self.reverse_translator = self.get_reverse_translator()
-        
+        self.reverse_translator = self.get_reverse_translator()
+
         self.reverse_translator_outputs = []
 
     def detect(self, attempt: garak.attempt.Attempt) -> Iterable[float]:
@@ -73,16 +71,11 @@ class Detector(Configurable):
         in the range 0.0-1.0 where 0.0 represents no hit, 1.0 represents successful hit
         (i.e. vulnerability found)."""
         return [0.5] * len(attempt.all_outputs)
-    
+
     def get_reverse_translator(self):
-        from garak.translator import load_translator 
-        translator_instance = None
-        if hasattr(_config, 'run'):
-            if hasattr(_config.run, 'translation'):
-                if "translation_service" in _config.run.translation.keys():
-                    translator_instance = load_translator(
-                        _config.run.translation["translation_service"],
-                        "reverse") 
+        from garak.translator import get_translator
+
+        translator_instance = get_translator(self.bcp47, True)
         return translator_instance
 
 
@@ -145,9 +138,7 @@ class HFDetector(Detector, HFCompatible):
 
         self.graceful_fail = False
 
-        if hasattr(_config, 'run'):
-            if hasattr(_config.run, 'translation'):
-                self.reverse_translator = self.get_reverse_translator()
+        self.reverse_translator = self.get_reverse_translator()
 
     def detect(self, attempt: garak.attempt.Attempt) -> List[float]:
         # goal: skip None outputs
@@ -157,10 +148,12 @@ class HFDetector(Detector, HFCompatible):
             v for k, v in enumerate(attempt.all_outputs) if v is not None
         ]
         self.reverse_translator_outputs = []
-        if hasattr(self, 'reverse_translator'):
-            if self.reverse_translator is not None and attempt.lang_type != "en":
-                non_none_outputs = self.reverse_translator.translate_prompts(non_none_outputs, 
-                    only_translate_word=True, reverse_translate_judge=True)
+        if hasattr(self, "reverse_translator"):
+            if self.reverse_translator is not None and attempt.bcp47 != "en":
+                non_none_outputs = self.reverse_translator.translate_prompts(
+                    non_none_outputs,
+                    reverse_translate_judge=True,
+                )
                 self.reverse_translator_outputs = non_none_outputs
         # non_none_offsets = [k for k,v in enumerate(attempt.all_outputs) if v is not None] # we'll want this when outputs+scores need to align
         try:
@@ -205,14 +198,18 @@ class StringDetector(Detector):
         detector_results = []
         self.reverse_translator_outputs = []
         for output in attempt.all_outputs:
-            if hasattr(self, 'reverse_translator'):
-                if self.reverse_translator is not None and attempt.lang_type != "en":
-                    output = "\n".join(self.reverse_translator.translate_prompts(output.split("\n"), 
-                        only_translate_word=True, reverse_translate_judge=True))
-                    self.reverse_translator_outputs.append(output)
-            match = False
             if output is None:
                 continue
+            match = False
+            if hasattr(self, "reverse_translator"):
+                if self.reverse_translator is not None and attempt.bcp47 != "en":
+                    output = "\n".join(
+                        self.reverse_translator.translate_prompts(
+                            output.split("\n"),
+                            reverse_translate_judge=True,
+                        )
+                    )
+                    self.reverse_translator_outputs.append(output)
             for s in self.substrings:
                 if not case_sensitive:
                     s, output = s.lower(), output.lower()
@@ -248,13 +245,17 @@ class TriggerListDetector(Detector):
             if isinstance(triggers, str):
                 triggers = [triggers]
             for output in attempt.all_outputs:
-                if hasattr(self, 'reverse_translator'):
-                    if self.reverse_translator is not None and attempt.lang_type != "en":
-                        output = "\n".join(self.reverse_translator.translate_prompts(output.split("\n"), 
-                            only_translate_word=True, reverse_translate_judge=True)) 
-                        self.reverse_translator_outputs.append(output)
                 if output is None:
                     continue  # trigger is absent
+                if hasattr(self, "reverse_translator"):
+                    if self.reverse_translator is not None and attempt.bcp47 != "en":
+                        output = "\n".join(
+                            self.reverse_translator.translate_prompts(
+                                output.split("\n"),
+                                reverse_translate_judge=True,
+                            )
+                        )
+                        self.reverse_translator_outputs.append(output)
 
                 match = False
                 for trigger in triggers:

@@ -8,7 +8,6 @@ from typing import List
 from garak import _config
 from garak.detectors.base import StringDetector, HFDetector
 from garak.attempt import Attempt
-from garak.translator import is_english
 
 
 class MustRefuteClaimModel(HFDetector):
@@ -68,16 +67,25 @@ class MustContradictNLI(HFDetector):
         import torch
 
         premise = attempt.prompt
-        if hasattr(self, 'reverse_translator'):
-            if self.reverse_translator is not None and attempt.lang_type != "en":
-                premise = "\n".join(self.reverse_translator.translate_prompts(premise.split("\n"),                     only_translate_word=True, reverse_translate_judge=True))
+        if hasattr(self, "reverse_translator"):
+            if self.reverse_translator is not None and attempt.bcp47 != "en":
+                premise = "\n".join(
+                    self.reverse_translator.translate_prompts(
+                        premise.split("\n"),
+                        reverse_translate_judge=True,
+                    )
+                )
         results = []
         self.reverse_translator_outputs = []
         for hypothesis in attempt.all_outputs:
-            if hasattr(self, 'reverse_translator'):
-                if self.reverse_translator is not None and attempt.lang_type != "en":
-                    hypothesis = "\n".join(self.reverse_translator.translate_prompts(hypothesis.split("\n"), 
-                        only_translate_word=True, reverse_translate_judge=True))
+            if hasattr(self, "reverse_translator") and hypothesis is not None:
+                if self.reverse_translator is not None and attempt.bcp47 != "en":
+                    hypothesis = "\n".join(
+                        self.reverse_translator.translate_prompts(
+                            hypothesis.split("\n"),
+                            reverse_translate_judge=True,
+                        )
+                    )
                     self.reverse_translator_outputs.append((premise, hypothesis))
             tokenized_input_seq_pair = self.detector_tokenizer.encode_plus(
                 premise,
