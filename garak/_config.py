@@ -21,7 +21,6 @@ from xdg_base_dirs import (
     xdg_config_home,
     xdg_data_home,
 )
-from garak.exception import ConfigSecretWarning
 
 DICT_CONFIG_AFTER_LOAD = False
 
