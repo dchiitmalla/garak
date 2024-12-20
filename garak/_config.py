@@ -117,6 +117,15 @@ run.seed = None
 # placeholder
 # generator, probe, detector, buff = {}, {}, {}, {}
 
+def _key_exists(d: dict, key: str) -> bool:
+    # Check for the presence of a key in a nested dict.
+    if not isinstance(d, dict):
+        return False
+    if key in d.keys():
+        return True
+    else:
+        return any([_key_exists(val, key) for val in d.values()])
+
 
 def _set_settings(config_obj, settings_obj: dict):
     for k, v in settings_obj.items():
@@ -143,10 +152,11 @@ def _load_yaml_config(settings_filenames) -> dict:
         with open(settings_filename, encoding="utf-8") as settings_file:
             settings = yaml.safe_load(settings_file)
             if settings is not None:
-                if "api_key" in settings.keys():
+                if _key_exists(settings, "api_key"):
+                    logging.info(f"API key found in {settings_filename}. Checking readability...")
                     res = os.stat(settings_filename)
                     if res.st_mode & stat.S_IROTH or res.st_mode & stat.S_IRGRP:
-                        raise ConfigSecretWarning(f"A possibly secret value (`api_key`) was detected in {settings_filename}, which is readable by users other than yourself.")
+                        logging.warn(f"A possibly secret value (`api_key`) was detected in {settings_filename}, which is readable by users other than yourself.")
                 config = _combine_into(settings, config)
     return config
 

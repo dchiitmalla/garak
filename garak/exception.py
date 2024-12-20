@@ -36,7 +36,3 @@ class ConfigFailure(GarakException):
 
 class PayloadFailure(GarakException):
     """Problem instantiating/using payloads"""
-
-
-class ConfigSecretWarning(Warning):
-    """Raised when a secret value is detected in a config"""
