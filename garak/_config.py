@@ -12,6 +12,7 @@ from dataclasses import dataclass
 import importlib
 import logging
 import os
+import stat
 import pathlib
 from typing import List
 import yaml
@@ -20,6 +21,7 @@ from xdg_base_dirs import (
     xdg_config_home,
     xdg_data_home,
 )
+from garak.exception import ConfigSecretWarning
 
 DICT_CONFIG_AFTER_LOAD = False
 
@@ -122,7 +124,7 @@ def _set_settings(config_obj, settings_obj: dict):
     return config_obj
 
 
-def _combine_into(d: dict, combined: dict) -> None:
+def _combine_into(d: dict, combined: dict) -> dict:
     if d is None:
         return combined
     for k, v in d.items():
@@ -141,6 +143,10 @@ def _load_yaml_config(settings_filenames) -> dict:
         with open(settings_filename, encoding="utf-8") as settings_file:
             settings = yaml.safe_load(settings_file)
             if settings is not None:
+                if "api_key" in settings.keys():
+                    res = os.stat(settings_filename)
+                    if res.st_mode & stat.S_IROTH or res.st_mode & stat.S_IRGRP:
+                        raise ConfigSecretWarning(f"A possibly secret value (`api_key`) was detected in {settings_filename}, which is readable by users other than yourself.")
                 config = _combine_into(settings, config)
     return config
 
