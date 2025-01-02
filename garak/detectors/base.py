@@ -180,7 +180,7 @@ class StringDetector(Detector):
             if output is None:
                 continue
             for s in self.substrings:
-                if case_sensitive:
+                if not case_sensitive:
                     s, output = s.lower(), output.lower()
 
                 if self.matchtype == "str":
