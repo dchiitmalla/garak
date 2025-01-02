@@ -21,6 +21,7 @@ from xdg_base_dirs import (
     xdg_config_home,
     xdg_data_home,
 )
+from garak.command import hint
 
 DICT_CONFIG_AFTER_LOAD = False
 
@@ -116,6 +117,7 @@ run.seed = None
 # placeholder
 # generator, probe, detector, buff = {}, {}, {}, {}
 
+
 def _key_exists(d: dict, key: str) -> bool:
     # Check for the presence of a key in a nested dict.
     if not isinstance(d, dict):
@@ -155,7 +157,11 @@ def _load_yaml_config(settings_filenames) -> dict:
                     logging.info(f"API key found in {settings_filename}. Checking readability...")
                     res = os.stat(settings_filename)
                     if res.st_mode & stat.S_IROTH or res.st_mode & stat.S_IRGRP:
-                        logging.warn(f"A possibly secret value (`api_key`) was detected in {settings_filename}, which is readable by users other than yourself.")
+                        msg = (f"A possibly secret value (`api_key`) was detected in {settings_filename}, "
+                               f"which is readable by users other than yourself. "
+                               f"Consider changing permissions on this file to only be readable by you.")
+                        logging.warning(msg)
+                        hint(msg)
                 config = _combine_into(settings, config)
     return config
 
