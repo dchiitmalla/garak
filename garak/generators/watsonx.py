@@ -9,7 +9,13 @@ class WatsonXGenerator(Generator):
     """
     This is a generator for watsonx.ai.
 
-    Make sure that you initialize the environment variables: 'WATSONX_TOKEN', 'WATSONX_URL', and 'WATSONX_PROJECTID'.
+    Make sure that you initialize the environment variables: 
+        'WATSONX_TOKEN', 
+        'WATSONX_URL', 
+        and 'WATSONX_PROJECTID'.
+    
+    To use a tuned model that is deployed, use 'deployment/deployment' for the -n flag and make sure
+    to also initialize the 'WATSONX_DEPLOYID' environment variable.
     """
 
     ENV_VAR = "WATSONX_TOKEN"
