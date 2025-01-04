@@ -11,6 +11,7 @@ class WatsonXGenerator(Generator):
 
     Make sure that you initialize the environment variables: 'WATSONX_TOKEN', 'WATSONX_URL', and 'WATSONX_PROJECTID'.
     """
+
     ENV_VAR = "WATSONX_TOKEN"
     URI_ENV_VAR = "WATSONX_URL"
     PID_ENV_VAR = "WATSONX_PROJECTID"
@@ -52,12 +53,13 @@ class WatsonXGenerator(Generator):
             raise ValueError(
                 f"The {self.PID_ENV_VAR} environment variable is required. Please enter the corresponding Project ID of the resource. \n"
             )
-        
+
         # Import Foundation Models from ibm_watsonx_ai module. Import the Credentials function from the same module.
         self.watsonx = importlib.import_module("ibm_watsonx_ai.foundation_models")
         self.Credentials = getattr(
             importlib.import_module("ibm_watsonx_ai"), "Credentials"
         )
+
     def get_model(self):
         # Call Credentials function with the url and api_key.
         credentials = self.Credentials(url=self.url, api_key=self.api_key)
@@ -67,14 +69,14 @@ class WatsonXGenerator(Generator):
                 raise ValueError(
                     f"The {self.DID_ENV_VAR} environment variable is required. Please enter the corresponding Deployment ID of the resource. \n"
                 )
-            
+
             return self.watsonx.ModelInference(
-                deployment_id = self.deployment_id,
+                deployment_id=self.deployment_id,
                 credentials=credentials,
-                project_id=self.project_id
+                project_id=self.project_id,
             )
 
-        else :
+        else:
             return self.watsonx.ModelInference(
                 model_id=self.name,
                 credentials=credentials,
@@ -88,11 +90,13 @@ class WatsonXGenerator(Generator):
                     max_tokens=self.max_tokens,
                     time_limit=self.time_limit,
                     top_p=self.top_p,
-                    n=self.n
+                    n=self.n,
                 ),
             )
 
-    def _call_model(self, prompt: str, generations_this_call: int = 1) -> List[Union[str, None]]:
+    def _call_model(
+        self, prompt: str, generations_this_call: int = 1
+    ) -> List[Union[str, None]]:
 
         # Get/Create Model
         model = self.get_model()
@@ -100,9 +104,12 @@ class WatsonXGenerator(Generator):
         # Check if message is empty. If it is, append null byte.
         if not prompt:
             prompt = "\x00"
-            print("WARNING: Empty prompt was found. Null byte character appended to prevent API failure.")
+            print(
+                "WARNING: Empty prompt was found. Null byte character appended to prevent API failure."
+            )
 
         # Parse the output to only contain the output message from the model. Return a list containing that message.
-        return ["".join(model.generate(prompt=prompt)['results'][0]['generated_text'])]
+        return ["".join(model.generate(prompt=prompt)["results"][0]["generated_text"])]
+
 
 DEFAULT_CLASS = "WatsonXGenerator"
