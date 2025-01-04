@@ -23,8 +23,7 @@ class WatsonXGenerator(Generator):
     PID_ENV_VAR = "WATSONX_PROJECTID"
     DID_ENV_VAR = "WATSONX_DEPLOYID"
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
-        "role": "user",
-        "url": None,
+        "uri": None,
         "project_id": None,
         "deployment_id": None,
         "frequency_penalty": 0.5,
@@ -48,17 +47,23 @@ class WatsonXGenerator(Generator):
             os.environ[self.ENV_VAR] = self.api_key
 
         # Initialize and validate url.
-        self.url = os.getenv("WATSONX_URL", None)
-        if self.url is None:
-            raise ValueError(
-                f"The {self.URI_ENV_VAR} environment variable is required. Please enter the URL corresponding to the region of your provisioned service instance. \n"
-            )
+        if self.uri is not None:
+            pass
+        else :
+            self.uri = os.getenv("WATSONX_URL", None)
+            if self.uri is None:
+                raise ValueError(
+                    f"The {self.URI_ENV_VAR} environment variable is required. Please enter the URL corresponding to the region of your provisioned service instance. \n"
+                )
         # Initialize and validate project_id.
-        self.project_id = os.getenv("WATSONX_PROJECTID", None)
-        if self.project_id is None:
-            raise ValueError(
-                f"The {self.PID_ENV_VAR} environment variable is required. Please enter the corresponding Project ID of the resource. \n"
-            )
+        if self.project_id is not None:
+            pass
+        else :
+            self.project_id = os.getenv("WATSONX_PROJECTID", None)
+            if self.project_id is None:
+                raise ValueError(
+                    f"The {self.PID_ENV_VAR} environment variable is required. Please enter the corresponding Project ID of the resource. \n"
+                )
 
         # Import Foundation Models from ibm_watsonx_ai module. Import the Credentials function from the same module.
         self.watsonx = importlib.import_module("ibm_watsonx_ai.foundation_models")
@@ -68,7 +73,7 @@ class WatsonXGenerator(Generator):
 
     def get_model(self):
         # Call Credentials function with the url and api_key.
-        credentials = self.Credentials(url=self.url, api_key=self.api_key)
+        credentials = self.Credentials(url=self.uri, api_key=self.api_key)
         if self.name == "deployment/deployment":
             self.deployment_id = os.getenv("WATSONX_DEPLOYID", None)
             if self.deployment_id is None:
