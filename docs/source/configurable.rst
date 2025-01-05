@@ -121,7 +121,7 @@ such as ``show_100_pass_modules``.
 * ``probes`` - Root note for probe plugin configs
 
 For an example of how to use the ``detectors``, ``generators``, ``buffs``, 
-``harnesses``, and ``probes`` root entries, see `Configuring plugins with YAML <config_with_yaml>`_ below.
+``harnesses``, and ``probes`` root entries, see :ref:`Configuring plugins with YAML <config_with_yaml>` below.
 
 ``reporting`` config items
 """"""""""""""""""""""""""
@@ -176,7 +176,7 @@ has the same structure as a YAML config, starting with the plugin model/type.
 The config can either be written to a file and the path passed, with 
 `--generator_option_file` or `--probe_option_file`, or directly as JSON on the
 command prompt, with `--generator_options` or `--probe_options`. An example 
-is given in `RestGenerator Config with JSON <rest_generator_with_json>`_ below.
+is given in :ref:`RestGenerator Config with JSON <rest_generator_with_json>` below.
 
 
 Configuring Plugins
