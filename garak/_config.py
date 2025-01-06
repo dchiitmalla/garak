@@ -120,9 +120,11 @@ run.seed = None
 
 def _key_exists(d: dict, key: str) -> bool:
     # Check for the presence of a key in a nested dict.
-    if not isinstance(d, dict):
+    if not isinstance(d, dict) and not isinstance(d, list):
         return False
-    if key in d.keys():
+    if isinstance(d, list):
+        return any([_key_exists(item, key) for item in d])
+    if isinstance(d, dict) and key in d.keys():
         return True
     else:
         return any([_key_exists(val, key) for val in d.values()])
