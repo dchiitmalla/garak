@@ -21,7 +21,6 @@ from xdg_base_dirs import (
     xdg_config_home,
     xdg_data_home,
 )
-from garak.command import hint
 
 DICT_CONFIG_AFTER_LOAD = False
 
@@ -163,7 +162,7 @@ def _load_yaml_config(settings_filenames) -> dict:
                                f"which is readable by users other than yourself. "
                                f"Consider changing permissions on this file to only be readable by you.")
                         logging.warning(msg)
-                        hint(msg)
+                        print(f"⚠️  {msg}")
                 config = _combine_into(settings, config)
     return config
 
