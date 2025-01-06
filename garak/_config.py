@@ -7,6 +7,7 @@
 
 # logging should be set up before config is loaded
 
+import platform
 from collections import defaultdict
 from dataclasses import dataclass
 import importlib
@@ -155,14 +156,21 @@ def _load_yaml_config(settings_filenames) -> dict:
             settings = yaml.safe_load(settings_file)
             if settings is not None:
                 if _key_exists(settings, "api_key"):
-                    logging.info(f"API key found in {settings_filename}. Checking readability...")
-                    res = os.stat(settings_filename)
-                    if res.st_mode & stat.S_IROTH or res.st_mode & stat.S_IRGRP:
-                        msg = (f"A possibly secret value (`api_key`) was detected in {settings_filename}, "
-                               f"which is readable by users other than yourself. "
-                               f"Consider changing permissions on this file to only be readable by you.")
+                    if platform.system() == "Windows":
+                        msg = (f"A possibly secret value (`api_key`) was detected in {settings_filename}. "
+                               f"We recommend removing potentially sensitive values from config files or "
+                               f"ensuring the file is readable only by you.")
                         logging.warning(msg)
                         print(f"⚠️  {msg}")
+                    else:
+                        logging.info(f"API key found in {settings_filename}. Checking readability...")
+                        res = os.stat(settings_filename)
+                        if res.st_mode & stat.S_IROTH or res.st_mode & stat.S_IRGRP:
+                            msg = (f"A possibly secret value (`api_key`) was detected in {settings_filename}, "
+                                   f"which is readable by users other than yourself. "
+                                   f"Consider changing permissions on this file to only be readable by you.")
+                            logging.warning(msg)
+                            print(f"⚠️  {msg}")
                 config = _combine_into(settings, config)
     return config
 
