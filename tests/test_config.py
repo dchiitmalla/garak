@@ -826,3 +826,10 @@ def test_agent_is_used_aiohttp(httpserver: HTTPServer):
         "/", headers={"User-Agent": AGENT_TEST}
     ).respond_with_data("")
     asyncio.run(main())
+
+
+def test_api_key_in_config():
+    importlib.reload(_config)
+
+    _config.plugins.generators["a"]["b"]["c"]["api_key"] = "something"
+    assert _config._key_exists(_config.plugins.generators, "api_key")
