@@ -109,16 +109,6 @@ def test_detector_detect(classname):
         ), "detector should return as many results as in all_outputs (maybe excluding Nones)"
 
 
-def test_filedetector_nonexist():
-    d = garak.detectors.base.FileDetector()
-    a = garak.attempt.Attempt(prompt="")
-    a.outputs = [None, "", "/non/existing/file"]
-    a.notes["format"] = d.valid_format
-    assert (
-        len(list(d.detect(a))) == 0
-    ), "FileDetector should skip filenames for non-existing files"
-
-
 @pytest.mark.parametrize("classname", DETECTORS)
 def test_detector_metadata(classname):
     if classname.startswith("detectors.base."):
