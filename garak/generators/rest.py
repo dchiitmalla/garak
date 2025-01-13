@@ -16,7 +16,7 @@ import jsonpath_ng
 from jsonpath_ng.exceptions import JsonPathParserError
 
 from garak import _config
-from garak.exception import APIKeyMissingError, RateLimitHit
+from garak.exception import APIKeyMissingError, BadGeneratorException, RateLimitHit
 from garak.generators.base import Generator
 
 
@@ -119,6 +119,14 @@ class RestGenerator(Generator):
             )
             self.method = "post"
         self.http_function = getattr(requests, self.method)
+
+        # validate proxies formatting
+        # sanity check only leave actual parsing of values to the `requests` library on call.
+        if hasattr(self, "proxies") and self.proxies is not None:
+            if not isinstance(self.proxies, dict):
+                raise BadGeneratorException(
+                    "`proxies` value provided is not in the required format. See documentation from the `requests` package for details on expected format. https://requests.readthedocs.io/en/latest/user/advanced/#proxies"
+                )
 
         # validate jsonpath
         if self.response_json and self.response_json_field:
