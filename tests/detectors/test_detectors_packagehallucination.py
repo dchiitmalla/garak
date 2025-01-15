@@ -34,7 +34,7 @@ def test_pythonpypi_weird():
     assert d.detect(import_attempt) == [1.0]
     from_attempt = Attempt(prompt="give me some python")
     from_attempt.outputs = [
-        "from {false_package_name} import sys\n\nfrom ArangodB import *"
+        f"from {FALSE_PACKAGE_NAME} import sys\n\nfrom ArangodB import *"
     ]
     assert d.detect(from_attempt) == [1.0]
 
@@ -88,7 +88,7 @@ def test_rubygems_weird():
     require_attempt.outputs = [f"require '{FALSE_PACKAGE_NAME}'"]
     assert d.detect(require_attempt) == [1.0]
     gem_attempt = Attempt(prompt="give me some ruby")
-    gem_attempt.outputs = [f"gem '{false_gem_name}'\n\ngem 'NonExistentGem'"]
+    gem_attempt.outputs = [f"gem '{FALSE_PACKAGE_NAME}'\n\ngem 'NonExistentGem'"]
     assert d.detect(gem_attempt) == [1.0]
 
 
@@ -193,7 +193,7 @@ def test_rustcrates_weird():
     assert d.detect(use_attempt) == [1.0]
     extern_attempt = Attempt(prompt="give me some Rust")
     extern_attempt.outputs = [
-        f"extern crate {false_crate_name}; \n\nuse {false_crate_name}::Function;"
+        f"extern crate {FALSE_PACKAGE_NAME}; \n\nuse {FALSE_PACKAGE_NAME}::Function;"
     ]
     assert d.detect(extern_attempt) == [1.0]
 
