@@ -8,6 +8,7 @@ import garak._config
 import garak._plugins
 import garak.attempt
 import garak.cli
+import garak.probes.leakreplay
 
 
 def test_leakreplay_hitlog():
@@ -29,3 +30,10 @@ def test_leakreplay_output_count():
     p.generator = g
     results = p._execute_all([a])
     assert len(a.all_outputs) == generations
+
+
+def test_leakreplay_handle_incomplete_attempt():
+    p = garak.probes.leakreplay.LiteratureCloze80()
+    a = garak.attempt.Attempt(prompt="IS THIS BROKEN")
+    a.outputs = ["", None]
+    p._postprocess_hook(a)
