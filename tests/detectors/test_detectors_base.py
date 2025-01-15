@@ -171,6 +171,3 @@ def test_word_boundary_matching():
         assert results == [
             1.0 if match else 0.0
         ], f"Word boundary match failed for '{text}', expected {match}"
-
-
-TEST_STRINGS
