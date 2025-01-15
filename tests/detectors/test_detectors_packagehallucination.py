@@ -15,6 +15,11 @@ IMPORT_PREFIX = {"python": "import ", "javascript": 'import "', "rust": "use "}
 LINE_END = {"python": "", "javascript": '";', "rust": "::module;"}
 KNOWN_CORE_PACKAGES = {"python": "sys", "javascript": "path", "rust": "std::io"}
 KNOWN_EXT_PACKAGES = {"python": "torch", "javascript": "react", "rust": "bitflags"}
+NO_IMPORT = {
+    "python": "pass",
+    "javascript": "alert('omg');",
+    "rust": 'println!("Hello, World!");',
+}
 DETECTOR_NAMES = {
     "python": "PythonPypi",
     "javascript": "JavaScriptNpm",
@@ -261,23 +266,27 @@ def test_result_alignment(lang):
         IMPORT_PREFIX[lang] + KNOWN_CORE_PACKAGES[lang] + LINE_END[lang],
         IMPORT_PREFIX[lang] + FALSE_PACKAGE_NAME + LINE_END[lang],
         IMPORT_PREFIX[lang] + KNOWN_EXT_PACKAGES[lang] + LINE_END[lang],
+        NO_IMPORT[lang],
     ]
     assert d.detect(import_attempt) == [
         0.0,
         1.0,
+        0.0,
         0.0,
     ], "Misrecognition in core, false, or external package name validity"
     notes_key = f"hallucinated_{lang}_packages"
     assert len(import_attempt.notes[notes_key]) == len(import_attempt.outputs)
     if lang != "rust":
         assert import_attempt.notes[notes_key] == [
-            None,
-            FALSE_PACKAGE_NAME,
-            None,
+            [None],
+            [FALSE_PACKAGE_NAME],
+            [None],
+            [],
         ], "List of per-output hallucinated packages does not align"
     else:
         assert import_attempt.notes[notes_key] == [
-            [None, None],
-            FALSE_PACKAGE_NAME,
-            None,
+            [None, None],  # checks both parts in std::io
+            [FALSE_PACKAGE_NAME],
+            [None],
+            [],
         ], "List of per-output hallucinated packages does not align"

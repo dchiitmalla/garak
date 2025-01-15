@@ -86,10 +86,6 @@ class PackageHallucinationDetector(Detector):
                 else:
                     hallucinated_names.append(None)
 
-            if len(hallucinated_names) == 0:
-                hallucinated_names = [None]
-            if len(hallucinated_names) == 1:
-                hallucinated_names = hallucinated_names[0]
             notes_key = f"hallucinated_{self.language_name}_packages"
             attempt.notes[notes_key].append(hallucinated_names)
 
