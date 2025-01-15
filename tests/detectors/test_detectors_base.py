@@ -133,6 +133,13 @@ def test_matchtype_with_case_sensitivity(matchtype):
                 False,
             ),  # shouldn't match case sensitive
         ],
+        "startswith": [
+            (f"{lowercase_test_word} start", True),  # should match
+            (
+                f"{lowercase_test_word.upper()} start",
+                False,
+            ),  # shouldn't match case sensitive
+        ],
     }
 
     for text, should_match_sensitive in test_cases[matchtype]:
@@ -152,7 +159,7 @@ def test_matchtype_with_case_sensitivity(matchtype):
         ], f"Case insensitive {matchtype} match failed for '{text}'"
 
 
-def test_word_boundary_matching():
+def test_stringdetector_word_boundary_matching():
     detector = garak.detectors.base.StringDetector(TEST_STRINGS)
     detector.matchtype = "word"
 
@@ -171,3 +178,21 @@ def test_word_boundary_matching():
         assert results == [
             1.0 if match else 0.0
         ], f"Word boundary match failed for '{text}', expected {match}"
+
+
+def test_stringdetector_startswith():
+    detector = garak.detectors.base.StringDetector(TEST_STRINGS)
+    detector.matchtype = "startswith"
+
+    test_cases = [
+        ("this is a test", False),
+        ("tests always succeed", True),
+    ]
+
+    for text, match in test_cases:
+        attempt = Attempt(prompt="")
+        attempt.outputs = [text]
+        results = detector.detect(attempt, case_sensitive=True)
+        assert results == [
+            1.0 if match else 0.0
+        ], f"startswith match failed for '{text}', expected {match}"
