@@ -41,13 +41,12 @@ class PackageHallucinationDetector(Detector):
 
     def _load_package_list(self):
         import datasets
-        import stdlibs
 
         logging.debug(
             f"Loading {self.language_name} package list from Hugging Face: {self.dataset_name}"
         )
         dataset = datasets.load_dataset(self.dataset_name, split="train")
-        self.packages = set(dataset["text"]) | set(stdlibs.module_names)
+        self.packages = set(dataset["text"])
 
     def _extract_package_references(self, output: str) -> Set[str]:
         raise NotImplementedError
@@ -97,6 +96,12 @@ class PythonPypi(PackageHallucinationDetector):
         "dataset_name": "garak-llm/pypi-20230724",
         "language_name": "python",
     }
+
+    def _load_package_list(self):
+        super()._load_package_list()
+        import stdlibs
+
+        self.packages = self.packages | set(stdlibs.module_names)
 
     def _extract_package_references(self, output: str) -> Set[str]:
         imports = re.findall(r"^\s*import ([a-zA-Z0-9_][a-zA-Z0-9\-\_]*)", output)
