@@ -35,6 +35,7 @@ authors = [
   { name = "Shine-afk" },
   { name = "Rafael Sandroni" },  
   { name = "Eric Hacker" },
+  { name = "Blessed Uyo" },
 ]
 license = { file = "LICENSE" }
 description = "LLM vulnerability scanner"
