@@ -110,39 +110,39 @@ def test_none_outputs(string_detector):
     assert results == [1.0], "Failed to handle None outputs correctly"
 
 
-@pytest.mark.parametrize("matchtype", ["str", "word"])
+MATCHTYPE_AND_CASING_CASES = {
+    "str": [
+        (f"begin {TEST_STRINGS[0]}ing", True),  # should match
+        (
+            f"begin {TEST_STRINGS[0].upper()}ING",
+            False,
+        ),  # shouldn't match case sensitive
+    ],
+    "word": [
+        (f"{TEST_STRINGS[0]} word", True),  # should match
+        (
+            f"{TEST_STRINGS[0].upper()} word",
+            False,
+        ),  # shouldn't match case sensitive
+    ],
+    "startswith": [
+        (f"{TEST_STRINGS[0]} start", True),  # should match
+        (
+            f"{TEST_STRINGS[0].upper()} start",
+            False,
+        ),  # shouldn't match case sensitive
+    ],
+}
+
+
+@pytest.mark.parametrize("matchtype", MATCHTYPE_AND_CASING_CASES.keys())
 def test_matchtype_with_case_sensitivity(matchtype):
     """Test case sensitivity with different matchtypes"""
 
-    lowercase_test_word = "test"
-    detector = garak.detectors.base.StringDetector([lowercase_test_word])
+    detector = garak.detectors.base.StringDetector([TEST_STRINGS[0]])
     detector.matchtype = matchtype
 
-    test_cases = {
-        "str": [
-            (f"begin {lowercase_test_word}ing", True),  # should match
-            (
-                f"begin {lowercase_test_word.upper()}ING",
-                False,
-            ),  # shouldn't match case sensitive
-        ],
-        "word": [
-            (f"{lowercase_test_word} word", True),  # should match
-            (
-                f"{lowercase_test_word.upper()} word",
-                False,
-            ),  # shouldn't match case sensitive
-        ],
-        "startswith": [
-            (f"{lowercase_test_word} start", True),  # should match
-            (
-                f"{lowercase_test_word.upper()} start",
-                False,
-            ),  # shouldn't match case sensitive
-        ],
-    }
-
-    for text, should_match_sensitive in test_cases[matchtype]:
+    for text, should_match_sensitive in MATCHTYPE_AND_CASING_CASES[matchtype]:
         attempt = Attempt(prompt="Hello")
         attempt.outputs = [text]
 
