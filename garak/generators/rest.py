@@ -36,6 +36,7 @@ class RestGenerator(Generator):
         "req_template": "$INPUT",
         "request_timeout": 20,
         "proxies": None,
+        "verify_ssl": True,
     }
 
     ENV_VAR = "REST_API_KEY"
@@ -61,6 +62,7 @@ class RestGenerator(Generator):
         "temperature",
         "top_k",
         "proxies",
+        "verify_ssl",
     )
 
     def __init__(self, uri=None, config_root=_config):
@@ -127,6 +129,10 @@ class RestGenerator(Generator):
                 raise BadGeneratorException(
                     "`proxies` value provided is not in the required format. See documentation from the `requests` package for details on expected format. https://requests.readthedocs.io/en/latest/user/advanced/#proxies"
                 )
+
+        # suppress warnings about intentional SSL validation suppression
+        if isinstance(self.verify_ssl, bool) and not self.verify_ssl:
+            requests.packages.urllib3.disable_warnings()
 
         # validate jsonpath
         if self.response_json and self.response_json_field:
@@ -204,6 +210,7 @@ class RestGenerator(Generator):
             "headers": request_headers,
             "timeout": self.request_timeout,
             "proxies": self.proxies,
+            "verify": self.verify_ssl,
         }
         resp = self.http_function(self.uri, **req_kArgs)
 

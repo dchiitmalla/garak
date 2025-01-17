@@ -18,6 +18,7 @@ Uses the following options from ``_config.plugins.generators["rest.RestGenerator
 * ``request_timeout`` - How many seconds should we wait before timing out? Default 20
 * ``ratelimit_codes`` - Which endpoint HTTP response codes should be caught as indicative of rate limiting and retried? ``List[int]``, default ``[429]``
 * ``skip_codes`` - Which endpoint HTTP response code should lead to the generation being treated as not possible and skipped for this query. Takes precedence over ``ratelimit_codes``.
+* ``verify_ssl`` - (optional) Enforce ssl certificate validation? Default is ``True``, a file path to a CA bundle can be provided. (bool|str)
 
 Templates can be either a string or a JSON-serialisable Python object.
 Instance of ``$INPUT`` here are replaced with the prompt; instances of ``$KEY``
