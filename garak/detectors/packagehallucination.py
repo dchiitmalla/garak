@@ -160,7 +160,9 @@ class RustCrates(PackageHallucinationDetector):
     def _load_package_list(self):
         super()._load_package_list()
         with open(
-            data_path / "pkghallu-rust_std_entries-1_84_0", "r", encoding="utf-8"
+            data_path / "packagehallucination" / "rust_std_entries-1_84_0",
+            "r",
+            encoding="utf-8",
         ) as rust_std_entries_file:
             rust_std_entries = set(rust_std_entries_file.read().strip().split())
         self.packages = (
