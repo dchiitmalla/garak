@@ -2,20 +2,20 @@ from garak import _config
 from garak.generators.base import Generator
 from typing import List, Union
 import os
-import importlib
+import requests
 
 
 class WatsonXGenerator(Generator):
     """
     This is a generator for watsonx.ai.
 
-    Make sure that you initialize the environment variables: 
-        'WATSONX_TOKEN', 
-        'WATSONX_URL', 
-        and 'WATSONX_PROJECTID'.
-    
-    To use a tuned model that is deployed, use 'deployment/deployment' for the -n flag and make sure
-    to also initialize the 'WATSONX_DEPLOYID' environment variable.
+    Make sure that you initialize the environment variables:
+        'WATSONX_TOKEN',
+        'WATSONX_URL',
+        'WATSONX_PROJECTID' OR 'WATSONX_DEPLOYID'.
+
+    To use a model that is in the "project" stage initialize the WATSONX_PROJECTID variable with the Project ID of the model.
+    To use a tuned model that is deployed, simply initialize the WATSONX_DEPLOYID variable with the Deployment ID of the model.
     """
 
     ENV_VAR = "WATSONX_TOKEN"
@@ -24,93 +24,110 @@ class WatsonXGenerator(Generator):
     DID_ENV_VAR = "WATSONX_DEPLOYID"
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
         "uri": None,
-        "project_id": None,
-        "deployment_id": None,
-        "frequency_penalty": 0.5,
-        "logprobs": True,
-        "top_logprobs": 3,
-        "presence_penalty": 0.3,
-        "temperature": 0.7,
-        "max_tokens": 100,
-        "time_limit": 300000,
-        "top_p": 0.9,
-        "n": 1,
+        "project_id": "",
+        "deployment_id": "",
+        "prompt_variable": "input",
+        "bearer_token": "",
+        "max_tokens": 900,
     }
 
     generator_family_name = "watsonx"
 
     def __init__(self, name="", config_root=_config):
         super().__init__(name, config_root=config_root)
-
         # Initialize and validate api_key
         if self.api_key is not None:
             os.environ[self.ENV_VAR] = self.api_key
+    
+    def _set_bearer_token(self, iam_url="https://iam.cloud.ibm.com/identity/token"):
+        header = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+        }
+        body = (
+            "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=" + self.api_key
+        )
+        response = requests.post(url=iam_url, headers=header, data=body)
+        self.bearer_token = "Bearer " + response.json()["access_token"]
 
+    def _generate_with_project(self, payload):
+        # Generation via Project ID.
+        
+        url = self.uri + "/ml/v1/text/generation?version=2023-05-29"
+
+        body = {
+            "input": payload,
+            "parameters": {
+                "decoding_method": "greedy",
+                "max_new_tokens": self.max_tokens,
+                "min_new_tokens": 0,
+                "repetition_penalty": 1,
+            },
+            "model_id": self.name,
+            "project_id": self.project_id,
+        }
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.post(url=url, headers=headers, json=body)
+        return response.json()
+
+    def _generate_with_deployment(self, payload):
+        # Generation via Deployment ID.
+        url = (
+            self.uri
+            + "/ml/v1/deployments/"
+            + self.deployment_id
+            + "/text/generation?version=2021-05-01"
+        )
+        body = {"parameters": {"prompt_variables": {self.prompt_variable: payload}}}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        response = requests.post(url=url, headers=headers, json=body)
+        return response.json()
+
+    def _validate_env_var(self):
         # Initialize and validate url.
         if self.uri is not None:
             pass
-        else :
+        else:
             self.uri = os.getenv("WATSONX_URL", None)
             if self.uri is None:
                 raise ValueError(
                     f"The {self.URI_ENV_VAR} environment variable is required. Please enter the URL corresponding to the region of your provisioned service instance. \n"
                 )
+
         # Initialize and validate project_id.
-        if self.project_id is not None:
+        if self.project_id:
             pass
-        else :
-            self.project_id = os.getenv("WATSONX_PROJECTID", None)
-            if self.project_id is None:
-                raise ValueError(
-                    f"The {self.PID_ENV_VAR} environment variable is required. Please enter the corresponding Project ID of the resource. \n"
-                )
-
-        # Import Foundation Models from ibm_watsonx_ai module. Import the Credentials function from the same module.
-        self.watsonx = importlib.import_module("ibm_watsonx_ai.foundation_models")
-        self.Credentials = getattr(
-            importlib.import_module("ibm_watsonx_ai"), "Credentials"
-        )
-
-    def get_model(self):
-        # Call Credentials function with the url and api_key.
-        credentials = self.Credentials(url=self.uri, api_key=self.api_key)
-        if self.name == "deployment/deployment":
-            self.deployment_id = os.getenv("WATSONX_DEPLOYID", None)
-            if self.deployment_id is None:
-                raise ValueError(
-                    f"The {self.DID_ENV_VAR} environment variable is required. Please enter the corresponding Deployment ID of the resource. \n"
-                )
-
-            return self.watsonx.ModelInference(
-                deployment_id=self.deployment_id,
-                credentials=credentials,
-                project_id=self.project_id,
-            )
-
         else:
-            return self.watsonx.ModelInference(
-                model_id=self.name,
-                credentials=credentials,
-                project_id=self.project_id,
-                params=self.watsonx.schema.TextChatParameters(
-                    frequency_penalty=self.frequency_penalty,
-                    logprobs=self.logprobs,
-                    top_logprobs=self.top_logprobs,
-                    presence_penalty=self.presence_penalty,
-                    temperature=self.temperature,
-                    max_tokens=self.max_tokens,
-                    time_limit=self.time_limit,
-                    top_p=self.top_p,
-                    n=self.n,
-                ),
+            self.project_id = os.getenv("WATSONX_PROJECTID", "")
+
+        # Initialize and validate deployment_id.
+        if self.deployment_id:
+            pass
+        else:
+            self.deployment_id = os.getenv("WATSONX_DEPLOYID", "")
+
+        # Check to ensure at least ONE of project_id or deployment_id is populated.
+        if not self.project_id and not self.deployment_id:
+            raise ValueError(
+                f"Either {self.PID_ENV_VAR} or {self.DID_ENV_VAR} is required. Please supply either a Project ID or Deployment ID. \n"
             )
+        return super()._validate_env_var()
 
     def _call_model(
         self, prompt: str, generations_this_call: int = 1
     ) -> List[Union[str, None]]:
-
-        # Get/Create Model
-        model = self.get_model()
+        if not self.bearer_token :
+            self._set_bearer_token()
 
         # Check if message is empty. If it is, append null byte.
         if not prompt:
@@ -119,8 +136,14 @@ class WatsonXGenerator(Generator):
                 "WARNING: Empty prompt was found. Null byte character appended to prevent API failure."
             )
 
+        output = ""
+        if self.deployment_id:
+            output = self._generate_with_deployment(prompt)
+        else:
+            output = self._generate_with_project(prompt)
+
         # Parse the output to only contain the output message from the model. Return a list containing that message.
-        return ["".join(model.generate(prompt=prompt)["results"][0]["generated_text"])]
+        return ["".join(output["results"][0]["generated_text"])]
 
 
 DEFAULT_CLASS = "WatsonXGenerator"

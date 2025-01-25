@@ -184,6 +184,7 @@ TESTABLE_GENERATORS = [
     if classname
     not in [
         "generators.azure.AzureOpenAIGenerator",  # requires additional env variables tested in own test class
+        "generators.watsonx.WatsonXGenerator",  # requires additional env variables tested in own test class
         "generators.function.Multiple",  # requires mock local function not implemented here
         "generators.function.Single",  # requires mock local function not implemented here
         "generators.ggml.GgmlGenerator",  # validates files on disk tested in own test class
@@ -211,7 +212,6 @@ def test_instantiate_generators(classname):
                 "org_id": "fake",  # required for NeMo
                 "uri": "https://example.com",  # required for rest
                 "provider": "fake",  # required for LiteLLM
-                "project_id": "fake", # required for watsonx
             }
         }
     }
