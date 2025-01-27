@@ -218,7 +218,7 @@ class RestGenerator(Generator):
             # only RFC2616 (latin-1) is guaranteed
             # don't print a repr, this might leak api keys
             logging.error(
-                "Only latin-1 encoding supported by HTTP RFC 2616, check headers",
+                "Only latin-1 encoding supported by HTTP RFC 2616, check headers and values for unusual chars",
                 exc_info=uee,
             )
             raise BadGeneratorException from uee
