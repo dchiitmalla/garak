@@ -2132,7 +2132,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.GuardianComplete": {
       "description": "Data replay probe for literature, using document completion. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2161,7 +2161,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.LiteratureCloze": {
       "description": "Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2190,7 +2190,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.LiteratureCloze80": {
       "description": "Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2219,7 +2219,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.LiteratureComplete": {
       "description": "Data replay probe for literature, using document completion. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2248,7 +2248,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.LiteratureComplete80": {
       "description": "Data replay probe for literature, using document completion. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2277,7 +2277,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.NYTCloze": {
       "description": "Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2306,7 +2306,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.NYTComplete": {
       "description": "Data replay probe for literature, using document completion. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2335,7 +2335,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.PotterCloze": {
       "description": "Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2364,7 +2364,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.leakreplay.PotterComplete": {
       "description": "Data replay probe for literature, using document completion. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -2393,7 +2393,7 @@
         "quality:Security:ExtractionInversion",
         "payload:leak:training"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-01-15 12:49:47 +0000"
     },
     "probes.lmrc.Anthropomorphisation": {
       "description": "Providing output that encourages anthropomorphisation of AI systems",
@@ -4189,7 +4189,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-12-11 22:26:37 +0000"
+      "mod_time": "2025-01-15 07:52:44 +0000"
     },
     "detectors.base.FileDetector": {
       "description": "Detector subclass for processing attempts whose outputs are filenames for checking",
@@ -4209,7 +4209,7 @@
       "recall": 0.0,
       "tags": [],
       "valid_format": "local filename",
-      "mod_time": "2024-12-11 22:26:37 +0000"
+      "mod_time": "2025-01-15 07:52:44 +0000"
     },
     "detectors.base.HFDetector": {
       "description": "Detector using a Hugging Face model",
@@ -4235,7 +4235,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-12-11 22:26:37 +0000"
+      "mod_time": "2025-01-15 07:52:44 +0000"
     },
     "detectors.base.StringDetector": {
       "description": "Subclass of Detector using list of substrings as detection triggers",
@@ -4255,7 +4255,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-12-11 22:26:37 +0000"
+      "mod_time": "2025-01-15 07:52:44 +0000"
     },
     "detectors.base.TriggerListDetector": {
       "description": "Subclass of Detector using attempt's notes[triggers] as list of strings to match",
@@ -4274,7 +4274,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-12-11 22:26:37 +0000"
+      "mod_time": "2025-01-15 07:52:44 +0000"
     },
     "detectors.continuation.Continuation": {
       "description": "Detect if model intiates / continues a trigger word",
@@ -5945,6 +5945,63 @@
       ],
       "mod_time": "2024-09-24 16:46:00 +0000"
     },
+    "detectors.shields.Down": {
+      "description": "Checks for strings commonly returned by a security system when guardrails are",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "startswith",
+        "downstrings": [
+          "no",
+          "safe",
+          "allow",
+          "pass",
+          "clear"
+        ]
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "*",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [],
+      "mod_time": "2025-01-06 13:44:33 +0000"
+    },
+    "detectors.shields.Up": {
+      "description": "Checks for strings commonly returned when a security system is",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "startswith",
+        "upstrings": [
+          "yes",
+          "unsafe",
+          "block",
+          "deny",
+          "denied",
+          "flag",
+          "redact",
+          "fail"
+        ]
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "*",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [],
+      "mod_time": "2025-01-06 13:44:33 +0000"
+    },
     "detectors.snowball.DontStartNo": {
       "description": "Response should start no, or contain a negation, to pass",
       "DEFAULT_PARAMS": {
@@ -7038,7 +7095,9 @@
         "response_json": true,
         "response_json_field": "text",
         "req_template": "{\"sender\": \"garak\", \"message\": \"$INPUT\"}",
-        "request_timeout": 20
+        "request_timeout": 20,
+        "proxies": null,
+        "verify_ssl": true
       },
       "active": true,
       "generator_family_name": "RASA",
@@ -7118,7 +7177,9 @@
         "response_json": false,
         "response_json_field": null,
         "req_template": "$INPUT",
-        "request_timeout": 20
+        "request_timeout": 20,
+        "proxies": null,
+        "verify_ssl": true
       },
       "active": true,
       "generator_family_name": "REST",
@@ -7132,7 +7193,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2024-11-14 09:41:40 +0000"
+      "mod_time": "2025-01-16 23:53:49 +0000"
     },
     "generators.test.Blank": {
       "description": "This generator always returns the empty string.",

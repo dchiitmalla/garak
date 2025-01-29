@@ -1,7 +1,5 @@
 import json
 import pytest
-import requests_mock
-from sympy import is_increasing
 
 from garak import _config, _plugins
 
@@ -122,3 +120,85 @@ def test_rest_skip_code(requests_mock):
     )
     output = generator._call_model("Who is Enabran Tain's son?")
     assert output == [None]
+
+
+@pytest.mark.usefixtures("set_rest_config")
+def test_rest_valid_proxy(mocker, requests_mock):
+    test_proxies = {
+        "http": "http://localhost:8080",
+        "https": "https://localhost:8443",
+    }
+    _config.plugins.generators["rest"]["RestGenerator"]["proxies"] = test_proxies
+    generator = _plugins.load_plugin(
+        "generators.rest.RestGenerator", config_root=_config
+    )
+    requests_mock.post(
+        DEFAULT_URI,
+        text=json.dumps(
+            {
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": DEFAULT_TEXT_RESPONSE,
+                        },
+                    }
+                ]
+            }
+        ),
+    )
+    mock_http_function = mocker.patch.object(
+        generator, "http_function", wraps=generator.http_function
+    )
+    generator._call_model("Who is Enabran Tain's son?")
+    mock_http_function.assert_called_once()
+    assert mock_http_function.call_args_list[0].kwargs["proxies"] == test_proxies
+
+
+@pytest.mark.usefixtures("set_rest_config")
+def test_rest_invalid_proxy(requests_mock):
+    from garak.exception import GarakException
+
+    test_proxies = [
+        "http://localhost:8080",
+        "https://localhost:8443",
+    ]
+    _config.plugins.generators["rest"]["RestGenerator"]["proxies"] = test_proxies
+    with pytest.raises(GarakException) as exc_info:
+        _plugins.load_plugin("generators.rest.RestGenerator", config_root=_config)
+    assert "not in the required format" in str(exc_info.value)
+
+
+@pytest.mark.usefixtures("set_rest_config")
+@pytest.mark.parametrize("verify_ssl", (True, False, None))
+def test_rest_ssl_suppression(mocker, requests_mock, verify_ssl):
+    if verify_ssl is not None:
+        _config.plugins.generators["rest"]["RestGenerator"]["verify_ssl"] = verify_ssl
+    else:
+        verify_ssl = RestGenerator.DEFAULT_PARAMS["verify_ssl"]
+    generator = _plugins.load_plugin(
+        "generators.rest.RestGenerator", config_root=_config
+    )
+    requests_mock.post(
+        DEFAULT_URI,
+        text=json.dumps(
+            {
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": DEFAULT_TEXT_RESPONSE,
+                        },
+                    }
+                ]
+            }
+        ),
+    )
+    mock_http_function = mocker.patch.object(
+        generator, "http_function", wraps=generator.http_function
+    )
+    generator._call_model("Who is Enabran Tain's son?")
+    mock_http_function.assert_called_once()
+    assert mock_http_function.call_args_list[0].kwargs["verify"] is verify_ssl

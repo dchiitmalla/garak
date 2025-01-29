@@ -16,7 +16,7 @@ import jsonpath_ng
 from jsonpath_ng.exceptions import JsonPathParserError
 
 from garak import _config
-from garak.exception import APIKeyMissingError, RateLimitHit
+from garak.exception import APIKeyMissingError, BadGeneratorException, RateLimitHit
 from garak.generators.base import Generator
 
 
@@ -35,6 +35,8 @@ class RestGenerator(Generator):
         "response_json_field": None,
         "req_template": "$INPUT",
         "request_timeout": 20,
+        "proxies": None,
+        "verify_ssl": True,
     }
 
     ENV_VAR = "REST_API_KEY"
@@ -59,6 +61,8 @@ class RestGenerator(Generator):
         "skip_codes",
         "temperature",
         "top_k",
+        "proxies",
+        "verify_ssl",
     )
 
     def __init__(self, uri=None, config_root=_config):
@@ -117,6 +121,18 @@ class RestGenerator(Generator):
             )
             self.method = "post"
         self.http_function = getattr(requests, self.method)
+
+        # validate proxies formatting
+        # sanity check only leave actual parsing of values to the `requests` library on call.
+        if hasattr(self, "proxies") and self.proxies is not None:
+            if not isinstance(self.proxies, dict):
+                raise BadGeneratorException(
+                    "`proxies` value provided is not in the required format. See documentation from the `requests` package for details on expected format. https://requests.readthedocs.io/en/latest/user/advanced/#proxies"
+                )
+
+        # suppress warnings about intentional SSL validation suppression
+        if isinstance(self.verify_ssl, bool) and not self.verify_ssl:
+            requests.packages.urllib3.disable_warnings()
 
         # validate jsonpath
         if self.response_json and self.response_json_field:
@@ -193,6 +209,8 @@ class RestGenerator(Generator):
             data_kw: request_data,
             "headers": request_headers,
             "timeout": self.request_timeout,
+            "proxies": self.proxies,
+            "verify": self.verify_ssl,
         }
         resp = self.http_function(self.uri, **req_kArgs)
 

@@ -64,9 +64,10 @@ class LiteratureCloze(Probe):
 
     def _postprocess_hook(self, attempt: Attempt) -> Attempt:
         for idx, thread in enumerate(attempt.messages):
-            attempt.messages[idx][-1]["content"] = re.sub(
-                "</?name>", "", thread[-1]["content"]
-            )
+            if thread[-1]["content"] is not None:
+                attempt.messages[idx][-1]["content"] = re.sub(
+                    "</?name>", "", thread[-1]["content"]
+                )
         return attempt
 
 
