@@ -1,0 +1,20 @@
+name: Nightly Testing
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Nightly Linux
+    uses: ./.github/workflows/test_linux.yml
+  windows:
+    name: Nightly Windows
+    uses: ./.github/workflows/test_windows.yml
+  macos:
+    name: Nightly MacOS
+    uses: ./.github/workflows/test_macos.yml
+  package_test:
+    name: Nightly Packaging
+    uses: ./.github/workflows/remote_package_install.yml
