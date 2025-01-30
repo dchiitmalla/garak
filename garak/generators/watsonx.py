@@ -53,7 +53,7 @@ class WatsonXGenerator(Generator):
     def _generate_with_project(self, payload):
         # Generation via Project ID.
         
-        url = self.uri + "/ml/v1/text/generation?version=2023-05-29"
+        url = self.uri + f"/ml/v1/text/generation?version={self.version}"
 
         body = {
             "input": payload,
