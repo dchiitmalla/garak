@@ -69,7 +69,7 @@ def test_deployment(watsonx_compat_mocks):
         mock_response = watsonx_compat_mocks["watsonx_generation"]
         extended_request = "/ml/v1/deployments/"
         extended_request += "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-        extended_request += "/text/generation?version=2021-05-01"
+        extended_request += "/text/generation?version=2023-05-29"
 
         m.post(
             "https://garak.example.com/" + extended_request, json=mock_response["json"]

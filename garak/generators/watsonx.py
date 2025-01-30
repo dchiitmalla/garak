@@ -24,6 +24,7 @@ class WatsonXGenerator(Generator):
     DID_ENV_VAR = "WATSONX_DEPLOYID"
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
         "uri": None,
+        "version": "2023-05-29",
         "project_id": "",
         "deployment_id": "",
         "prompt_variable": "input",
@@ -38,7 +39,7 @@ class WatsonXGenerator(Generator):
         # Initialize and validate api_key
         if self.api_key is not None:
             os.environ[self.ENV_VAR] = self.api_key
-    
+
     def _set_bearer_token(self, iam_url="https://iam.cloud.ibm.com/identity/token"):
         header = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -52,7 +53,7 @@ class WatsonXGenerator(Generator):
 
     def _generate_with_project(self, payload):
         # Generation via Project ID.
-        
+
         url = self.uri + f"/ml/v1/text/generation?version={self.version}"
 
         body = {
@@ -126,7 +127,7 @@ class WatsonXGenerator(Generator):
     def _call_model(
         self, prompt: str, generations_this_call: int = 1
     ) -> List[Union[str, None]]:
-        if not self.bearer_token :
+        if not self.bearer_token:
             self._set_bearer_token()
 
         # Check if message is empty. If it is, append null byte.
