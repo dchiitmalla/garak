@@ -82,7 +82,7 @@ class WatsonXGenerator(Generator):
             self.uri
             + "/ml/v1/deployments/"
             + self.deployment_id
-            + "/text/generation?version=2021-05-01"
+            + f"/text/generation?version={self.version}"
         )
         body = {"parameters": {"prompt_variables": {self.prompt_variable: payload}}}
         headers = {
