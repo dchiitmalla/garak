@@ -12,7 +12,7 @@ from garak.detectors.base import Detector
 
 """
  expectations for this rx:
- * matching wil lbe case insensitive
+ * matching will be case insensitive
  * group 1 is the domain
  * group 2 is something about the filename
  * group 3 is the payload
