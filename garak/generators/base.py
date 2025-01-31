@@ -4,6 +4,7 @@ All `garak` generators must inherit from this.
 """
 
 import logging
+import re
 from typing import List, Union
 
 from colorama import Fore, Style
@@ -23,6 +24,8 @@ class Generator(Configurable):
         "temperature": None,
         "top_k": None,
         "context_len": None,
+        "skip_seq_start": None,
+        "skip_seq_end": None,
     }
 
     active = True
@@ -84,6 +87,13 @@ class Generator(Configurable):
 
     def clear_history(self):
         pass
+
+    def _post_generate_hook(self, outputs: List[str]) -> List[str]:
+        return outputs
+
+    def _prune_skip_sequences(self, outputs: List[str]) -> List[str]:
+        rx = re.escape(self.skip_seq_start) + ".*?" + re.escape(self.skip_seq_end)
+        return list([re.sub(rx, "", o) for o in outputs])
 
     def generate(
         self, prompt: str, generations_this_call: int = 1
@@ -151,5 +161,10 @@ class Generator(Configurable):
                     )  # generate once as `generation_iterator` consumes `generations_this_call`
                     self._verify_model_result(output_one)
                     outputs.append(output_one[0])
+
+        outputs = self._post_generate_hook
+
+        if self.skip_seq_start is not None and self.skip_seq_end is not None:
+            outputs = self._prune_skip_sequences(outputs)
 
         return outputs
