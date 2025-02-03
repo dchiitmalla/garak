@@ -11,7 +11,6 @@ from colorama import Fore, Style
 import tqdm
 
 from garak import _config
-from garak.attempt import Attempt
 from garak.configurable import Configurable
 import garak.resources.theme
 
