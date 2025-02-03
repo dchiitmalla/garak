@@ -9,6 +9,7 @@ from garak import _plugins
 from garak import _config
 from garak.generators.base import Generator
 
+
 DEFAULT_GENERATOR_NAME = "garak test"
 DEFAULT_PROMPT_TEXT = "especially the lies"
 
@@ -112,3 +113,26 @@ def test_instantiate_generators(classname):
     m = importlib.import_module("garak." + ".".join(classname.split(".")[:-1]))
     g = getattr(m, classname.split(".")[-1])(config_root=config_root)
     assert isinstance(g, Generator)
+
+
+def test_skip_seq():
+    test_string_with_thinking = "TEST TEST <think>not thius tho</think>1234"
+    test_string_with_thinking_complex = '<think></think>TEST TEST <think>not thius tho</think>1234<think>!"(^-&$(!$%*))</think>'
+    target_string = "TEST TEST 1234"
+    g = _plugins.load_plugin("generators.test.Repeat")
+    r = g.generate(test_string_with_thinking)
+    g.skip_seq_start = None
+    g.skip_seq_end = None
+    assert (
+        r[0] == test_string_with_thinking
+    ), "test.Repeat should give same output as input when no think tokens specified"
+    g.skip_seq_start = "<think>"
+    g.skip_seq_end = "</think>"
+    r = g.generate(test_string_with_thinking)
+    assert (
+        r[0] == target_string
+    ), "content between single skip sequence should be removed"
+    r = g.generate(test_string_with_thinking_complex)
+    assert (
+        r[0] == target_string
+    ), "content between multiple skip sequences should be removed"

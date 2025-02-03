@@ -11,6 +11,7 @@ from colorama import Fore, Style
 import tqdm
 
 from garak import _config
+from garak.attempt import Attempt
 from garak.configurable import Configurable
 import garak.resources.theme
 
@@ -88,12 +89,13 @@ class Generator(Configurable):
     def clear_history(self):
         pass
 
-    def _post_generate_hook(self, outputs: List[str]) -> List[str]:
+    def _post_generate_hook(self, outputs: List[str | None]) -> List[str | None]:
         return outputs
 
-    def _prune_skip_sequences(self, outputs: List[str]) -> List[str]:
+    def _prune_skip_sequences(self, outputs: List[str | None]) -> List[str | None]:
         rx = re.escape(self.skip_seq_start) + ".*?" + re.escape(self.skip_seq_end)
-        return list([re.sub(rx, "", o) for o in outputs])
+
+        return list([re.sub(rx, "", o) if o is not None else None for o in outputs])
 
     def generate(
         self, prompt: str, generations_this_call: int = 1
