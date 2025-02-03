@@ -94,7 +94,16 @@ class Generator(Configurable):
     def _prune_skip_sequences(self, outputs: List[str | None]) -> List[str | None]:
         rx = re.escape(self.skip_seq_start) + ".*?" + re.escape(self.skip_seq_end)
 
-        return list([re.sub(rx, "", o) if o is not None else None for o in outputs])
+        return list(
+            [
+                (
+                    re.sub(rx, "", o, flags=re.DOTALL | re.MULTILINE)
+                    if o is not None
+                    else None
+                )
+                for o in outputs
+            ]
+        )
 
     def generate(
         self, prompt: str, generations_this_call: int = 1

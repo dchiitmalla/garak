@@ -116,9 +116,10 @@ def test_instantiate_generators(classname):
 
 
 def test_skip_seq():
+    target_string = "TEST TEST 1234"
     test_string_with_thinking = "TEST TEST <think>not thius tho</think>1234"
     test_string_with_thinking_complex = '<think></think>TEST TEST <think>not thius tho</think>1234<think>!"(^-&$(!$%*))</think>'
-    target_string = "TEST TEST 1234"
+    test_string_with_newlines = "<think>\n\n</think>" + target_string
     g = _plugins.load_plugin("generators.test.Repeat")
     r = g.generate(test_string_with_thinking)
     g.skip_seq_start = None
@@ -136,3 +137,7 @@ def test_skip_seq():
     assert (
         r[0] == target_string
     ), "content between multiple skip sequences should be removed"
+    r = g.generate(test_string_with_newlines)
+    assert (
+        r[0] == target_string
+    ), "skip seqs full of newlines should be removed"
