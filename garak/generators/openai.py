@@ -129,7 +129,7 @@ class OpenAICompatible(Generator):
         "stop": ["#", ";"],
         "suppressed_params": {"timeout"},
         "retry_json": True,
-        "extra_params": set(),
+        "extra_params": {},
     }
 
     # avoid attempt to pickle the client attribute
@@ -214,8 +214,9 @@ class OpenAICompatible(Generator):
                 if getattr(self, arg) is not None:
                     create_args[arg] = getattr(self, arg)
 
-        for k, v in self.extra_params.items():
-            create_args[k] = v
+        if hasattr(self, "extra_params"):
+            for k, v in self.extra_params.items():
+                create_args[k] = v
 
         if self.generator == self.client.completions:
             if not isinstance(prompt, str):
