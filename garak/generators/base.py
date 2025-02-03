@@ -174,7 +174,8 @@ class Generator(Configurable):
 
         outputs = self._post_generate_hook(outputs)
 
-        if self.skip_seq_start is not None and self.skip_seq_end is not None:
-            outputs = self._prune_skip_sequences(outputs)
+        if hasattr(self, "skip_seq_start") and hasattr(self, "skip_seq_end"):
+            if self.skip_seq_start is not None and self.skip_seq_end is not None:
+                outputs = self._prune_skip_sequences(outputs)
 
         return outputs
