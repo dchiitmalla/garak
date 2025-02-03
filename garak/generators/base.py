@@ -162,7 +162,7 @@ class Generator(Configurable):
                     self._verify_model_result(output_one)
                     outputs.append(output_one[0])
 
-        outputs = self._post_generate_hook
+        outputs = self._post_generate_hook(outputs)
 
         if self.skip_seq_start is not None and self.skip_seq_end is not None:
             outputs = self._prune_skip_sequences(outputs)
