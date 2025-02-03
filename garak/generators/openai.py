@@ -257,6 +257,17 @@ class OpenAICompatible(Generator):
             else:
                 raise e
 
+        if not hasattr(response, "choices"):
+            logging.debug(
+                "Did not get a well-formed response, retrying. Expected object with .choices member, got: '%s'"
+                % repr(response)
+            )
+            msg = "no .choices member in generator response"
+            if self.retry_json:
+                raise garak.exception.GarakBackoffTrigger(msg)
+            else:
+                return [None]
+
         if self.generator == self.client.completions:
             return [c.text for c in response.choices]
         elif self.generator == self.client.chat.completions:
