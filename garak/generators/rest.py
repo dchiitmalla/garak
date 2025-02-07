@@ -16,7 +16,7 @@ import jsonpath_ng
 from jsonpath_ng.exceptions import JsonPathParserError
 
 from garak import _config
-from garak.exception import APIKeyMissingError, RateLimitHit
+from garak.exception import APIKeyMissingError, BadGeneratorException, RateLimitHit
 from garak.generators.base import Generator
 
 
@@ -30,10 +30,13 @@ class RestGenerator(Generator):
         "headers": {},
         "method": "post",
         "ratelimit_codes": [429],
+        "skip_codes": [],
         "response_json": False,
         "response_json_field": None,
         "req_template": "$INPUT",
         "request_timeout": 20,
+        "proxies": None,
+        "verify_ssl": True,
     }
 
     ENV_VAR = "REST_API_KEY"
@@ -55,8 +58,11 @@ class RestGenerator(Generator):
         "req_template_json_object",
         "request_timeout",
         "ratelimit_codes",
+        "skip_codes",
         "temperature",
         "top_k",
+        "proxies",
+        "verify_ssl",
     )
 
     def __init__(self, uri=None, config_root=_config):
@@ -116,12 +122,24 @@ class RestGenerator(Generator):
             self.method = "post"
         self.http_function = getattr(requests, self.method)
 
+        # validate proxies formatting
+        # sanity check only leave actual parsing of values to the `requests` library on call.
+        if hasattr(self, "proxies") and self.proxies is not None:
+            if not isinstance(self.proxies, dict):
+                raise BadGeneratorException(
+                    "`proxies` value provided is not in the required format. See documentation from the `requests` package for details on expected format. https://requests.readthedocs.io/en/latest/user/advanced/#proxies"
+                )
+
+        # suppress warnings about intentional SSL validation suppression
+        if isinstance(self.verify_ssl, bool) and not self.verify_ssl:
+            requests.packages.urllib3.disable_warnings()
+
         # validate jsonpath
         if self.response_json and self.response_json_field:
             try:
                 self.json_expr = jsonpath_ng.parse(self.response_json_field)
             except JsonPathParserError as e:
-                logging.CRITICAL(
+                logging.critical(
                     "Couldn't parse response_json_field %s", self.response_json_field
                 )
                 raise e
@@ -191,32 +209,47 @@ class RestGenerator(Generator):
             data_kw: request_data,
             "headers": request_headers,
             "timeout": self.request_timeout,
+            "proxies": self.proxies,
+            "verify": self.verify_ssl,
         }
         resp = self.http_function(self.uri, **req_kArgs)
+
+        if resp.status_code in self.skip_codes:
+            logging.debug(
+                "REST skip prompt: %s - %s, uri: %s",
+                resp.status_code,
+                resp.reason,
+                self.uri,
+            )
+            return [None]
+
         if resp.status_code in self.ratelimit_codes:
-            raise RateLimitHit(f"Rate limited: {resp.status_code} - {resp.reason}")
+            raise RateLimitHit(
+                f"Rate limited: {resp.status_code} - {resp.reason}, uri: {self.uri}"
+            )
 
-        elif str(resp.status_code)[0] == "3":
+        if str(resp.status_code)[0] == "3":
             raise NotImplementedError(
-                f"REST URI redirection: {resp.status_code} - {resp.reason}"
+                f"REST URI redirection: {resp.status_code} - {resp.reason}, uri: {self.uri}"
             )
 
-        elif str(resp.status_code)[0] == "4":
+        if str(resp.status_code)[0] == "4":
             raise ConnectionError(
-                f"REST URI client error: {resp.status_code} - {resp.reason}"
+                f"REST URI client error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
             )
 
-        elif str(resp.status_code)[0] == "5":
-            error_msg = f"REST URI server error: {resp.status_code} - {resp.reason}"
+        if str(resp.status_code)[0] == "5":
+            error_msg = f"REST URI server error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
             if self.retry_5xx:
                 raise IOError(error_msg)
-            else:
-                raise ConnectionError(error_msg)
+            raise ConnectionError(error_msg)
 
         if not self.response_json:
             return [str(resp.text)]
 
         response_object = json.loads(resp.content)
+
+        response = [None]
 
         # if response_json_field starts with a $, treat is as a JSONPath
         assert (
@@ -229,7 +262,10 @@ class RestGenerator(Generator):
             len(self.response_json_field) > 0
         ), "response_json_field needs to be complete if response_json is true; ValueError should have been raised in constructor"
         if self.response_json_field[0] != "$":
-            response = [response_object[self.response_json_field]]
+            if isinstance(response_object, list):
+                response = [item[self.response_json_field] for item in response_object]
+            else:
+                response = [response_object[self.response_json_field]]
         else:
             field_path_expr = jsonpath_ng.parse(self.response_json_field)
             responses = field_path_expr.find(response_object)

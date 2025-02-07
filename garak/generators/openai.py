@@ -46,12 +46,25 @@ chat_models = (
     "gpt-4o",  # links to latest version
     "gpt-4o-2024-05-13",
     "gpt-4o-2024-08-06",
+    "gpt-4o-2024-11-20",
+    "gpt-4o-audio-preview",  # links to latest version
+    "gpt-4o-audio-preview-2024-12-17",
+    "gpt-4o-audio-preview-2024-10-01",
     "gpt-4o-mini",  # links to latest version
     "gpt-4o-mini-2024-07-18",
+    "gpt-4o-mini-audio-preview",  # links to latest version
+    "gpt-4o-mini-audio-preview-2024-12-17",
+    "gpt-4o-mini-realtime-preview",  # links to latest version
+    "gpt-4o-mini-realtime-preview-2024-12-17",
+    "gpt-4o-realtime-preview",  # links to latest version
+    "gpt-4o-realtime-preview-2024-12-17",
+    "gpt-4o-realtime-preview-2024-10-01",
     "o1-mini",  # links to latest version
     "o1-mini-2024-09-12",
     "o1-preview",  # links to latest version
     "o1-preview-2024-09-12",
+    "o3-mini",  # links to latest version
+    "o3-mini-2025-01-31",
     # "gpt-3.5-turbo-0613",  # deprecated, shutdown 2024-09-13
     # "gpt-3.5-turbo-16k-0613",  # # deprecated, shutdown 2024-09-13
 )
@@ -114,7 +127,7 @@ class OpenAICompatible(Generator):
 
     ENV_VAR = "OpenAICompatible_API_KEY".upper()  # Placeholder override when extending
 
-    active = False  # this interface class is not active
+    active = True
     supports_multiple_generations = True
     generator_family_name = "OpenAICompatible"  # Placeholder override when extending
 
@@ -122,6 +135,7 @@ class OpenAICompatible(Generator):
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
         "temperature": 0.7,
         "top_p": 1.0,
+        "uri": "http://localhost:8000/v1/",
         "frequency_penalty": 0.0,
         "presence_penalty": 0.0,
         "seed": None,
@@ -141,13 +155,18 @@ class OpenAICompatible(Generator):
         self._load_client()
 
     def _load_client(self):
-        # Required stub implemented when extending `OpenAICompatible`
-        # should populate self.generator with an openai api compliant object
-        raise NotImplementedError
+        # When extending `OpenAICompatible` this method is a likely location for target application specific
+        # customization and must populate self.generator with an openai api compliant object
+        self.client = openai.OpenAI(base_url=self.uri, api_key=self.api_key)
+        if self.name in ("", None):
+            raise ValueError(
+                f"{self.generator_family_name} requires model name to be set, e.g. --model_name org/private-model-name"
+            )
+        self.generator = self.client.chat.completions
 
     def _clear_client(self):
-        # Required stub implemented when extending `OpenAICompatible`
-        raise NotImplementedError
+        self.generator = None
+        self.client = None
 
     def _validate_config(self):
         pass
@@ -257,6 +276,11 @@ class OpenAIGenerator(OpenAICompatible):
     active = True
     generator_family_name = "OpenAI"
 
+    # remove uri as it is not overridable in this class.
+    DEFAULT_PARAMS = {
+        k: val for k, val in OpenAICompatible.DEFAULT_PARAMS.items() if k != "uri"
+    }
+
     def _load_client(self):
         self.client = openai.OpenAI(api_key=self.api_key)
 
@@ -288,10 +312,6 @@ class OpenAIGenerator(OpenAICompatible):
             msg = "'o1'-class models should use openai.OpenAIReasoningGenerator. Try e.g. `-m openai.OpenAIReasoningGenerator` instead of `-m openai`"
             logging.error(msg)
             raise garak.exception.BadGeneratorException("🛑 " + msg)
-
-    def _clear_client(self):
-        self.generator = None
-        self.client = None
 
     def __init__(self, name="", config_root=_config):
         self.name = name
