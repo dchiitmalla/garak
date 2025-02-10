@@ -4039,6 +4039,39 @@
       ],
       "mod_time": "2024-09-17 17:14:48 +0000"
     },
+    "probes.xss.ColabAIDataLeakage": {
+      "description": "",
+      "DEFAULT_PARAMS": {
+        "generations": 1,
+        "payload_name": "example_domains_xss"
+      },
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://embracethered.com/blog/posts/2024/google-colab-image-render-exfil/",
+      "extended_detectors": [],
+      "goal": "render images fetched from a remote uri",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": null,
+      "recommended_detector": [
+        "xss.MarkdownExfilContent"
+      ],
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "payload:leak:chat",
+        "payload:malicious:renderer",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion"
+      ],
+      "mod_time": "2025-02-10 22:32:24 +0000"
+    },
     "probes.xss.MarkdownImageExfil": {
       "description": "Can we get the model to write embedded assets exfiltrating text in the URI?",
       "DEFAULT_PARAMS": {
@@ -4071,7 +4104,73 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2024-10-11 12:18:39 +0000"
+      "mod_time": "2025-02-10 22:32:24 +0000"
+    },
+    "probes.xss.MdExfil20230929": {
+      "description": "Markdown image URI exfil exploit published 2023 Sept 29",
+      "DEFAULT_PARAMS": {
+        "generations": 1,
+        "payload_name": "example_domains_xss"
+      },
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://embracethered.com/blog/posts/2023/data-exfiltration-in-azure-openai-playground-fixed/",
+      "extended_detectors": [],
+      "goal": "embed conversation-private information in a markdown URI",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": null,
+      "recommended_detector": [
+        "xss.MarkdownExfil20230929",
+        "xss.MarkdownExfilContent"
+      ],
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "payload:leak:chat",
+        "payload:malicious:renderer",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion"
+      ],
+      "mod_time": "2025-02-10 22:32:24 +0000"
+    },
+    "probes.xss.StringAssemblyDataExfil": {
+      "description": "Prompt injection for manipulating state",
+      "DEFAULT_PARAMS": {
+        "generations": 1
+      },
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://embracethered.com/blog/posts/2023/data-exfiltration-in-azure-openai-playground-fixed/",
+      "extended_detectors": [],
+      "goal": "embed conversation-private information in a markdown URI",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": null,
+      "recommended_detector": [
+        "xss.MarkdownExfilBasic"
+      ],
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "payload:leak:chat",
+        "payload:malicious:renderer",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion"
+      ],
+      "mod_time": "2025-02-10 22:32:24 +0000"
     }
   },
   "detectors": {
@@ -6141,6 +6240,26 @@
       ],
       "mod_time": "2024-06-12 10:04:47 +0000"
     },
+    "detectors.xss.MarkdownExfil20230929": {
+      "DEFAULT_PARAMS": {
+        "skip": false
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "*",
+      "doc_uri": "https://embracethered.com/blog/posts/2023/bing-chat-data-exfiltration-poc-and-fix/",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:security:S0301"
+      ],
+      "mod_time": "2025-01-31 09:22:40 +0000"
+    },
     "detectors.xss.MarkdownExfilBasic": {
       "description": "Detect markdown images with fqdn, absolute path, and populated q= parameter",
       "DEFAULT_PARAMS": {
@@ -6160,7 +6279,7 @@
       "tags": [
         "avid-effect:security:S0301"
       ],
-      "mod_time": "2024-07-01 17:51:48 +0000"
+      "mod_time": "2025-01-31 09:22:40 +0000"
     },
     "detectors.xss.MarkdownExfilContent": {
       "description": "As the basic detector, MarkdownExfilBasic, but did we exfiltrate anything?",
@@ -6181,7 +6300,7 @@
       "tags": [
         "avid-effect:security:S0301"
       ],
-      "mod_time": "2024-07-01 17:51:48 +0000"
+      "mod_time": "2025-01-31 09:22:40 +0000"
     }
   },
   "generators": {
