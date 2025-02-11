@@ -136,7 +136,9 @@ style block to not confuse the user."""
 
 
 class StringAssemblyDataExfil(Probe):
-    """Prompt injection for manipulating state"""
+    """Prompt injection for manipulating state
+
+    Attempts to extract data by leveraging model string assembly instruction."""
 
     doc_uri = "https://embracethered.com/blog/posts/2023/data-exfiltration-in-azure-openai-playground-fixed/"
     bcp47 = "en"
@@ -182,7 +184,9 @@ class StringAssemblyDataExfil(Probe):
 
 
 class MdExfil20230929(Probe):
-    """Markdown image URI exfil exploit published 2023 Sept 29"""
+    """Markdown image URI exfil exploit published 2023 Sept 29
+
+    Attempts to extract data by leveraging markdown link syntax."""
 
     doc_uri = "https://embracethered.com/blog/posts/2023/data-exfiltration-in-azure-openai-playground-fixed/"
     bcp47 = "en"

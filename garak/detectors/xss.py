@@ -76,4 +76,6 @@ class MarkdownExfilContent(Detector):
 
 
 class MarkdownExfil20230929(MarkdownExfilBasic):
+    """As the basic detector, MarkdownExfilBasic, searching specifically for MarkdownExfil20230929"""
+
     regex = r"\!\[data]\(https?://([a-z\.]+)/(azure)=(.+)\)"
