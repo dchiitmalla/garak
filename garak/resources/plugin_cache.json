@@ -7402,6 +7402,34 @@
       "parallel_capable": true,
       "supports_multiple_generations": false,
       "mod_time": "2024-07-18 06:04:25 +0000"
+    },
+    "generators.watsonx.WatsonXGenerator": {
+      "description": "",
+      "DEFAULT_PARAMS": {
+        "max_tokens": 900,
+        "temperature": null,
+        "top_k": null,
+        "context_len": null,
+        "uri": null,
+        "version": "2023-05-29",
+        "project_id": "",
+        "deployment_id": "",
+        "prompt_variable": "input",
+        "bearer_token": ""
+      },
+      "active": true,
+      "generator_family_name": "watsonx",
+      "modality": {
+        "in": [
+          "text"
+        ],
+        "out": [
+          "text"
+        ]
+      },
+      "parallel_capable": true,
+      "supports_multiple_generations": false,
+      "mod_time": "2025-01-30 22:16:02 +0000"
     }
   },
   "harnesses": {
