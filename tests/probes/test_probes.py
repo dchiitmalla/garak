@@ -6,8 +6,6 @@ import pytest
 import re
 
 from garak import _config, _plugins
-import garak
-import tempfile
 
 PROBES = [classname for (classname, active) in _plugins.enumerate_plugins("probes")]
 

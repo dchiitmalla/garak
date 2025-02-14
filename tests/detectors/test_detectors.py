@@ -7,17 +7,12 @@ import pytest
 import re
 import types
 
-import garak
 from garak import _plugins
 from garak.attempt import Attempt
 from garak.configurable import Configurable
 from garak.detectors.base import Detector
 from garak.exception import APIKeyMissingError
 import garak.detectors.base
-import pytest
-from garak.attempt import Attempt
-from garak import _config
-import importlib
 
 
 DEFAULT_GENERATOR_NAME = "garak test"

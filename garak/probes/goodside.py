@@ -8,7 +8,6 @@ import re
 from garak import _config
 from garak.attempt import Attempt
 from garak.probes.base import Probe
-import ast
 
 
 class WhoIsRiley(Probe):

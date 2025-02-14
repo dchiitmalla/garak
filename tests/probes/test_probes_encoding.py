@@ -2,15 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import garak.probes.encoding
-from garak import _plugins
-import pytest
-import garak
-
-PROBES = [
-    classname
-    for (classname, _) in _plugins.enumerate_plugins("probes")
-    if "encoding" in classname
-]
 
 
 def test_InjectBase64_len_cap():
@@ -21,7 +12,6 @@ def test_InjectBase64_len_cap():
     assert len(p.prompts) < num_payloads * num_templates * num_encoders
 
 
-@pytest.fixture(scope="function")
 def test_InjectBase64_prompt_trigger_match():
     p = garak.probes.encoding.InjectBase64()
     num_payloads = len(garak.probes.encoding.payloads)
@@ -30,7 +20,6 @@ def test_InjectBase64_prompt_trigger_match():
     assert len(p.prompts) == len(p.triggers)
 
 
-@pytest.fixture(scope="function")
 def test_InjectBase64_triggers_not_in_prompts():
     p = garak.probes.encoding.InjectBase64()
     num_payloads = len(garak.probes.encoding.payloads)
