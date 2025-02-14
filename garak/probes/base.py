@@ -75,22 +75,26 @@ class Probe(Configurable):
                 self.description = self.__doc__.split("\n", maxsplit=1)[0]
             else:
                 self.description = ""
-        if hasattr(_config, 'run'):
-            if hasattr(_config.run, 'translation'):
-                self.translator = self.get_translator()
-                if hasattr(self, 'triggers'):
+        self.translator = self.get_translator()
+        if self.translator is not None and hasattr(self, "triggers"):
+            # check for triggers that are not type str|list or just call translate_triggers
+            if len(self.triggers) > 0:
+                if isinstance(self.triggers[0], str):
                     self.triggers = self.translator.translate_prompts(self.triggers)
+                elif isinstance(self.triggers[0], list):
+                    self.triggers = [
+                        self.translator.translate_prompts(trigger_list)
+                        for trigger_list in self.triggers
+                    ]
+                else:
+                    raise PluginConfigurationError(
+                        f"trigger type: {type(self.triggers[0])} is not supported."
+                    )
 
     def get_translator(self):
-        from garak.translator import load_translator 
-        translator_instance = None
-        if hasattr(_config, 'run'):
-            if hasattr(_config.run, 'translation'):
-                if "translation_service" in _config.run.translation.keys():
-                    translator_instance = load_translator(
-                        _config.run.translation["translation_service"],
-                        self.probename.split(".")[2],
-                    )
+        from garak.translator import get_translator
+
+        translator_instance = get_translator(self.bcp47)
         return translator_instance
 
     def _attempt_prestore_hook(
@@ -150,7 +154,7 @@ class Probe(Configurable):
         """hook called to process completed attempts; always called"""
         return attempt
 
-    def _mint_attempt(self, prompt=None, seq=None, lang_type=None) -> garak.attempt.Attempt:
+    def _mint_attempt(self, prompt=None, seq=None, bcp47=None) -> garak.attempt.Attempt:
         """function for creating a new attempt given a prompt"""
         new_attempt = garak.attempt.Attempt(
             probe_classname=(
@@ -162,7 +166,7 @@ class Probe(Configurable):
             status=garak.attempt.ATTEMPT_STARTED,
             seq=seq,
             prompt=prompt,
-            lang_type=lang_type,
+            bcp47=bcp47,
         )
 
         new_attempt = self._attempt_prestore_hook(new_attempt, seq)
@@ -226,13 +230,13 @@ class Probe(Configurable):
         # build list of attempts
         attempts_todo: Iterable[garak.attempt.Attempt] = []
         prompts = list(self.prompts)
-        lang_list = [None for i in range(len(prompts))]
-        if hasattr(self, 'translator'):
+        lang = self.bcp47
+        if hasattr(self, "translator"):
             if self.translator is not None:
                 prompts = self.translator.translate_prompts(prompts)
-                lang_list = self.translator.lang_list
+                lang = self.translator.target_lang
         for seq, prompt in enumerate(prompts):
-            attempts_todo.append(self._mint_attempt(prompt, seq, lang_list[seq]))
+            attempts_todo.append(self._mint_attempt(prompt, seq, lang))
 
         # buff hook
         if len(_config.buffmanager.buffs) > 0:
