@@ -138,6 +138,16 @@ def test_skip_seq():
         r[0] == target_string
     ), "content between multiple skip sequences should be removed"
     r = g.generate(test_string_with_newlines)
-    assert (
-        r[0] == target_string
-    ), "skip seqs full of newlines should be removed"
+    assert r[0] == target_string, "skip seqs full of newlines should be removed"
+
+    test_no_answer = "<think>not sure the output to provide</think>"
+    r = g.generate(test_no_answer)
+    assert r[0] == "", "Output of all skip strings should be empty"
+
+    test_truncated_think = f"<think>thinking a bit</think>{target_string}<think>this process required a lot of details that is processed by"
+    r = g.generate(test_truncated_think)
+    assert r[0] == target_string, "truncated skip strings should be omitted"
+
+    test_truncated_think_no_answer = "<think>thinking a bit</think><think>this process required a lot of details that is processed by"
+    r = g.generate(test_truncated_think_no_answer)
+    assert r[0] == "", "truncated skip strings should be omitted"
