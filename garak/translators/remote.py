@@ -21,6 +21,7 @@ class RivaTranslator(Translator):
     DEFAULT_PARAMS = {
         "uri": "grpc.nvcf.nvidia.com:443",
         "function_id": "647147c1-9c23-496c-8304-2e29e7574510",
+        "use_ssl": True,
     }
 
     # fmt: off
@@ -63,7 +64,7 @@ class RivaTranslator(Translator):
         if self.nmt_client is None:
             auth = riva.client.Auth(
                 None,
-                True,
+                self.use_ssl,
                 self.uri,
                 [
                     ("function-id", self.function_id),
