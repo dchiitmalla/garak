@@ -9,7 +9,7 @@ class S_nlpDetox(HFDetector):
     """Using s-nlp Roberta model to detect toxic content"""
 
     DEFAULT_PARAMS = HFDetector.DEFAULT_PARAMS | {
-        "detector_model_path": "s-nlp/roberta_toxicity_classifier",
+        "detector_model_path": "garak-llm/roberta_toxicity_classifier",
         "detector_target_class": "toxic",
     }
 
