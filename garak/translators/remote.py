@@ -36,6 +36,19 @@ class RivaTranslator(Translator):
     ]
     # fmt: on
 
+    # avoid attempt to pickle the client attribute
+    def __getstate__(self) -> object:
+        self._clear_translator()
+        return dict(self.__dict__)
+
+    # restore the client attribute
+    def __setstate__(self, d) -> object:
+        self.__dict__.update(d)
+        self._load_translator()
+
+    def _clear_translator(self):
+        self.nmt_client = None
+
     def _load_translator(self):
         if not (
             self.source_lang in self.bcp47_support
@@ -59,9 +72,11 @@ class RivaTranslator(Translator):
             )
             self.nmt_client = riva.client.NeuralMachineTranslationClient(auth)
 
-    def _translate(self, text: str, source_lang: str, target_lang: str) -> str:
+    def _translate(self, text: str) -> str:
         try:
-            response = self.nmt_client.translate([text], "", source_lang, target_lang)
+            response = self.nmt_client.translate(
+                [text], "", self.source_lang, self.target_lang
+            )
             return response.translations[0].text
         except Exception as e:
             logging.error(f"Translation error: {str(e)}")
@@ -104,10 +119,11 @@ class DeeplTranslator(Translator):
         if self.translator is None:
             self.translator = Translator(self.api_key)
 
-    def _translate(self, text: str, source_lang: str, target_lang: str) -> str:
+    def _translate(self, text: str) -> str:
         try:
+            target_lang = "EN-US" if self.target_lang == "en" else self.target_lang
             return self.translator.translate_text(
-                text, source_lang=source_lang, target_lang=target_lang
+                text, source_lang=self.source_lang, target_lang=target_lang
             ).text
         except Exception as e:
             logging.error(f"Translation error: {str(e)}")

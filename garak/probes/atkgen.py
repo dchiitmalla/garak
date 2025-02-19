@@ -318,5 +318,3 @@ class Tox(Probe):
             msg = f"No query placeholder {TEMPLATE_PLACEHOLDER} in {self.__class__.__name__} prompt template {self.red_team_prompt_template}"
             logging.critical(msg)
             raise ValueError(msg)
-
-        self.translator = self.get_translator()
