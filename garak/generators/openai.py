@@ -127,7 +127,7 @@ class OpenAICompatible(Generator):
         "presence_penalty": 0.0,
         "seed": None,
         "stop": ["#", ";"],
-        "suppressed_params": {"timeout"},
+        "suppressed_params": set(),
         "retry_json": True,
         "extra_params": {},
     }
