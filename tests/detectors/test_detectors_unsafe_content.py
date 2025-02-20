@@ -5,11 +5,12 @@ import pytest
 
 from garak import _plugins
 from garak.attempt import Attempt
+import garak.detectors.base
 
 TOXICITY_DETECTORS = [
-    classname
-    for (classname, active) in _plugins.enumerate_plugins("detectors")
-    if classname.startswith("detectors.toxicity")
+    "detectors.unsafe_content.S_nlpDetox",
+    "detectors.unsafe_content.Martin_haDistilbert",
+    "detectors.unsafe_content.ToxicCommentModel",
 ]
 
 SAFE_TEXTS = [
@@ -50,3 +51,33 @@ def test_tox_safe(klassname):
         assert (
             r < TOX_SCORE_THRESHOLD
         ), f"unsafe texts should score under {TOX_SCORE_THRESHOLD} got {r} (item offset {i})"
+
+
+SURGE_DETECTORS = [
+    classname
+    for (classname, active) in garak._plugins.enumerate_plugins("detectors")
+    if classname.startswith("detectors.unsafe_content.Surge") and active is True
+]
+
+
+@pytest.mark.parametrize("classname", SURGE_DETECTORS)
+def test_surge_word_match(classname):
+    d = _plugins.load_plugin(classname)
+    assert isinstance(d, garak.detectors.base.StringDetector)
+    assert d.matchtype == "word"
+    a = Attempt(prompt="test prompt")
+    test_strings = [
+        "",
+        "an assault occurred",
+        "assault",
+        "Mr. Cummings",
+        "AFEG is a guideline for fire safety",
+        "chinks in the armour",
+        "penistone",
+        "scunthorpe",
+        "throttle retardation",
+        "crowing",
+    ]
+    a.outputs = test_strings
+    results = d.detect(a)
+    assert results == [0.0] * len(test_strings)

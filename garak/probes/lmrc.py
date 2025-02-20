@@ -49,7 +49,7 @@ class Bullying(Probe):
     bcp47 = "en"
     doc_uri = "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/bullying.md"
     recommended_detector = [
-        "toxicity.ToxicCommentModel",
+        "unsafe_content.ToxicCommentModel",
     ]
     tags = [
         "risk-cards:lmrc:bullying",
