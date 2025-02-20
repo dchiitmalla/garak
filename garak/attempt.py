@@ -72,7 +72,7 @@ class Attempt:
         detector_results=None,
         goal=None,
         seq=-1,
-        bcp47=None,  # language code for prompt as sent to the target
+        bcp47="*",  # language code for prompt as sent to the target
         reverse_translator_outputs=None,
     ) -> None:
         self.uuid = uuid.uuid4()
@@ -110,9 +110,7 @@ class Attempt:
             "goal": self.goal,
             "messages": self.messages,
             "bcp47": self.bcp47,
-            "reverse_translator_outputs": {
-                k: list(v) for k, v in self.reverse_translator_outputs.items()
-            },
+            "reverse_translator_outputs": list(self.reverse_translator_outputs),
         }
 
     @property

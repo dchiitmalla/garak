@@ -59,11 +59,14 @@ def dont_start_yes_detector():
 
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
 def test_dont_start_no_reverse_translation(dont_start_no_detector):
-    attempt = Attempt(prompt="Does this start with no?")
+    attempt = Attempt(prompt="PLACEHOLDER", bcp47="ja")
     attempt.outputs = [
         "いいえ、それはしません。",  # "No, it doesn't." in Japanese
         "確かにそうです。",  # "Yes, it does." in Japanese
     ]
+    attempt.reverse_translator_outputs = (
+        dont_start_no_detector.reverse_translator.translate_prompts(attempt.all_outputs)
+    )
 
     results = dont_start_no_detector.detect(attempt)
     assert results == [
@@ -74,11 +77,16 @@ def test_dont_start_no_reverse_translation(dont_start_no_detector):
 
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
 def test_dont_start_yes_reverse_translation(dont_start_yes_detector):
-    attempt = Attempt(prompt="Does this start with yes?")
+    attempt = Attempt(prompt="PLACEHOLDER", bcp47="ja")
     attempt.outputs = [
         "はい、それはします。",  # "Yes, it does." in Japanese
         "いいえ、それはしません。",  # "No, it doesn't." in Japanese
     ]
+    attempt.reverse_translator_outputs = (
+        dont_start_yes_detector.reverse_translator.translate_prompts(
+            attempt.all_outputs
+        )
+    )
 
     results = dont_start_yes_detector.detect(attempt)
     assert results == [

@@ -20,12 +20,24 @@ def test_Tag_attempt_descrs_translation(mocker):
     mock_translator_return = mocker.patch.object(garak.translator, "get_translator")
 
     mock_translator_return.side_effect = [
-        NullTranslator(),  # First default lang probe
-        LocalHFTranslator(  # Second translated lang probe
+        NullTranslator(),  # First default lang probe forward
+        NullTranslator(),  # First default lang probe reverse
+        LocalHFTranslator(  # Second translated lang probe forward
             {
                 "translators": {
                     "local": {
                         "language": "en-jap",
+                        "model_type": "local",
+                        "model_name": "Helsinki-NLP/opus-mt-{}",
+                    }
+                }
+            }
+        ),
+        LocalHFTranslator(  # Second translated lang probe reverse
+            {
+                "translators": {
+                    "local": {
+                        "language": "jap-en",
                         "model_type": "local",
                         "model_name": "Helsinki-NLP/opus-mt-{}",
                     }

@@ -42,8 +42,13 @@ def must_contradict_NLI_detector():
 
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
 def test_must_contradict_NLI_detection(must_contradict_NLI_detector):
-    attempt = Attempt(prompt="これはテストプロンプトです")
+    attempt = Attempt(prompt="これはテストプロンプトです", bcp47="ja")
     attempt.outputs = ["こんにちは world", "陰府 の 端 に は 陰府 の 穴 が あ る."]
+    attempt.reverse_translator_outputs = (
+        must_contradict_NLI_detector.reverse_translator.translate_prompts(
+            attempt.all_outputs
+        )
+    )
 
     results = must_contradict_NLI_detector.detect(attempt)
     assert results[0] < 0.1, "Detection results do not match expected values"
@@ -53,8 +58,13 @@ def test_must_contradict_NLI_detection(must_contradict_NLI_detector):
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
 def test_hf_detector_detection(hf_detector):
     # Create a sample Attempt with Japanese text
-    attempt = Attempt(prompt="2人の女性が持ち帰り用の荷物を持ちながら抱き合っている")
+    attempt = Attempt(
+        prompt="2人の女性が持ち帰り用の荷物を持ちながら抱き合っている", bcp47="ja"
+    )
     attempt.outputs = ["男たちがデリカテッセンの外で喧嘩している"]
+    attempt.reverse_translator_outputs = (
+        hf_detector.reverse_translator.translate_prompts(attempt.all_outputs)
+    )
 
     # Run the detection
     results = hf_detector.detect(attempt)

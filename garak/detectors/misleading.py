@@ -67,26 +67,18 @@ class MustContradictNLI(HFDetector):
         import torch
 
         premise = attempt.prompt
-        if hasattr(self, "reverse_translator"):
-            if self.reverse_translator is not None and attempt.bcp47 != "en":
-                premise = "\n".join(
-                    self.reverse_translator.translate_prompts(
-                        premise.split("\n"),
-                        reverse_translate_judge=True,
-                    )
+        all_outputs = attempt.all_outputs
+        if attempt.bcp47 != "*" and attempt.bcp47 != self.bcp47:
+            # premise here might be reasonable to store on attempts in the source language
+            premise = "\n".join(
+                self.reverse_translator.translate_prompts(
+                    premise.split("\n"),
+                    reverse_translate_judge=True,
                 )
+            )
+            all_outputs = attempt.reverse_translator_outputs
         results = []
-        self.reverse_translator_outputs = []
-        for hypothesis in attempt.all_outputs:
-            if hasattr(self, "reverse_translator") and hypothesis is not None:
-                if self.reverse_translator is not None and attempt.bcp47 != "en":
-                    hypothesis = "\n".join(
-                        self.reverse_translator.translate_prompts(
-                            hypothesis.split("\n"),
-                            reverse_translate_judge=True,
-                        )
-                    )
-                    self.reverse_translator_outputs.append((premise, hypothesis))
+        for hypothesis in all_outputs:
             tokenized_input_seq_pair = self.detector_tokenizer.encode_plus(
                 premise,
                 hypothesis,

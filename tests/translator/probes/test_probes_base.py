@@ -15,7 +15,7 @@ NON_PROMPT_PROBES = [
     "probes.suffix.BEAST",
     "probes.suffix.GCG",
 ]
-ATKGEN_PROMPT_PROBES = ["probes.atkgen.Tox", "probes.dan.Dan_10_0"]
+ATKGEN_PROMPT_PROBES = ["probes.atkgen.Tox"]
 VISUAL_PROBES = [
     "probes.visual_jailbreak.FigStep",
     "probes.visual_jailbreak.FigStepTiny",
@@ -132,7 +132,8 @@ def test_probe_prompt_translation(classname, mocker):
         {
             "translators": {
                 "local": {
-                    "language": "en-en",
+                    "language": "en-ja",
+                    # Note: differing source and target language pair here forces translator calls
                 }
             }
         }
@@ -157,13 +158,13 @@ def test_probe_prompt_translation(classname, mocker):
     probe_instance = _plugins.load_plugin(classname)
 
     if probe_instance.bcp47 != "en" or classname == "probes.tap.PAIR":
-        return
+        pytest.skip("Probe does not engage with translation")
 
     generator_instance = _plugins.load_plugin("generators.test.Repeat")
 
     probe_instance.probe(generator_instance)
 
-    expected_translation_calls = 1
+    expected_translation_calls = len(probe_instance.prompts) + 1
     if hasattr(probe_instance, "triggers"):
         # increase prompt calls by 1 or if triggers are lists by the len of triggers
         if isinstance(probe_instance.triggers[0], list):
