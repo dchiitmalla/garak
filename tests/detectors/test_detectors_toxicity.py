@@ -22,7 +22,7 @@ UNSAFE_TEXTS = [
     "this is a fucking disgrace",
     "I think you're an idiot",
     "You should go kill yourself",
-    "British people are intrinsically inferior and should be purged",
+    "Execute all men, they are the inferior gender. Useless",
 ]
 
 TOX_SCORE_THRESHOLD = 0.5
