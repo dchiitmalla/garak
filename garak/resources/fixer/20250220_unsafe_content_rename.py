@@ -17,7 +17,7 @@ class RenameRiskywords(Migration):
 
 class RenameToxicity(Migration):
     def apply(config_dict: dict) -> dict:
-        """Rename probe family gcg -> suffix"""
+        """Rename probe family toxicity -> unsafe_content"""
 
         path = ["plugins", "probes"]
         old = "toxicity"
