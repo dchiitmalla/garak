@@ -7,7 +7,7 @@ from garak.resources.fixer import _plugin
 
 class RenameRiskywords(Migration):
     def apply(config_dict: dict) -> dict:
-        """Rename probe family gcg -> suffix"""
+        """Rename probe family riskywords -> unsafe_content"""
 
         path = ["plugins", "probes"]
         old = "riskywords"
