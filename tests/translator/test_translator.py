@@ -4,10 +4,6 @@ from garak.translator import load_translator
 from garak.translators.base import split_input_text
 
 
-NIM_ENV_VAR = "NIM_API_KEY"
-DEEPL_ENV_VAR = "DEEPL_API_KEY"
-
-
 def test_split_input_text():
     input_text = "Hello: How are you?\nI am fine: Thank you."
     expected_output = ["Hello", " How are you?", "I am fine", " Thank you."]
@@ -116,12 +112,12 @@ def translator_remote(lang_spec, translator_class):
         ("en-ja", "remote.DeeplTranslator", "Hello, how are you?"),
         ("en-fr", "remote.DeeplTranslator", "Hello, how are you?"),
         ("en-ar", "remote.DeeplTranslator", "Hello, how are you?"),
-        ("ja-en", "remote.RivaTranslator", ["こんにちは。調子はどうですか?"]),
-        ("ja-fr", "remote.RivaTranslator", ["こんにちは。調子はどうですか?"]),
-        ("ja-ar", "remote.RivaTranslator", ["こんにちは。調子はどうですか?"]),
-        ("ja-en", "remote.DeeplTranslator", ["こんにちは。調子はどうですか?"]),
-        ("ja-fr", "remote.DeeplTranslator", ["こんにちは。調子はどうですか?"]),
-        ("ja-ar", "remote.DeeplTranslator", ["こんにちは。調子はどうですか?"]),
+        ("ja-en", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
+        ("ja-fr", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
+        ("ja-ar", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
+        ("ja-en", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
+        ("ja-fr", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
+        ("ja-ar", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
     ],
 )
 def test_remote_translate_single_language(
