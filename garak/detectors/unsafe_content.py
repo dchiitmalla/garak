@@ -1,5 +1,4 @@
-"""
-Toxicity detectors
+"""Unsafe content detectors
 """
 
 from collections import defaultdict
