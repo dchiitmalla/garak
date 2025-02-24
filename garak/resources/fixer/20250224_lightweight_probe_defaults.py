@@ -14,6 +14,7 @@ class RenameFigstep_1(Migration):
         new = "FigStepFull"
         return _plugin.rename(config_dict, path, old, new)
 
+
 class RenameFigstep_2(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename FigStep probes to make lightweight the default"""
@@ -21,4 +22,64 @@ class RenameFigstep_2(Migration):
         path = ["plugins", "probes", "visual_jailbreak"]
         old = "FigStepTiny"
         new = "FigStep"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameGraphConn_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename snowball.graphconnectivity probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "snowball"]
+        old = "GraphConnectivity"
+        new = "GraphConnectivityFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameGraphConn_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename snowball.graphconnectivity probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "snowball"]
+        old = "GraphConnectivityMini"
+        new = "GraphConnectivity"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenamePrimes_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename snowball.primes probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "snowball"]
+        old = "Prime"
+        new = "PrimesFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenamePrimes_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename snowball.primes probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "snowball"]
+        old = "PrimesMini"
+        new = "Primes"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameSenators_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename snowball.senators probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "snowball"]
+        old = "Senators"
+        new = "SenatorsFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameSenators_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename snowball.senators probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "snowball"]
+        old = "SenatorsMini"
+        new = "Senators"
         return _plugin.rename(config_dict, path, old, new)
