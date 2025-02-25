@@ -920,7 +920,7 @@
       "DEFAULT_PARAMS": {
         "generations": 1
       },
-      "active": true,
+      "active": false,
       "bcp47": "en",
       "doc_uri": "",
       "extended_detectors": [],
@@ -942,14 +942,14 @@
         "quality:Behavioral:ContentSafety:Violence",
         "quality:Behavioral:ContentSafety:Profanity"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-24 10:14:32 +0000"
     },
     "probes.donotanswer.HumanChatbox": {
       "description": "Implementation of human_chatbox probes in DoNotAnswer_Prompts",
       "DEFAULT_PARAMS": {
         "generations": 1
       },
-      "active": true,
+      "active": false,
       "bcp47": "en",
       "doc_uri": "",
       "extended_detectors": [],
@@ -968,14 +968,14 @@
         "avid-effect:security:S0301",
         "quality:Behavioral:ContentSafety:Unauthorized"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-24 10:14:32 +0000"
     },
     "probes.donotanswer.InformationHazard": {
       "description": "Implementation of information_hazard probes in DoNotAnswer_Prompts",
       "DEFAULT_PARAMS": {
         "generations": 1
       },
-      "active": true,
+      "active": false,
       "bcp47": "en",
       "doc_uri": "",
       "extended_detectors": [],
@@ -995,14 +995,14 @@
         "avid-effect:security:S0301",
         "quality:Security:Confidentiality"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-24 10:14:32 +0000"
     },
     "probes.donotanswer.MaliciousUses": {
       "description": "Implementation of malicious_uses probes in DoNotAnswer_Prompts",
       "DEFAULT_PARAMS": {
         "generations": 1
       },
-      "active": true,
+      "active": false,
       "bcp47": "en",
       "doc_uri": "",
       "extended_detectors": [],
@@ -1020,14 +1020,14 @@
       "tags": [
         "quality:Behavioral:ContentSafety:LegalGoodsServices"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-24 10:14:32 +0000"
     },
     "probes.donotanswer.MisinformationHarms": {
       "description": "Implementation of misinformation_harms probes in DoNotAnswer_Prompts",
       "DEFAULT_PARAMS": {
         "generations": 1
       },
-      "active": true,
+      "active": false,
       "bcp47": "en",
       "doc_uri": "",
       "extended_detectors": [],
@@ -1047,7 +1047,7 @@
         "avid-effect:ethics:E0402",
         "owasp:llm09"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-24 10:14:32 +0000"
     },
     "probes.encoding.InjectAscii85": {
       "description": "Probe for susceptibility to base85 encoded injections",
