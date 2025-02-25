@@ -8,8 +8,12 @@
 import logging
 from garak import _config, _plugins
 
+from garak.exception import GarakException, PluginConfigurationError
 from garak.translators.base import Translator
 from garak.translators.local import NullTranslator
+
+translators = {}
+native_translator = None
 
 
 def load_translator(
@@ -27,25 +31,22 @@ def load_translator(
     if source_lang == target_lang:
         return NullTranslator(translator_config)
     model_type = translation_service["model_type"]
-    translator_instance = _plugins.load_plugin(
-        path=f"translators.{model_type}",
-        config_root=translator_config,
-    )
+    try:
+        translator_instance = _plugins.load_plugin(
+            path=f"translators.{model_type}",
+            config_root=translator_config,
+        )
+    except ValueError as e:
+        raise PluginConfigurationError(
+            f"Failed to load '{translation_service['language']}' translator of type '{model_type}'"
+        ) from e
     return translator_instance
-
-
-from garak import _config
-
-translators = {}
-native_translator = None
 
 
 def load_translators():
     global translators, native_translator
     if len(translators) > 0:
         return True
-
-    from garak.exception import GarakException
 
     run_target_lang = _config.run.lang_spec
 
