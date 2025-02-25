@@ -48,7 +48,7 @@ class RivaTranslator(Translator):
         self._load_translator()
 
     def _clear_translator(self):
-        self.nmt_client = None
+        self.client = None
 
     def _load_translator(self):
         if not (
@@ -61,7 +61,7 @@ class RivaTranslator(Translator):
 
         import riva.client
 
-        if self.nmt_client is None:
+        if self.client is None:
             auth = riva.client.Auth(
                 None,
                 self.use_ssl,
@@ -71,11 +71,12 @@ class RivaTranslator(Translator):
                     ("authorization", "Bearer " + self.api_key),
                 ],
             )
-            self.nmt_client = riva.client.NeuralMachineTranslationClient(auth)
+            self.client = riva.client.NeuralMachineTranslationClient(auth)
 
+    # TODO: consider adding a backoff here and determining if a connection needs to be re-established
     def _translate(self, text: str) -> str:
         try:
-            response = self.nmt_client.translate(
+            response = self.client.translate(
                 [text], "", self.source_lang, self.target_lang
             )
             return response.translations[0].text
@@ -117,13 +118,13 @@ class DeeplTranslator(Translator):
                 f"Language pair {self.source_lang}-{self.target_lang} is not supported for this translator service."
             )
 
-        if self.translator is None:
-            self.translator = Translator(self.api_key)
+        if self.client is None:
+            self.client = Translator(self.api_key)
 
     def _translate(self, text: str) -> str:
         try:
             target_lang = "EN-US" if self.target_lang == "en" else self.target_lang
-            return self.translator.translate_text(
+            return self.client.translate_text(
                 text, source_lang=self.source_lang, target_lang=target_lang
             ).text
         except Exception as e:

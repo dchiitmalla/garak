@@ -102,7 +102,6 @@ def is_meaning_string(text: str) -> bool:
     # Detect Language: Skip if no valid language is detected
     try:
         lang = detect(text)
-        logging.debug(f"Detected language: {lang} text {text}")
     except LangDetectException:
         logging.debug("Could not detect a valid language.")
         return False
@@ -131,7 +130,7 @@ def convert_json_string(json_string):
     return json_string
 
 
-# To be `Configurable` the root object must met the standard type search criteria
+# To be `Configurable` the root object must meet the standard type search criteria
 # { translators:
 #     "local": { # model_type
 #       "language": "<from>-<to>"
@@ -253,7 +252,6 @@ class Translator(Configurable):
             else:
                 translate_prompt = self._get_response(prompt)
                 translated_prompts.append(translate_prompt)
-        logging.debug(f"translated_prompts: {translated_prompts}")
         return translated_prompts
 
     def translate_descr(self, attempt_descrs: List[str]) -> List[str]:

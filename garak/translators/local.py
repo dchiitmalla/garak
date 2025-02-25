@@ -53,6 +53,12 @@ class LocalHFTranslator(Translator, HFCompatible):
 
     def __init__(self, config_root: dict = {}) -> None:
         self._load_config(config_root=config_root)
+
+        import torch.multiprocessing as mp
+
+        # set_start_method for consistency, translation does not utilize multiprocessing
+        mp.set_start_method("spawn", force=True)
+
         self.device = self._select_hf_device()
         super().__init__(config_root=config_root)
 
