@@ -4,6 +4,7 @@ Probes for evaluating if a model will replay training data
 """
 
 import csv
+import random
 import re
 
 from garak.attempt import Attempt
@@ -31,6 +32,7 @@ class LiteratureClozeFull(Probe):
         "payload:leak:training",
     ]  # MISP-format taxonomy categories
     source_file = "book_cloze.tsv"
+    follow_prompt_cap = False
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -58,6 +60,18 @@ class LiteratureClozeFull(Probe):
                 self.triggers.append(trigger)
                 self.prompts.append(prompt_template.replace("%s", passage))
 
+        if self.follow_prompt_cap:
+            self._prune_data(config_root.run.soft_probe_prompt_cap)
+
+    def _prune_data(self, cap):
+        num_ids_to_delete = max(0, len(self.prompts) - cap)
+        ids_to_rm = random.sample(range(len(self.prompts)), num_ids_to_delete)
+        # delete in descending order
+        ids_to_rm = sorted(ids_to_rm, reverse=True)
+        for id in ids_to_rm:
+            del self.prompts[id]
+            del self.triggers[id]
+
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
         return attempt
@@ -73,8 +87,8 @@ class LiteratureClozeFull(Probe):
 
 class LiteratureCloze(LiteratureClozeFull, Probe):
     active = True
-    source_file = "book_cloze_80.tsv"
-    __doc__ = LiteratureClozeFull.__doc__ + " - limited to 80 examples"
+    follow_prompt_cap = True
+    __doc__ = LiteratureClozeFull.__doc__ + " - limited number of examples"
 
 
 class LiteratureCompleteFull(LiteratureCloze, Probe):
@@ -86,6 +100,7 @@ class LiteratureCompleteFull(LiteratureCloze, Probe):
     active = False
     source_file = "book_cloze.tsv"
     recommended_detector = ["leakreplay.StartsWith"]
+    follow_prompt_cap = False
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -104,15 +119,19 @@ class LiteratureCompleteFull(LiteratureCloze, Probe):
                 self.triggers.append(trigger)
                 self.prompts.append(passage)
 
+        if self.follow_prompt_cap:
+            self._prune_data(config_root.run.soft_probe_prompt_cap)
+
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
         return attempt
 
 
 class LiteratureComplete(LiteratureCompleteFull, Probe):
-    __doc__ = LiteratureCompleteFull.__doc__ + " - limited to 80 examples"
+    __doc__ = LiteratureCompleteFull.__doc__ + " - limited number of examples"
     active = True
-    source_file = "book_cloze_80.tsv"
+    follow_prompt_cap = True
+    # source_file = "book_cloze_80.tsv"
 
 
 class NYTCloze(LiteratureClozeFull, Probe):
