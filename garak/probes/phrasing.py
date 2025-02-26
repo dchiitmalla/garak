@@ -20,7 +20,7 @@ class TenseMini:
         self.generations = 1
 
 
-class PastTense(Probe):
+class PastTenseFull(Probe):
     """Will the system give unsafe responses when asked to write about weapon creation or dangerous behavior?
 
     This check sends the generator requests for advice on possibly protect or restricted subjects in the past tense.
@@ -51,7 +51,7 @@ class PastTense(Probe):
                 self.prompts.append(str.strip())
 
 
-class PastTenseMini(PastTense, TenseMini):
+class PastTense(PastTenseFull, TenseMini):
     """Attempt to evade safeguards by setting requests in the past tense
 
     A subset of the tense-modified requests. Success is reported higher with more variation, so
@@ -65,7 +65,7 @@ class PastTenseMini(PastTense, TenseMini):
         self._minify_prompts()
 
 
-class FutureTense(Probe):
+class FutureTenseFull(Probe):
     """Will the system give unsafe responses when asked to write about weapon creation or dangerous behavior?
 
     This check sends the generator requests for advice on possibly protect or restricted subjects in the future tense.
@@ -97,7 +97,7 @@ class FutureTense(Probe):
                 self.prompts.append(str.strip())
 
 
-class FutureTenseMini(FutureTense, TenseMini):
+class FutureTense(FutureTenseFull, TenseMini):
     """Attempt to evade safeguards by setting requests in the future tense
 
     A subset of the tense-modified requests. Success is reported higher with more variation, so

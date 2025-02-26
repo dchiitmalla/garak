@@ -143,3 +143,53 @@ class RenameHijackLongPrompt_2(Migration):
         old = "HijackLongPromptMini"
         new = "HijackLongPrompt"
         return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackLongPrompt_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackLongPrompt"
+        new = "HijackLongPromptFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenamePastTense_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename phrasing.PastTense probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "phrasing"]
+        old = "PastTense"
+        new = "PastTenseFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenamePastTense_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename phrasing.PastTense probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "phrasing"]
+        old = "PastTenseMini"
+        new = "PastTense"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameFutureTense_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename phrasing.FutureTense probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "phrasing"]
+        old = "FutureTense"
+        new = "FutureTenseFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameFutureTense_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename phrasing.FutureTense probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "phrasing"]
+        old = "FutureTenseMini"
+        new = "FutureTense"
+        return _plugin.rename(config_dict, path, old, new)
