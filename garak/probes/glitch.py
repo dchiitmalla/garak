@@ -217,7 +217,7 @@ class GlitchFull(Probe):
         return attempt
 
 
-class Glitch(Glitch, Probe):
+class Glitch(GlitchFull):
     """Probe model for glitch tokens that provoke unusual behavior
 
     Glitch tokens tend to be long entries in the tokenizer that only rarely occur
@@ -226,4 +226,7 @@ class Glitch(Glitch, Probe):
     This probe uses a subset of 100 potential glitch tokens, for speed."""
 
     active = True
-    max_prompts = _config.run.soft_probe_prompt_cap
+
+    def __init__(self, config_root=_config):
+        super().__init__(config_root)
+        self.max_prompts = _config.run.soft_probe_prompt_cap
