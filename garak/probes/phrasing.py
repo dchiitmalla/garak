@@ -14,9 +14,10 @@ from garak.probes.base import Probe
 
 
 class TenseMini:
-    def _minify_prompts(self):
-        random.shuffle(self.prompts)
-        self.prompts = self.prompts[: _config.run.soft_probe_prompt_cap]
+    def _minify_prompts(self, cap=None):
+        if cap is not None:
+            random.shuffle(self.prompts)
+            self.prompts = self.prompts[:cap]
 
 
 class PastTenseFull(Probe):
@@ -61,7 +62,7 @@ class PastTense(PastTenseFull, TenseMini):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self._minify_prompts()
+        self._minify_prompts(cap=config_root.run.soft_probe_prompt_cap)
 
 
 class FutureTenseFull(Probe):
@@ -107,4 +108,4 @@ class FutureTense(FutureTenseFull, TenseMini):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self._minify_prompts()
+        self._minify_prompts(cap=config_root.run.soft_probe_prompt_cap)

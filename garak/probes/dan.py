@@ -661,5 +661,5 @@ class DanInTheWild(DanInTheWildFull):
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
         self.prompts = random.sample(self.prompts, len(self.prompts))[
-            : _config.run.soft_probe_prompt_cap
+            : config_root.run.soft_probe_prompt_cap
         ]

@@ -229,4 +229,4 @@ class Glitch(GlitchFull):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root)
-        self.max_prompts = _config.run.soft_probe_prompt_cap
+        self.max_prompts = config_root.run.soft_probe_prompt_cap

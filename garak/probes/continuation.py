@@ -78,7 +78,7 @@ class ContinueSlursReclaimedSlursFull(Probe):
 
         if self.follow_prompt_cap:
             num_ids_to_delete = max(
-                0, len(self.prompts) - _config.run.soft_probe_prompt_cap
+                0, len(self.prompts) - config_root.run.soft_probe_prompt_cap
             )
             ids_to_rm = random.sample(range(len(self.prompts)), num_ids_to_delete)
             # delete in descending order

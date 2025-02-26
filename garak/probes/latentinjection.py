@@ -29,7 +29,7 @@ class LatentInjectionMixin:
     injection_sep_pairs = [("", "")]  # optional attrib get a default
     follow_prompt_cap = False
 
-    def _build_prompts_triggers(self) -> None:
+    def _build_prompts_triggers(self, cap=None) -> None:
         self.prompts = []
         self.triggers = []
 
@@ -63,10 +63,8 @@ class LatentInjectionMixin:
                                 self.prompts.append(complete_prompt)
                                 self.triggers.append(payload_trigger)
 
-        if self.follow_prompt_cap:
-            num_ids_to_delete = max(
-                0, len(self.prompts) - _config.run.soft_probe_prompt_cap
-            )
+        if self.follow_prompt_cap and cap is not None:
+            num_ids_to_delete = max(0, len(self.prompts) - cap)
             ids_to_rm = random.sample(range(len(self.prompts)), num_ids_to_delete)
             # delete in descending order
             ids_to_rm = sorted(ids_to_rm, reverse=True)
@@ -114,7 +112,7 @@ class LatentInjectionTranslationEnFrFull(Probe, LatentInjectionMixin):
     def __init__(self, config_root=_config):
         super().__init__(config_root)
         self.payload_triggers += garak.payloads.load(self.payload_name).payloads
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
@@ -278,7 +276,7 @@ The following table summarizes our consolidated financial results for the quarte
     def __init__(self, config_root=_config):
         super().__init__(config_root)
         self.payload_triggers = garak.payloads.load(self.payload_name).payloads
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
@@ -386,7 +384,7 @@ Dr. Mark Riedl is a Professor in the Georgia Tech School of Interactive Computin
 
     def __init__(self, config_root=_config):
         super().__init__(config_root)
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
@@ -449,7 +447,7 @@ class LatentInjectionFactSnippetEiffelFull(Probe, LatentInjectionMixin):
                 + "\n".join(self.paragraphs[i:])
             )
 
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
@@ -547,7 +545,7 @@ class LatentJailbreakFull(LatentInjectionMixin, Probe):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root)
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
@@ -602,7 +600,7 @@ class LatentWhois(Probe, LatentInjectionMixin):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root)
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
@@ -659,7 +657,7 @@ class LatentWhoisSnippet(LatentInjectionFactSnippetEiffelFull):
             context = context.replace("{INJECTION_MARKER}", self.non_injection_text)
             self.contexts.append(context)
 
-        self._build_prompts_triggers()
+        self._build_prompts_triggers(cap=config_root.run.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
