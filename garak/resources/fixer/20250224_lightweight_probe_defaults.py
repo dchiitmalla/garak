@@ -255,6 +255,26 @@ class RenameLatentJailbreak_2(Migration):
         return _plugin.rename(config_dict, path, old, new)
 
 
+class RenameLatentInjectionFactSnippetEiffel_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename latentinjection.LatentInjectionFactSnippetEiffel probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "latentinjection"]
+        old = "LatentInjectionFactSnippetEiffel"
+        new = "LatentInjectionFactSnippetEiffelFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameLatentInjectionFactSnippetEiffel_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename latentinjection.LatentInjectionFactSnippetEiffel probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "latentinjection"]
+        old = "LatentInjectionFactSnippetEiffel"
+        new = "LatentInjectionFactSnippetEiffelMini"
+        return _plugin.rename(config_dict, path, old, new)
+
+
 class RenameDanInTheWild_1(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename dan.DanInTheWild probes to make lightweight the default"""
