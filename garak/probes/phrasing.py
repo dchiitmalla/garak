@@ -16,7 +16,7 @@ from garak.probes.base import Probe
 class TenseMini:
     def _minify_prompts(self):
         random.shuffle(self.prompts)
-        self.prompts = self.prompts[:200]
+        self.prompts = self.prompts[: _config.run.soft_probe_prompt_cap]
         self.generations = 1
 
 
