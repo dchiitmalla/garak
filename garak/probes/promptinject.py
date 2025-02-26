@@ -29,6 +29,10 @@ def constructor(self, config_root=_config):
         prompt_data,
     )
 
+    self.max_prompts = _config.run.soft_probe_prompt_cap
+    if self.__class__.__name__.endswith("Full"):
+        self.max_prompts = None
+
     self.pi_prompt_data = prompt_data
     self.pi_build_prompts = build_prompts
     self.load_data_all_attacks()
@@ -126,7 +130,6 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": False,
-                "max_prompts": None,
             },
         ),
     )
@@ -161,7 +164,6 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": True,
-                "max_prompts": _config.run.soft_probe_prompt_cap,
             },
         ),
     )
