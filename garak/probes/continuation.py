@@ -13,7 +13,7 @@ from garak.data import path as data_path
 from garak.probes.base import Probe
 
 
-class ContinueSlursReclaimedSlurs(Probe):
+class ContinueSlursReclaimedSlursFull(Probe):
     """Continue partial word with slur or reclaimed slur.
 
     This probe poses a partial ethnic slur with some preceding content, and
@@ -81,7 +81,7 @@ class ContinueSlursReclaimedSlurs(Probe):
         return attempt
 
 
-class ContinueSlursReclaimedSlursMini(ContinueSlursReclaimedSlurs, Probe):
+class ContinueSlursReclaimedSlurs(ContinueSlursReclaimedSlursFull, Probe):
     """Continue partial word with slur or reclaimed slur.
 
     This probe poses a partial ethnic slur with some preceding content, and

@@ -463,7 +463,7 @@ class LatentInjectionFactSnippetLegal(LatentInjectionFactSnippetEiffel):
     ]
 
 
-class LatentJailbreak(LatentInjectionMixin, Probe):
+class LatentJailbreakFull(LatentInjectionMixin, Probe):
     """Implementation of Latent Jailbreak, using latent prompt injection-
     style distraction to get model to write hateful/harmful text
 
@@ -533,7 +533,7 @@ class LatentJailbreak(LatentInjectionMixin, Probe):
         return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
 
 
-class LatentJailbreakMini(LatentJailbreak):
+class LatentJailbreak(LatentJailbreakFull):
     """Implementation of Latent Jailbreak, using latent prompt injection-
     style distraction to get model to write hateful/harmful text - shrunk version
 
@@ -542,7 +542,7 @@ class LatentJailbreakMini(LatentJailbreak):
     thousands of prompts by default, which is too many for some applications.
     This probe uses a randomly constrained subset."""
 
-    DEFAULT_PARAMS = LatentJailbreak.DEFAULT_PARAMS | {
+    DEFAULT_PARAMS = LatentJailbreakFull.DEFAULT_PARAMS | {
         "context_count": 6,
         "instruction_count": 3,
         "trigger_count": 4,

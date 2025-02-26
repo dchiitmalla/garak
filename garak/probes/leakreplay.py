@@ -12,7 +12,7 @@ from garak.data import path as data_path
 from garak.probes.base import Probe
 
 
-class LiteratureCloze(Probe):
+class LiteratureClozeFull(Probe):
     """Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.
 
     This probe tests if a model can fill in high-perplexity blanks in excerpts of documents.
@@ -71,13 +71,13 @@ class LiteratureCloze(Probe):
         return attempt
 
 
-class LiteratureCloze80(LiteratureCloze, Probe):
+class LiteratureCloze(LiteratureClozeFull, Probe):
     active = True
     source_file = "book_cloze_80.tsv"
-    __doc__ = LiteratureCloze.__doc__ + " - limited to 80 examples"
+    __doc__ = LiteratureClozeFull.__doc__ + " - limited to 80 examples"
 
 
-class LiteratureComplete(LiteratureCloze, Probe):
+class LiteratureCompleteFull(LiteratureCloze, Probe):
     """Data replay probe for literature, using document completion. Uses passages that either GPT-4 or ChatGPT have been known to replay.
 
     This probe tests if a model can do high-perplexity completions in excerpts of documents.
@@ -109,49 +109,49 @@ class LiteratureComplete(LiteratureCloze, Probe):
         return attempt
 
 
-class LiteratureComplete80(LiteratureComplete, Probe):
-    __doc__ = LiteratureComplete.__doc__ + " - limited to 80 examples"
+class LiteratureComplete(LiteratureCompleteFull, Probe):
+    __doc__ = LiteratureCompleteFull.__doc__ + " - limited to 80 examples"
     active = True
     source_file = "book_cloze_80.tsv"
 
 
-class NYTCloze(LiteratureCloze, Probe):
+class NYTCloze(LiteratureClozeFull, Probe):
     active = True
     source_file = "nyt_cloze.tsv"
     __doc__ = (
-        LiteratureCloze.__doc__
+        LiteratureClozeFull.__doc__
         + " - based on NYT articles used in the NYT/OpenAI lawsuit"
     )
 
 
-class NYTComplete(LiteratureComplete, Probe):
+class NYTComplete(LiteratureCompleteFull, Probe):
     active = True
     source_file = "nyt_cloze.tsv"
     __doc__ = (
-        LiteratureComplete.__doc__
+        LiteratureCompleteFull.__doc__
         + " - based on NYT articles used in the NYT/OpenAI lawsuit"
     )
 
 
-class GuardianCloze(LiteratureCloze, Probe):
+class GuardianCloze(LiteratureClozeFull, Probe):
     active = True
     source_file = "guardian_cloze.tsv"
-    __doc__ = LiteratureCloze.__doc__ + " - based on articles from The Guardian"
+    __doc__ = LiteratureClozeFull.__doc__ + " - based on articles from The Guardian"
 
 
-class GuardianComplete(LiteratureComplete, Probe):
+class GuardianComplete(LiteratureCompleteFull, Probe):
     active = True
     source_file = "guardian_cloze.tsv"
-    __doc__ = LiteratureComplete.__doc__ + " - based on articles from The Guardian"
+    __doc__ = LiteratureCompleteFull.__doc__ + " - based on articles from The Guardian"
 
 
-class PotterCloze(LiteratureCloze, Probe):
+class PotterCloze(LiteratureClozeFull, Probe):
     active = True
     source_file = "potter_cloze.tsv"
-    __doc__ = LiteratureCloze.__doc__ + " - based on Harry Potter novels"
+    __doc__ = LiteratureClozeFull.__doc__ + " - based on Harry Potter novels"
 
 
-class PotterComplete(LiteratureComplete, Probe):
+class PotterComplete(LiteratureCompleteFull, Probe):
     active = True
     source_file = "potter_cloze.tsv"
-    __doc__ = LiteratureComplete.__doc__ + " - based on Harry Potter novels"
+    __doc__ = LiteratureCompleteFull.__doc__ + " - based on Harry Potter novels"
