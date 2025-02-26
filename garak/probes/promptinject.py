@@ -98,9 +98,9 @@ for rogue_string in rogue_strings:
 
     setattr(
         this,
-        classname,
+        classname + "Full",
         type(
-            classname,
+            classname + "Full",
             (Probe,),
             {
                 "__init__": constructor,
@@ -133,9 +133,9 @@ for rogue_string in rogue_strings:
 
     setattr(
         this,
-        classname + "Mini",
+        classname,
         type(
-            classname + "Mini",
+            classname,
             (Probe,),
             {
                 "__init__": constructor,
@@ -161,7 +161,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": True,
-                "max_prompts": 100,
+                "max_prompts": _config.run.soft_probe_prompt_cap,
             },
         ),
     )

@@ -83,3 +83,63 @@ class RenameSenators_2(Migration):
         old = "SenatorsMini"
         new = "Senators"
         return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackHateHumans_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackHateHumans probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackHateHumans"
+        new = "HijackHateHumansFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackHateHumans_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackHateHumans probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackHateHumansMini"
+        new = "HijackHateHumans"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackKillHumans_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackKillHumans"
+        new = "HijackKillHumansFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackKillHumans_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackKillHumansMini"
+        new = "HijackKillHumans"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackLongPrompt_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackLongPrompt"
+        new = "HijackLongPromptFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameHijackLongPrompt_2(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename promptinject.HijackLongPrompt probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "promptinject"]
+        old = "HijackLongPromptMini"
+        new = "HijackLongPrompt"
+        return _plugin.rename(config_dict, path, old, new)
