@@ -313,3 +313,33 @@ class RenameContinueSlursReclaimedSlurs_2(Migration):
         old = "ContinueSlursReclaimedSlursMini"
         new = "ContinueSlursReclaimedSlurs"
         return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameFalseAssertion(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename misleadeing.FalseAssertion probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "misleading"]
+        old = "FalseAssertion50"
+        new = "FalseAssertion"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameGlitch_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename glitch.Glitch100 probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "glitch"]
+        old = "Glitch"
+        new = "GlitchFull"
+        return _plugin.rename(config_dict, path, old, new)
+
+
+class RenameGlitch_1(Migration):
+    def apply(config_dict: dict) -> dict:
+        """Rename glitch.Glitch100 probes to make lightweight the default"""
+
+        path = ["plugins", "probes", "glitch"]
+        old = "Glitch100"
+        new = "Glitch"
+        return _plugin.rename(config_dict, path, old, new)
