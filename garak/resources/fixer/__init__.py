@@ -36,7 +36,8 @@ for module_filename in sorted(os.listdir(root_path)):
             for _, klass in inspect.getmembers(mod, inspect.isclass)
             if klass.__module__.startswith(mod.__name__)
             and Migration in klass.__bases__
-        ]
+        ],
+        key=lambda x: x.__name__.__str__(),
     )
     ordered_migrations += migrations
 
