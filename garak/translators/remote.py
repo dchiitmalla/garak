@@ -61,17 +61,16 @@ class RivaTranslator(Translator):
 
         import riva.client
 
-        if self.client is None:
-            auth = riva.client.Auth(
-                None,
-                self.use_ssl,
-                self.uri,
-                [
-                    ("function-id", self.function_id),
-                    ("authorization", "Bearer " + self.api_key),
-                ],
-            )
-            self.client = riva.client.NeuralMachineTranslationClient(auth)
+        auth = riva.client.Auth(
+            None,
+            self.use_ssl,
+            self.uri,
+            [
+                ("function-id", self.function_id),
+                ("authorization", "Bearer " + self.api_key),
+            ],
+        )
+        self.client = riva.client.NeuralMachineTranslationClient(auth)
 
     # TODO: consider adding a backoff here and determining if a connection needs to be re-established
     def _translate(self, text: str) -> str:
@@ -118,8 +117,7 @@ class DeeplTranslator(Translator):
                 f"Language pair {self.source_lang}-{self.target_lang} is not supported for this translator service."
             )
 
-        if self.client is None:
-            self.client = Translator(self.api_key)
+        self.client = Translator(self.api_key)
 
     def _translate(self, text: str) -> str:
         try:
