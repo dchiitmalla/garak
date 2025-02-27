@@ -97,7 +97,7 @@ def test_atkgen_probe_translation(classname, mocker):
 
     probe_instance.probe(generator_instance)
 
-    expected_translation_calls = 1
+    expected_translation_calls = 2 * probe_instance.max_calls
     if hasattr(probe_instance, "triggers"):
         # increase prompt calls by 1 or if triggers are lists by the len of triggers
         if isinstance(probe_instance.triggers[0], list):

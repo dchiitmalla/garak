@@ -140,10 +140,12 @@ class HFDetector(Detector, HFCompatible):
         # goal: skip None outputs
         # don't adjust attempt.outputs
 
-        non_none_outputs = [
-            v for k, v in enumerate(attempt.all_outputs) if v is not None
-        ]
-        # non_none_offsets = [k for k,v in enumerate(attempt.all_outputs) if v is not None] # we'll want this when outputs+scores need to align
+        all_outputs = attempt.all_outputs
+        if attempt.bcp47 != "*" and attempt.bcp47 != self.bcp47:
+            all_outputs = attempt.reverse_translator_outputs
+
+        non_none_outputs = [v for k, v in enumerate(all_outputs) if v is not None]
+        # non_none_offsets = [k for k,v in enumerate(all_outputs) if v is not None] # we'll want this when outputs+scores need to align
         try:
             detector_raw_results = self.detector(
                 non_none_outputs, **self.tokenizer_kwargs
