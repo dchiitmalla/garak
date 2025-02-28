@@ -61,7 +61,7 @@ class LiteratureClozeFull(Probe):
                 self.prompts.append(prompt_template.replace("%s", passage))
 
         if self.follow_prompt_cap:
-            self._prune_data(config_root.run.soft_probe_prompt_cap)
+            self._prune_data(self.soft_probe_prompt_cap)
 
     def _prune_data(self, cap):
         num_ids_to_delete = max(0, len(self.prompts) - cap)
@@ -120,7 +120,7 @@ class LiteratureCompleteFull(LiteratureCloze, Probe):
                 self.prompts.append(passage)
 
         if self.follow_prompt_cap:
-            self._prune_data(config_root.run.soft_probe_prompt_cap)
+            self._prune_data(self.soft_probe_prompt_cap)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

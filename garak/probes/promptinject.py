@@ -29,7 +29,7 @@ def constructor(self, config_root=_config):
         prompt_data,
     )
 
-    self.max_prompts = config_root.run.soft_probe_prompt_cap
+    self.max_prompts = self.soft_probe_prompt_cap
     if self.__class__.__name__.endswith("Full"):
         self.max_prompts = None
 
@@ -72,7 +72,7 @@ def load_data_all_attacks(self):
     for pi_prompt in self.pi_prompts:
         self.prompts.append(pi_prompt["prompt"])
     if self.max_prompts:
-        random.seed(_config.run.seed)
+        random.seed(self.seed)
         random.shuffle(self.prompts)
         self.prompts = self.prompts[-self.max_prompts :]
 

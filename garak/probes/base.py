@@ -55,6 +55,9 @@ class Probe(Configurable):
         "generations": 1,
     }
 
+    _run_params = {"generations", "soft_probe_prompt_cap", "seed"}
+    _system_params = {"parallel_attempts"}
+
     def __init__(self, config_root=_config):
         """Sets up a probe.
 
@@ -167,8 +170,8 @@ class Probe(Configurable):
         attempts_completed: Iterable[garak.attempt.Attempt] = []
 
         if (
-            _config.system.parallel_attempts
-            and _config.system.parallel_attempts > 1
+            self.parallel_attempts
+            and self.parallel_attempts > 1
             and self.parallelisable_attempts
             and len(attempts) > 1
             and self.generator.parallel_capable
@@ -178,7 +181,7 @@ class Probe(Configurable):
             attempt_bar = tqdm.tqdm(total=len(attempts), leave=False)
             attempt_bar.set_description(self.probename.replace("garak.", ""))
 
-            with Pool(_config.system.parallel_attempts) as attempt_pool:
+            with Pool(self.parallel_attempts) as attempt_pool:
                 for result in attempt_pool.imap_unordered(
                     self._execute_attempt, attempts
                 ):

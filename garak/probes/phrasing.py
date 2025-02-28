@@ -62,7 +62,7 @@ class PastTense(PastTenseFull, TenseMini):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self._minify_prompts(cap=config_root.run.soft_probe_prompt_cap)
+        self._minify_prompts(cap=self.soft_probe_prompt_cap)
 
 
 class FutureTenseFull(Probe):
@@ -108,4 +108,4 @@ class FutureTense(FutureTenseFull, TenseMini):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self._minify_prompts(cap=config_root.run.soft_probe_prompt_cap)
+        self._minify_prompts(cap=self.soft_probe_prompt_cap)

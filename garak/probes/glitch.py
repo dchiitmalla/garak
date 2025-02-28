@@ -207,7 +207,7 @@ class GlitchFull(Probe):
 
         if self.max_prompts:
             zipped = list(zip(self.prompts, self.triggers))
-            random.seed(_config.run.seed)
+            random.seed(self.seed)
             random.shuffle(zipped)
             zipped = zipped[-self.max_prompts :]
             self.prompts, self.triggers = zip(*zipped)
@@ -229,4 +229,4 @@ class Glitch(GlitchFull):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root)
-        self.max_prompts = config_root.run.soft_probe_prompt_cap
+        self.max_prompts = self.soft_probe_prompt_cap
