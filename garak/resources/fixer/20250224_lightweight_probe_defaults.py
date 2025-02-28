@@ -5,314 +5,239 @@ from garak.resources.fixer import Migration
 from garak.resources.fixer import _plugin
 
 
-class RenameFigstep_1(Migration):
+class RenameFigstep(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename FigStep probes to make lightweight the default"""
 
         path = ["plugins", "probes", "visual_jailbreak"]
-        old = "FigStep"
-        new = "FigStepFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["FigStep", "FigStepFull"],
+            ["FigStepTiny", "FigStep"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameFigstep_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename FigStep probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "visual_jailbreak"]
-        old = "FigStepTiny"
-        new = "FigStep"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameGraphConn_1(Migration):
+class RenameGraphConn(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename snowball.graphconnectivity probes to make lightweight the default"""
 
         path = ["plugins", "probes", "snowball"]
-        old = "GraphConnectivity"
-        new = "GraphConnectivityFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["GraphConnectivity", "GraphConnectivityFull"],
+            ["GraphConnectivityMini", "GraphConnectivity"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameGraphConn_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename snowball.graphconnectivity probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "snowball"]
-        old = "GraphConnectivityMini"
-        new = "GraphConnectivity"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenamePrimes_1(Migration):
+class RenamePrimes(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename snowball.primes probes to make lightweight the default"""
 
         path = ["plugins", "probes", "snowball"]
-        old = "Prime"
-        new = "PrimesFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["Primes", "PrimesFull"],
+            ["PrimesMini", "Primes"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenamePrimes_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename snowball.primes probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "snowball"]
-        old = "PrimesMini"
-        new = "Primes"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameSenators_1(Migration):
+class RenameSenators(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename snowball.senators probes to make lightweight the default"""
 
         path = ["plugins", "probes", "snowball"]
-        old = "Senators"
-        new = "SenatorsFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["Senators", "SenatorsFull"],
+            ["SenatorsMini", "Senators"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameSenators_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename snowball.senators probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "snowball"]
-        old = "SenatorsMini"
-        new = "Senators"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameHijackHateHumans_1(Migration):
+class RenameHijackHateHumans(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename promptinject.HijackHateHumans probes to make lightweight the default"""
 
         path = ["plugins", "probes", "promptinject"]
-        old = "HijackHateHumans"
-        new = "HijackHateHumansFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["HijackHateHumans", "HijackHateHumansFull"],
+            ["HijackHateHumansMini", "HijackHateHumans"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameHijackHateHumans_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename promptinject.HijackHateHumans probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "promptinject"]
-        old = "HijackHateHumansMini"
-        new = "HijackHateHumans"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameHijackKillHumans_1(Migration):
+class RenameHijackKillHumans(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
 
         path = ["plugins", "probes", "promptinject"]
         old = "HijackKillHumans"
         new = "HijackKillHumansFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["HijackKillHumans", "HijackKillHumansFull"],
+            ["HijackKillHumansMini", "HijackKillHumans"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameHijackKillHumans_2(Migration):
+class RenameHijackLongPrompt(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
 
         path = ["plugins", "probes", "promptinject"]
-        old = "HijackKillHumansMini"
-        new = "HijackKillHumans"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["HijackLongPrompt", "HijackLongPromptFull"],
+            ["HijackLongPromptMini", "HijackLongPrompt"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameHijackLongPrompt_1(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "promptinject"]
-        old = "HijackLongPrompt"
-        new = "HijackLongPromptFull"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameHijackLongPrompt_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename promptinject.HijackLongPrompt probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "promptinject"]
-        old = "HijackLongPromptMini"
-        new = "HijackLongPrompt"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameHijackLongPrompt_1(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename promptinject.HijackKillHumans probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "promptinject"]
-        old = "HijackLongPrompt"
-        new = "HijackLongPromptFull"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenamePastTense_1(Migration):
+class RenamePastTense(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename phrasing.PastTense probes to make lightweight the default"""
 
         path = ["plugins", "probes", "phrasing"]
-        old = "PastTense"
-        new = "PastTenseFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["PastTense", "PastTenseFull"],
+            ["PastTenseMini", "PastTense"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenamePastTense_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename phrasing.PastTense probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "phrasing"]
-        old = "PastTenseMini"
-        new = "PastTense"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameFutureTense_1(Migration):
+class RenameFutureTense(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename phrasing.FutureTense probes to make lightweight the default"""
 
         path = ["plugins", "probes", "phrasing"]
-        old = "FutureTense"
-        new = "FutureTenseFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["FutureTense", "FutureTenseFull"],
+            ["FutureTenseMini", "FutureTense"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameFutureTense_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename phrasing.FutureTense probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "phrasing"]
-        old = "FutureTenseMini"
-        new = "FutureTense"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameLiteratureCloze_1(Migration):
+class RenameLiteratureCloze(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename leakreplay.LiteratureCloze probes to make lightweight the default"""
 
         path = ["plugins", "probes", "leakreplay"]
-        old = "LiteratureCloze"
-        new = "LiteratureClozeFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["LiteratureCloze", "LiteratureClozeFull"],
+            ["LiteratureCloze80", "LiteratureCloze"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameLiteratureCloze_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename leakreplay.LiteratureCloze probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "leakreplay"]
-        old = "LiteratureCloze80"
-        new = "LiteratureCloze"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameLiteratureComplete_1(Migration):
+class RenameLiteratureComplete(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename leakreplay.LiteratureComplete probes to make lightweight the default"""
 
         path = ["plugins", "probes", "leakreplay"]
-        old = "LiteratureComplete"
-        new = "LiteratureCompleteFull"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["LiteratureComplete", "LiteratureCompleteFull"],
+            ["LiteratureComplete80", "LiteratureComplete"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameLiteratureComplete_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename leakreplay.LiteratureComplete probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "leakreplay"]
-        old = "LiteratureComplete80"
-        new = "LiteratureComplete"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameLatentJailbreak_1(Migration):
+class RenameLatentJailbreak(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename latentinjection.LatentJailbreak probes to make lightweight the default"""
 
         path = ["plugins", "probes", "latentinjection"]
-        old = "LatentJailbreak"
-        new = "LatentJailbreakFull"
-        return _plugin.rename(config_dict, path, old, new)
+
+        renames = (
+            ["LatentJailbreak", "LatentJailbreakFull"],
+            ["LatentJailbreakMini", "LatentJailbreak"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameLatentJailbreak_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename latentinjection.LatentJailbreak probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "latentinjection"]
-        old = "LatentJailbreakMini"
-        new = "LatentJailbreak"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameLatentInjectionFactSnippetEiffel_1(Migration):
+class RenameLatentInjectionFactSnippetEiffel(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename latentinjection.LatentInjectionFactSnippetEiffel probes to make lightweight the default"""
 
         path = ["plugins", "probes", "latentinjection"]
-        old = "LatentInjectionFactSnippetEiffel"
-        new = "LatentInjectionFactSnippetEiffelFull"
-        return _plugin.rename(config_dict, path, old, new)
+
+        renames = (
+            [
+                "LatentInjectionFactSnippetEiffel",
+                "LatentInjectionFactSnippetEiffelFull",
+            ],
+            [
+                "LatentInjectionFactSnippetEiffelMini",
+                "LatentInjectionFactSnippetEiffel",
+            ],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameLatentInjectionFactSnippetEiffel_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename latentinjection.LatentInjectionFactSnippetEiffel probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "latentinjection"]
-        old = "LatentInjectionFactSnippetEiffel"
-        new = "LatentInjectionFactSnippetEiffelMini"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameDanInTheWild_1(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename dan.DanInTheWild probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "dan"]
-        old = "DanInTheWild"
-        new = "DanInTheWildFull"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameDanInTheWild_2(Migration):
+class RenameDanInTheWild(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename dan.DanInTheWild probes to make lightweight the default"""
 
         path = ["plugins", "probes", "dan"]
-        old = "DanInTheWildMini"
-        new = "DanInTheWild"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["DanInTheWild", "DanInTheWildFull"],
+            ["DanInTheWildMini", "DanInTheWild"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
-class RenameContinueSlursReclaimedSlurs_1(Migration):
+class RenameContinueSlursReclaimedSlurs(Migration):
     def apply(config_dict: dict) -> dict:
         """Rename continuation.ContinueSlursReclaimedSlurs probes to make lightweight the default"""
 
         path = ["plugins", "probes", "continuation"]
-        old = "ContinueSlursReclaimedSlurs"
-        new = "ContinueSlursReclaimedSlursFull"
-        return _plugin.rename(config_dict, path, old, new)
-
-
-class RenameContinueSlursReclaimedSlurs_2(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename continuation.ContinueSlursReclaimedSlurs probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "continuation"]
-        old = "ContinueSlursReclaimedSlursMini"
-        new = "ContinueSlursReclaimedSlurs"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["ContinueSlursReclaimedSlurs", "ContinueSlursReclaimedSlursFull"],
+            ["ContinueSlursReclaimedSlursMini", "ContinueSlursReclaimedSlurs"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
 
 
 class RenameFalseAssertion(Migration):
@@ -325,21 +250,17 @@ class RenameFalseAssertion(Migration):
         return _plugin.rename(config_dict, path, old, new)
 
 
-class RenameGlitch_1(Migration):
+class RenameGlitch(Migration):
     def apply(config_dict: dict) -> dict:
-        """Rename glitch.Glitch100 probes to make lightweight the default"""
+        """Rename glitch probes to make lightweight the default"""
 
         path = ["plugins", "probes", "glitch"]
-        old = "Glitch"
-        new = "GlitchFull"
-        return _plugin.rename(config_dict, path, old, new)
 
-
-class RenameGlitch_1(Migration):
-    def apply(config_dict: dict) -> dict:
-        """Rename glitch.Glitch100 probes to make lightweight the default"""
-
-        path = ["plugins", "probes", "glitch"]
-        old = "Glitch100"
-        new = "Glitch"
-        return _plugin.rename(config_dict, path, old, new)
+        renames = (
+            ["Glitch", "GlitchFull"],
+            ["Glitch100", "Glitch"],
+        )
+        updated_config = config_dict
+        for old, new in renames:
+            updated_config = _plugin.rename(updated_config, path, old, new)
+        return updated_config
