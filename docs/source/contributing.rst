@@ -15,7 +15,7 @@ Checking your contribution is within scope
 
 ``garak`` is a security toolkit rather than a content safety or bias toolkit.
 The project scope relates primarily to LLM & dialog system security.
-This is a huge area, and you can get an idea of the kind of contributions that are in scope from our `FAQ <https://github.com/NVIDIA/garak/blob/main/FAQ.md>_` and our `Github issues <https://github.com/NVIDIA/garak/issues>`_ page.
+This is a huge area, and you can get an idea of the kind of contributions that are in scope from our `FAQ <https://github.com/NVIDIA/garak/blob/main/FAQ.md>`_ and our `Github issues <https://github.com/NVIDIA/garak/issues>`_ page.
 
 
 Connecting with the ``garak`` team & community
