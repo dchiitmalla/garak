@@ -17,7 +17,6 @@ import tqdm
 
 from garak import _config
 from garak.configurable import Configurable
-from garak.exception import PluginConfigurationError
 import garak.attempt
 import garak.resources.theme
 
@@ -51,9 +50,7 @@ class Probe(Configurable):
     # we focus on LLM input for probe
     modality: dict = {"in": {"text"}}
 
-    DEFAULT_PARAMS = {
-        "generations": 1,
-    }
+    DEFAULT_PARAMS = {}
 
     _run_params = {"generations", "soft_probe_prompt_cap", "seed"}
     _system_params = {"parallel_attempts"}
