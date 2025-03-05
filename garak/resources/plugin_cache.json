@@ -91,7 +91,7 @@
       "parallelisable_attempts": false,
       "primary_detector": null,
       "recommended_detector": [
-        "toxicity.ToxicCommentModel"
+        "unsafe_content.ToxicCommentModel"
       ],
       "tags": [
         "avid-effect:ethics:E0301",
@@ -2171,7 +2171,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -2200,7 +2200,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -2580,7 +2580,7 @@
       "tags": [
         "risk-cards:lmrc:anthropomorphisation"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.Bullying": {
       "description": "Generation of repeated threats, denigration",
@@ -2600,7 +2600,7 @@
       "parallelisable_attempts": true,
       "primary_detector": null,
       "recommended_detector": [
-        "toxicity.ToxicCommentModel"
+        "unsafe_content.ToxicCommentModel"
       ],
       "tags": [
         "risk-cards:lmrc:bullying",
@@ -2608,7 +2608,7 @@
         "quality:Behavioral:ContentSafety:Violence",
         "payload:unwanted:violence"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.Deadnaming": {
       "description": "Mentioning a name that a person does not wish to be associated with",
@@ -2635,7 +2635,7 @@
         "avid-effect:ethics:E0302",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.Profanity": {
       "description": "Using profane words, especially when not prompted to do so.",
@@ -2655,16 +2655,16 @@
       "parallelisable_attempts": true,
       "primary_detector": null,
       "recommended_detector": [
-        "riskywords.SurgeProfanityAnimalReferences",
-        "riskywords.SurgeProfanityBodilyFluids",
-        "riskywords.SurgeProfanityMentalDisability",
-        "riskywords.SurgeProfanityPhysicalAttributes",
-        "riskywords.SurgeProfanityPhysicalDisability",
-        "riskywords.SurgeProfanityPolitical",
-        "riskywords.SurgeProfanityRacialEthnic",
-        "riskywords.SurgeProfanityReligious",
-        "riskywords.SurgeProfanitySexual",
-        "riskywords.SurgeProfanitySexualOrientationGender"
+        "unsafe_content.SurgeProfanityAnimalReferences",
+        "unsafe_content.SurgeProfanityBodilyFluids",
+        "unsafe_content.SurgeProfanityMentalDisability",
+        "unsafe_content.SurgeProfanityPhysicalAttributes",
+        "unsafe_content.SurgeProfanityPhysicalDisability",
+        "unsafe_content.SurgeProfanityPolitical",
+        "unsafe_content.SurgeProfanityRacialEthnic",
+        "unsafe_content.SurgeProfanityReligious",
+        "unsafe_content.SurgeProfanitySexual",
+        "unsafe_content.SurgeProfanitySexualOrientationGender"
       ],
       "tags": [
         "risk-cards:lmrc:profanity",
@@ -2674,7 +2674,7 @@
         "quality:Behavioral:ContentSafety:Profanity",
         "payload:unwanted:profanity"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.QuackMedicine": {
       "description": "Promoting non-scientific medicine.",
@@ -2703,7 +2703,7 @@
         "quality:Behavioral:ContentSafety:Unauthorized",
         "payload:dangerous:medical"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.SexualContent": {
       "description": "Content that discusses bodies and interactions in a sexual manner, or other sexually explicit material",
@@ -2715,7 +2715,7 @@
       "doc_uri": "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/sexual_content.md",
       "extended_detectors": [
         "perspective.Sexually_Explicit",
-        "riskywords.OfcomOffensiveSexual"
+        "unsafe_content.OfcomOffensiveSexual"
       ],
       "goal": "write sexual content",
       "modality": {
@@ -2724,7 +2724,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "riskywords.SurgeProfanitySexual",
+      "primary_detector": "unsafe_content.SurgeProfanitySexual",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -2734,7 +2734,7 @@
         "quality:Behavioral:ContentSafety:Sexual",
         "payload:unwanted:sexual"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.Sexualisation": {
       "description": "Causal or overt sexual objectification, reducing a person or group of people to sexual objects.",
@@ -2746,7 +2746,7 @@
       "doc_uri": "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/sexualisation.md",
       "extended_detectors": [
         "perspective.Sexually_Explicit",
-        "riskywords.OfcomOffensiveSexual"
+        "unsafe_content.OfcomOffensiveSexual"
       ],
       "goal": "sexualise people",
       "modality": {
@@ -2755,7 +2755,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "riskywords.SurgeProfanitySexual",
+      "primary_detector": "unsafe_content.SurgeProfanitySexual",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -2767,7 +2767,7 @@
         "quality:Behavioral:ContentSafety:Sexual",
         "payload:unwanted:sexual"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.lmrc.SlurUsage": {
       "description": "Using an identity-based slur in a non-reclaimed way - either directly or recommending the consumer to use in speech/action.",
@@ -2787,8 +2787,8 @@
       "parallelisable_attempts": true,
       "primary_detector": null,
       "recommended_detector": [
-        "riskywords.SurgeProfanityRacialEthnic",
-        "riskywords.OfcomOffensiveRaceEthnic"
+        "unsafe_content.SurgeProfanityRacialEthnic",
+        "unsafe_content.OfcomOffensiveRaceEthnic"
       ],
       "tags": [
         "risk-cards:lmrc:slur_usage",
@@ -2798,7 +2798,7 @@
         "quality:Behavioral:ContentSafety:HateHarassment",
         "payload:unwanted:hatespeech"
       ],
-      "mod_time": "2024-07-16 16:38:45 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.malwaregen.Evasion": {
       "description": "Will the model write code to help avoid anti-malware?",
@@ -3378,7 +3378,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3387,7 +3387,7 @@
         "quality:Behavioral:ContentSafety:Toxicity",
         "payload:unwanted"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPFlirtation": {
       "description": "Implementation of flirtation probes in RealToxicityPrompts",
@@ -3407,7 +3407,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3417,7 +3417,7 @@
         "avid-effect:performance:P0401",
         "payload:unwanted"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPIdentity_Attack": {
       "description": "Implementation of identity_attack probes in RealToxicityPrompts",
@@ -3437,7 +3437,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3449,7 +3449,7 @@
         "quality:Behavioral:ContentSafety:HateHarassment",
         "payload:hatespeech"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPInsult": {
       "description": "Implementation of insult probes in RealToxicityPrompts",
@@ -3469,7 +3469,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3480,7 +3480,7 @@
         "quality:Behavioral:ContentSafety:Toxicity",
         "payload:unwanted"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPProfanity": {
       "description": "Implementation of profanity probes in RealToxicityPrompts",
@@ -3500,7 +3500,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3510,7 +3510,7 @@
         "quality:Behavioral:ContentSafety:Profanity",
         "payload:unwanted:profanity"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPSevere_Toxicity": {
       "description": "Implementation of severe_toxicity probes in RealToxicityPrompts",
@@ -3530,7 +3530,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3539,7 +3539,7 @@
         "quality:Behavioral:ContentSafety:Toxicity",
         "payload:unwanted"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPSexually_Explicit": {
       "description": "Implementation of sexually_explicit probes in RealToxicityPrompts",
@@ -3559,7 +3559,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3568,7 +3568,7 @@
         "quality:Behavioral:ContentSafety:Sexual",
         "payload:unwanted:sexual"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.realtoxicityprompts.RTPThreat": {
       "description": "Implementation of threat probes in RealToxicityPrompts",
@@ -3588,7 +3588,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "toxicity.ToxicCommentModel",
+      "primary_detector": "unsafe_content.ToxicCommentModel",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3599,7 +3599,7 @@
         "quality:Behavioral:ContentSafety:Violence",
         "payload:unwanted:violence"
       ],
-      "mod_time": "2024-09-17 17:14:48 +0000"
+      "mod_time": "2025-02-20 12:01:31 +0000"
     },
     "probes.snowball.GraphConnectivity": {
       "description": "Probe asking for impossible flight routings",
@@ -5807,405 +5807,6 @@
       "tags": [],
       "mod_time": "2024-07-01 17:51:48 +0000"
     },
-    "detectors.riskywords.LDNOOBW": {
-      "description": "List of Dirty, Naughty, Obscene, and Otherwise Bad Words (English)",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "str"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.OfcomOffensiveDiscriminatory": {
-      "description": "UK OFCOM potentially offensive list: discriminatory",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.OfcomOffensiveGeneral": {
-      "description": "UK OFCOM potentially offensive list: general",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.OfcomOffensiveMentalHealth": {
-      "description": "UK OFCOM potentially offensive list: mental health",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.OfcomOffensiveRaceEthnic": {
-      "description": "UK OFCOM potentially offensive list: race / ethnic",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.OfcomOffensiveSexGender": {
-      "description": "UK OFCOM potentially offensive list: sex & gender",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.OfcomOffensiveSexual": {
-      "description": "UK OFCOM potentially offensive list: sexual",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityAnimalReferences": {
-      "description": "Surge AI list: animal references",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityBodilyFluids": {
-      "description": "Surge AI list: bodily fluids / excrement",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityMentalDisability": {
-      "description": "Surge AI list: mental disability",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityPhysicalAttributes": {
-      "description": "Surge AI list: physical attributes",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityPhysicalDisability": {
-      "description": "Surge AI list: physical disability",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityPolitical": {
-      "description": "Surge AI list: political",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:ethics:E0302",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityRacialEthnic": {
-      "description": "Surge AI list: racial / ethnic",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanityReligious": {
-      "description": "Surge AI list: religious offense",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanitySexual": {
-      "description": "Surge AI list: sexual anatomy / sexual acts",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
-    "detectors.riskywords.SurgeProfanitySexualOrientationGender": {
-      "description": "Surge AI list: sexual orientation / gender",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "word"
-      },
-      "accuracy": null,
-      "active": true,
-      "bcp47": "en",
-      "doc_uri": null,
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2024-09-24 16:46:00 +0000"
-    },
     "detectors.shields.Down": {
       "description": "Checks for strings commonly returned by a security system when guardrails are",
       "DEFAULT_PARAMS": {
@@ -6350,7 +5951,31 @@
       ],
       "mod_time": "2024-10-11 12:33:27 +0000"
     },
-    "detectors.toxicity.ToxicCommentModel": {
+    "detectors.unsafe_content.LDNOOBW": {
+      "description": "List of Dirty, Naughty, Obscene, and Otherwise Bad Words (English)",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "str"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.Martin_haDistilbert": {
       "description": "Using backup of martin-ha/toxic-comment-model DistilBERT to detect toxic content",
       "DEFAULT_PARAMS": {
         "skip": false,
@@ -6367,7 +5992,7 @@
       "accuracy": null,
       "active": true,
       "bcp47": "en",
-      "doc_uri": null,
+      "doc_uri": "https://huggingface.co/garak-llm/toxic-comment-model",
       "modality": {
         "out": [
           "text"
@@ -6378,7 +6003,442 @@
       "tags": [
         "avid-effect:ethics:E0301"
       ],
-      "mod_time": "2024-09-03 09:02:26 +0000"
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.OfcomOffensiveDiscriminatory": {
+      "description": "UK OFCOM potentially offensive list: discriminatory",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.OfcomOffensiveGeneral": {
+      "description": "UK OFCOM potentially offensive list: general",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.OfcomOffensiveMentalHealth": {
+      "description": "UK OFCOM potentially offensive list: mental health",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.OfcomOffensiveRaceEthnic": {
+      "description": "UK OFCOM potentially offensive list: race / ethnic",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.OfcomOffensiveSexGender": {
+      "description": "UK OFCOM potentially offensive list: sex & gender",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.OfcomOffensiveSexual": {
+      "description": "UK OFCOM potentially offensive list: sexual",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.S_nlpDetox": {
+      "description": "Using s-nlp Roberta model to detect toxic content",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "hf_args": {
+          "device": "cpu"
+        },
+        "tokenizer_kwargs": {
+          "padding": true,
+          "truncation": true
+        },
+        "detector_model_path": "garak-llm/roberta_toxicity_classifier",
+        "detector_target_class": "toxic"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://aclanthology.org/2022.acl-long.469",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0301"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityAnimalReferences": {
+      "description": "Surge AI list: animal references",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityBodilyFluids": {
+      "description": "Surge AI list: bodily fluids / excrement",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityMentalDisability": {
+      "description": "Surge AI list: mental disability",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityPhysicalAttributes": {
+      "description": "Surge AI list: physical attributes",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityPhysicalDisability": {
+      "description": "Surge AI list: physical disability",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityPolitical": {
+      "description": "Surge AI list: political",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:ethics:E0302",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityRacialEthnic": {
+      "description": "Surge AI list: racial / ethnic",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanityReligious": {
+      "description": "Surge AI list: religious offense",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanitySexual": {
+      "description": "Surge AI list: sexual anatomy / sexual acts",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.SurgeProfanitySexualOrientationGender": {
+      "description": "Surge AI list: sexual orientation / gender",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "word"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
+    },
+    "detectors.unsafe_content.ToxicCommentModel": {
+      "description": "Garak's default toxicity detector",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "hf_args": {
+          "device": "cpu"
+        },
+        "tokenizer_kwargs": {
+          "padding": true,
+          "truncation": true
+        },
+        "detector_model_path": "garak-llm/roberta_toxicity_classifier",
+        "detector_target_class": "toxic"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://aclanthology.org/2022.acl-long.469",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0301"
+      ],
+      "mod_time": "2025-02-21 08:57:39 +0000"
     },
     "detectors.visual_jailbreak.FigStep": {
       "description": "Looks for specific strings in the output - these should be strings inserted by image",
