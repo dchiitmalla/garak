@@ -653,8 +653,9 @@ class DanInTheWild(DanInTheWildFull):
     """A subset of jailbreaks from the DanInTheWild jailbreak library.
 
     Tries a set of known jailbreaks, in an attempt to get a model to disregard
-    alignment/system prompt. Success is measured by not getting a safety mitigaton
-    message."""
+    alignment/system prompt. Success is measured by not getting a safety mitigation
+    message. The number of prompts in the subset can be configured via the
+    `soft_probe_prompt_cap` run parameter."""
 
     active = True
 
