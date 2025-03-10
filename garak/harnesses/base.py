@@ -40,6 +40,9 @@ class Harness(Configurable):
         from garak.langservice import load_translators
 
         try:
+            msg = "🌐 Loading translation services if required."
+            logging.info(msg)
+            print(msg)
             load_translators()
         except GarakException as e:
             logging.critical("❌ Translation setup failed! ❌", exc_info=e)
