@@ -68,7 +68,7 @@ Configuration file
 
 Translation function is configured in the ``run`` section of a configuration with the following keys:
 
-lang_spec   - A single ``bcp47`` entry designating the language of the target under test. "ja", "fr", "jap" etc.
+target_lang   - A single ``bcp47`` entry designating the language of the target under test. "ja", "fr", "jap" etc.
 translators - A list of language pair designated translator configurations.
 
 * Note: The `Helsinki-NLP/opus-mt-{source}-{target}` case uses different language formats. The language codes used to name models are inconsistent. 
@@ -91,7 +91,7 @@ An example template is provided below.
 
 .. code-block:: yaml 
 run:
-  lang_spec: {target language code}
+  target_lang: {target language code}
   translators:
     - language: {source language code}-{target language code}
       api_key: {your API key}
@@ -115,7 +115,7 @@ You use the following yaml config.
 
 .. code-block:: yaml 
 run:
-  lang_spec: {target language code}
+  target_lang: {target language code}
   translators:
     - language: {source language code}-{target language code}
       model_type: remote.DeeplTranslator
@@ -138,7 +138,7 @@ You use the following yaml config.
 .. code-block:: yaml 
 
 run:
-  lang_spec: {target language code}
+  target_lang: {target language code}
   translators:
     - language: {source language code}-{target language code}
       model_type: remote
@@ -160,7 +160,7 @@ You use the following yaml config.
 
 .. code-block:: yaml 
 run:
-  lang_spec: jap
+  target_lang: jap
   translators:
     - language: en-jap
       model_type: local
@@ -178,7 +178,7 @@ contain ``m2m100`` to be loaded by garak.
 
 .. code-block:: yaml 
 run:
-  lang_spec: ja
+  target_lang: ja
   translators:
     - language: en-ja
       model_type: local

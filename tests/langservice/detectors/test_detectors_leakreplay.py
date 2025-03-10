@@ -27,7 +27,7 @@ def detector_start_with():
     }
     _config.run.translators.append(translator_config)
     _config.run.translators.append(reverse_translator_config)
-    _config.run.lang_spec = "jap"
+    _config.run.target_lang = "jap"
     detector = StartsWith(_config)
     return detector
 

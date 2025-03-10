@@ -15,7 +15,7 @@ def test_split_input_text():
 
 
 @pytest.mark.parametrize(
-    "translator_class, lang_spec, model_name",
+    "translator_class, target_lang, model_name",
     [
         ("local", "en-ja", "facebook/m2m100_418M"),
         ("local", "en-fr", "facebook/m2m100_418M"),
@@ -24,9 +24,9 @@ def test_split_input_text():
     ],
 )
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
-def test_local_translate_single_language(translator_class, lang_spec, model_name):
+def test_local_translate_single_language(translator_class, target_lang, model_name):
     translator_entry = {
-        "language": lang_spec,
+        "language": target_lang,
         "model_type": translator_class,
         "model_name": model_name,
     }
@@ -60,7 +60,7 @@ def test_local_translate_single_language(translator_class, lang_spec, model_name
 
 
 @pytest.mark.parametrize(
-    "translator_class, lang_spec, model_name",
+    "translator_class, target_lang, model_name",
     [
         ("local", "en-en", "facebook/m2m100_418M"),
         ("local", "en-en", "facebook/m2m100_418M"),
@@ -68,10 +68,10 @@ def test_local_translate_single_language(translator_class, lang_spec, model_name
     ],
 )
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
-def test_same_source_and_target_language(translator_class, lang_spec, model_name):
+def test_same_source_and_target_language(translator_class, target_lang, model_name):
     # when source and target language are the same a translator that makes not changes is returned
     translator_entry = {
-        "language": lang_spec,
+        "language": target_lang,
         "model_type": translator_class,
         "model_name": model_name,
     }
@@ -87,11 +87,11 @@ def test_same_source_and_target_language(translator_class, lang_spec, model_name
 
 
 @pytest.fixture()
-def translator_remote(lang_spec, translator_class):
+def translator_remote(target_lang, translator_class):
     from garak.exception import GarakException
 
     translator_entry = {
-        "language": lang_spec,
+        "language": target_lang,
         "model_type": translator_class,
     }
     try:
@@ -104,7 +104,7 @@ def translator_remote(lang_spec, translator_class):
 
 
 @pytest.mark.parametrize(
-    "lang_spec, translator_class, input_text",
+    "target_lang, translator_class, input_text",
     [
         ("en-ja", "remote.RivaTranslator", "Hello, how are you?"),
         ("en-fr", "remote.RivaTranslator", "Hello, how are you?"),
@@ -121,7 +121,7 @@ def translator_remote(lang_spec, translator_class):
     ],
 )
 def test_remote_translate_single_language(
-    lang_spec, translator_class, input_text, translator_remote
+    target_lang, translator_class, input_text, translator_remote
 ):
     translated_text = translator_remote._get_response(input_text)
     assert isinstance(translated_text, str)

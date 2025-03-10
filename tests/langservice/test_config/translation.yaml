@@ -1,5 +1,5 @@
 run:
-  lang_spec: ja
+  target_lang: ja
   translators:
     - language: en-ja
       model_type: local 

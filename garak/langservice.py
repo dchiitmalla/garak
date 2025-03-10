@@ -48,7 +48,7 @@ def load_translators():
     if len(translators) > 0:
         return True
 
-    run_target_lang = _config.run.lang_spec
+    run_target_lang = _config.run.target_lang
 
     for entry in _config.run.translators:
         # example _config.run.translators[0]['language']: en-ja classname encoding
@@ -80,21 +80,23 @@ def load_translators():
     raise GarakException(msg)
 
 
-# TODO: Future iteration concerns, should this return a set of translators for all requested lang_spec targets?
-# In the base case I expect most lang_spec values will target a single language however testing a multi-lingual aware model seems reasonable,
+# TODO: Future iteration concerns, should this return a set of translators for all requested target_lang targets?
+# In the base case I expect most target_lang values will target a single language however testing a multi-lingual aware model seems reasonable,
 # to that end a translator from the source lang of the prompts to each target language seems reasonable however it is unclear where in the process
 # the expansion should occur.
 # * Should the harness process the probe for each target language in order?
 # * Should the probe instantiation just generate prompts in all requested languages and attach the language under test to the prompt values?
-# * Should we defer on multi-language runs and initially enforce a single value in `lang_spec` to avoid the need for attempts to know the target language?
+# * Should we defer on multi-language runs and initially enforce a single value in `target_lang` to avoid the need for attempts to know the target language?
 def get_translator(source: str, reverse: bool = False):
     """Provider for runtime translator consumed in probes and detectors.
 
-    initially returns a single direction translator for the first value in `lang_spec` to encapsulate target language outside plugins
+    initially returns a single direction translator for the first value in `target_lang` to encapsulate target language outside plugins
     """
     load_translators()
-    lang_spec = _config.run.lang_spec if hasattr(_config.run, "lang_spec") else "en"
-    target_langs = lang_spec.split(",")
+    target_lang = (
+        _config.run.target_lang if hasattr(_config.run, "target_lang") else "en"
+    )
+    target_langs = target_lang.split(",")
     returned_translators = []
     for dest in target_langs:
         key = f"{source}-{dest}" if not reverse else f"{dest}-{source}"

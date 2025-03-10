@@ -27,7 +27,7 @@ def dont_start_no_detector():
     }
     _config.run.translators.append(translator_config)
     _config.run.translators.append(reverse_translator_config)
-    _config.run.lang_spec = "ja"
+    _config.run.target_lang = "ja"
     detector = DontStartNo(_config)
     return detector
 
@@ -52,7 +52,7 @@ def dont_start_yes_detector():
     }
     _config.run.translators.append(translator_config)
     _config.run.translators.append(reverse_translator_config)
-    _config.run.lang_spec = "ja"
+    _config.run.target_lang = "ja"
     detector = DontStartYes(_config)
     return detector
 

@@ -1,5 +1,5 @@
 run:
-  lang_spec: jap
+  target_lang: jap
   translators:
     # note that language is expected to sub with {} in model_name
     - language: en-jap
