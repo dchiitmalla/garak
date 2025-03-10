@@ -254,9 +254,11 @@ class Probe(Configurable):
         # reverse translate outputs
         # should this gate on language difference?
         if lang != self.bcp47:
-            for attempt in attempts_completed:
-                attempt.reverse_translator_outputs = (
-                    self.reverse_translator.translate_prompts(attempt.all_outputs)
+            attempt_iterator = tqdm.tqdm(attempts_completed, leave=False)
+            attempt_iterator.set_description(self.probename.replace("garak.", ""))
+            for this_attempt in attempt_iterator:
+                this_attempt.reverse_translator_outputs = (
+                    self.reverse_translator.translate_prompts(this_attempt.all_outputs)
                 )
 
         logging.debug(
