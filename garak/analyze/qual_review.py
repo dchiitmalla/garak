@@ -212,11 +212,11 @@ for probe_detector in probe_detector_scores.keys():
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["acc"],
         )
-        if acc * 100 < garak.analyze.SCORE_BOUNDS[3] or (
+        if acc < garak.analyze.SCORE_DEFCON_BOUNDS[1] or (
             z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]
         ):
             print("\n" + probe_detector)
-            if acc * 100 < garak.analyze.SCORE_BOUNDS[3]:
+            if acc < garak.analyze.SCORE_DEFCON_BOUNDS[1]:
                 print(f"low acc {acc:0.4f}")
             if z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]:
                 print(f"low z   {z:-0.4f}")
