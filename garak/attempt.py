@@ -38,6 +38,10 @@ class Attempt:
     :type seq: int
     :param messages: conversation turn histories; list of list of dicts have the format {"role": role, "content": text}, with actor being something like "system", "user", "assistant"
     :type messages: List(dict)
+    :param bcp47: Language code for prompt as sent to the target
+    :type bcp47: str
+    :param reverse_translator_outputs: The reverse translation of output based on the original language of the probe
+    :param reverse_translator_outputs: List(str)
 
     Expected use
     * an attempt tracks a seed prompt and responses to it
