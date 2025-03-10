@@ -225,7 +225,7 @@ for probe_detector in probe_detector_scores.keys():
 print("\nTier 2")
 t2_probe_names = [probe_name for probe_name, tier in tiers.items() if tier == 2]
 for probe_detector in probe_detector_scores.keys():
-    if probe_detector.split("_")[0] in t1_probe_names:
+    if probe_detector.split("_")[0] in t2_probe_names:
         z, acc = (
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["acc"],
