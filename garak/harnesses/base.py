@@ -3,10 +3,10 @@
 
 """Base harness
 
-A harness coordinates running probes on a generator, running detectors on the 
+A harness coordinates running probes on a generator, running detectors on the
 outputs, and evaluating the results.
 
-This module ncludes the class Harness, which all `garak` harnesses must 
+This module ncludes the class Harness, which all `garak` harnesses must
 inherit from.
 """
 
@@ -37,7 +37,7 @@ class Harness(Configurable):
         self._load_config(config_root)
 
         from garak.exception import GarakException
-        from garak.translator import load_translators
+        from garak.langservice import load_translators
 
         try:
             load_translators()

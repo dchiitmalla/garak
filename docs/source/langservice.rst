@@ -1,11 +1,11 @@
-The ``translator.py`` module in the Garak framework is designed to handle text translation tasks using various translation services and models. 
-It provides several classes, each implementing different translation strategies and models, including both cloud-based services, 
+The ``langservice`` module in garak is designed to handle text language tasks using various translation services and models. 
+It provides an entry point to translation support backed by translators, each implementing different translation strategies and models, including both cloud-based services, 
 like `DeepL<https://www.deepl.com/>`_ and `NVIDIA Riva<https://build.nvidia.com/nvidia/megatron-1b-nmt>`_, and local models like facebook/m2m100 available on `Hugging Face<https://huggingface.co/>`_.
 
-garak.translator
-================
+garak.langservice
+=================
 
-.. automodule:: garak.translator
+.. automodule:: garak.langservice
    :members:
    :undoc-members:
    :show-inheritance:   
@@ -13,7 +13,7 @@ garak.translator
 Translation support
 ===================
 
-This module adds translation support for probe and detector keywords and triggers.
+This module provides translation support for probe and detector keywords and triggers.
 Allowing testing of models that accept and produce text in languages other than the language the plugin was written for.
 
 * limitations:
@@ -66,9 +66,9 @@ RIVA
 Configuration file
 ------------------
 
-Translation function is configured in the `run` section of a configuration with the following keys:
+Translation function is configured in the ``run`` section of a configuration with the following keys:
 
-lang_spec   - A single `bcp47` entry designating the language of the target under test. "ja", "fr", "jap" etc.
+lang_spec   - A single ``bcp47`` entry designating the language of the target under test. "ja", "fr", "jap" etc.
 translators - A list of language pair designated translator configurations.
 
 * Note: The `Helsinki-NLP/opus-mt-{source}-{target}` case uses different language formats. The language codes used to name models are inconsistent. 
@@ -77,7 +77,7 @@ a search such as “language code {code}". More details can be found `here <http
 
 A translator configuration is provided using the project's configurable pattern with the following required keys:
 
-* ``language``   - A `-` separated pair of `bcp47` entires describing translation format provided by the configuration
+* ``language``   - A ``-`` separated pair of ``bcp47`` entires describing translation format provided by the configuration
 * ``model_type`` - the module and optional instance class to be instantiated. local, remote, remote.DeeplTranslator etc.
 * ``model_name`` - (optional) the model name loaded for translation, required for ``local`` translator model_type
 
@@ -116,7 +116,7 @@ You use the following yaml config.
 .. code-block:: yaml 
 run:
   lang_spec: {target language code}
-  translator:
+  translators:
     - language: {source language code}-{target language code}
       model_type: remote.DeeplTranslator
     - language: {target language code}-{source language code}
@@ -138,7 +138,8 @@ You use the following yaml config.
 .. code-block:: yaml 
 
 run:
-  translation:
+  lang_spec: {target language code}
+  translators:
     - language: {source language code}-{target language code}
       model_type: remote
     - language: {target language code}-{source language code}
@@ -159,6 +160,24 @@ You use the following yaml config.
 
 .. code-block:: yaml 
 run:
+  lang_spec: jap
+  translators:
+    - language: en-jap
+      model_type: local
+    - language: jap-en
+      model_type: local
+
+.. code-block:: bash
+
+    python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file} 
+
+The default configuration will load `Helsinki-NLP MarianMT <https://huggingface.co/docs/transformers/model_doc/marian>`_ models for local translation.
+
+Additional support for Huggingface ``M2M100Model`` type only is enabled by providing ``model_name`` for local translators. The model name provided must
+contain ``m2m100`` to be loaded by garak.
+
+.. code-block:: yaml 
+run:
   lang_spec: ja
   translators:
     - language: en-ja
@@ -168,22 +187,6 @@ run:
       model_type: local
       model_name: facebook/m2m100_418M
 
-
-.. code-block:: bash
-
-    python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file} 
-
-
-.. code-block:: yaml 
-run:
-  lang_spec: jap
-  translators:
-    - language: en-jap
-      model_type: local
-      model_name: Helsinki-NLP/opus-mt-{}
-    - language: jap-en
-      model_type: local
-      model_name: Helsinki-NLP/opus-mt-{}
 
 .. code-block:: bash
 

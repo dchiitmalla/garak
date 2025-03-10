@@ -58,7 +58,7 @@ Skip probes.tap.PAIR because it needs openai api key and large gpu resource
 @pytest.mark.parametrize("classname", ATKGEN_PROMPT_PROBES)
 def test_atkgen_probe_translation(classname, mocker):
     # how can tests for atkgen probes be expanded to ensure translation is called?
-    import garak.translator
+    import garak.langservice
     import garak.translators.base
     from garak.translators.local import NullTranslator
 
@@ -73,7 +73,7 @@ def test_atkgen_probe_translation(classname, mocker):
     )
 
     mocker.patch.object(
-        garak.translator, "get_translator", return_value=null_translator
+        garak.langservice, "get_translator", return_value=null_translator
     )
 
     prompt_mock = mocker.patch.object(
@@ -124,7 +124,7 @@ def test_probe_prompt_translation(classname, mocker):
     # this standard pattern. Any probe that needs to call translation more than once during probing
     # should have a unique validation that translation is called in the correct runtime stage
 
-    import garak.translator
+    import garak.langservice
     import garak.translators.base
     from garak.translators.local import NullTranslator
 
@@ -140,7 +140,7 @@ def test_probe_prompt_translation(classname, mocker):
     )
 
     mocker.patch.object(
-        garak.translator, "get_translator", return_value=null_translator
+        garak.langservice, "get_translator", return_value=null_translator
     )
 
     prompt_mock = mocker.patch.object(

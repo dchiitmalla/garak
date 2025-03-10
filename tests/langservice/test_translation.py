@@ -1,6 +1,6 @@
 import pytest
 
-from garak.translator import load_translator
+from garak.langservice import load_translator
 from garak.translators.base import split_input_text
 
 

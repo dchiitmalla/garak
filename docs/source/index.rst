@@ -63,10 +63,10 @@ Code reference
    command
    exception
    interactive
+   langservice
    payloads
    _config
    _plugins
-   translator
 
 Plugin structure
 ^^^^^^^^^^^^^^^^

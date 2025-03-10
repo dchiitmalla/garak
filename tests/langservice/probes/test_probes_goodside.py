@@ -14,10 +14,10 @@ PROBES = [
 
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
 def test_Tag_attempt_descrs_translation(mocker):
-    import garak.translator
+    import garak.langservice
     from garak.translators.local import NullTranslator, LocalHFTranslator
 
-    mock_translator_return = mocker.patch.object(garak.translator, "get_translator")
+    mock_translator_return = mocker.patch.object(garak.langservice, "get_translator")
 
     mock_translator_return.side_effect = [
         NullTranslator(),  # First default lang probe forward

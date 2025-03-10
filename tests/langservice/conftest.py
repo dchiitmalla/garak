@@ -7,11 +7,14 @@ def clear_translator_state(request):
 
     def clear_translator_state():
         import gc
-        from garak import translator
+        import importlib
+        from garak import langservice, _config
 
-        for _, v in translator.translators.items():
+        for _, v in langservice.translators.items():
             del v
-        translator.translators = {}
+        langservice.translators = {}
+        # reset defaults for translator _config
+        importlib.reload(_config)
         gc.collect()
 
     request.addfinalizer(clear_translator_state)

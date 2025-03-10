@@ -1,6 +1,6 @@
 """Base detectors.
 
-These detectors show expectations and operations of any detector implemented 
+These detectors show expectations and operations of any detector implemented
 in `garak`. `garak` detectors must inherit from a class in here."""
 
 import logging
@@ -71,7 +71,7 @@ class Detector(Configurable):
         return [0.5] * len(attempt.all_outputs)
 
     def get_reverse_translator(self):
-        from garak.translator import get_translator
+        from garak.langservice import get_translator
 
         translator_instance = get_translator(self.bcp47, True)
         return translator_instance

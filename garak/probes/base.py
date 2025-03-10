@@ -4,7 +4,7 @@
 """Base classes for probes.
 
 Probe plugins must inherit one of these. `Probe` serves as a template showing
-what expectations there are for inheriting classes. """
+what expectations there are for inheriting classes."""
 
 import copy
 import json
@@ -93,13 +93,13 @@ class Probe(Configurable):
         self.reverse_translator = self.get_reverse_translator()
 
     def get_translator(self):
-        from garak.translator import get_translator
+        from garak.langservice import get_translator
 
         translator_instance = get_translator(self.bcp47)
         return translator_instance
 
     def get_reverse_translator(self):
-        from garak.translator import get_translator
+        from garak.langservice import get_translator
 
         translator_instance = get_translator(self.bcp47, True)
         return translator_instance

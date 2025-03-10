@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-""" Translator that translates a prompt. """
+"""Centralized language specific service to support plugins."""
 
 
 import logging
