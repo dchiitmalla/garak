@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-""" Translator that translates a prompt. """
+"""Translator that translates a prompt."""
 
 
 from typing import List
@@ -45,7 +45,7 @@ class LocalHFTranslator(Translator, HFCompatible):
     """
 
     DEFAULT_PARAMS = {
-        "name": "Helsinki-NLP/opus-mt-{}",  # should this be `model_name` or align with generators?
+        "model_name": "Helsinki-NLP/opus-mt-{}",  # This is inconsistent with generators and may change to `name`.
         "hf_args": {
             "device": "cpu",
         },
