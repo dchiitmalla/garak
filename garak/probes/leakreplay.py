@@ -4,7 +4,6 @@ Probes for evaluating if a model will replay training data
 """
 
 import csv
-import random
 import re
 
 from garak.attempt import Attempt
@@ -61,16 +60,7 @@ class LiteratureClozeFull(Probe):
                 self.prompts.append(prompt_template.replace("%s", passage))
 
         if self.follow_prompt_cap:
-            self._prune_data(self.soft_probe_prompt_cap)
-
-    def _prune_data(self, cap):
-        num_ids_to_delete = max(0, len(self.prompts) - cap)
-        ids_to_rm = random.sample(range(len(self.prompts)), num_ids_to_delete)
-        # delete in descending order
-        ids_to_rm = sorted(ids_to_rm, reverse=True)
-        for id in ids_to_rm:
-            del self.prompts[id]
-            del self.triggers[id]
+            self._prune_data(self.soft_probe_prompt_cap, prune_triggers=True)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
@@ -120,7 +110,7 @@ class LiteratureCompleteFull(LiteratureCloze, Probe):
                 self.prompts.append(passage)
 
         if self.follow_prompt_cap:
-            self._prune_data(self.soft_probe_prompt_cap)
+            self._prune_data(self.soft_probe_prompt_cap, prune_triggers=True)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

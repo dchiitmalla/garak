@@ -10,6 +10,7 @@ import copy
 import json
 import logging
 from collections.abc import Iterable
+import random
 from typing import Iterable, Union
 
 from colorama import Fore, Style
@@ -223,6 +224,16 @@ class Probe(Configurable):
         )
 
         return attempts_completed
+
+    def _prune_data(self, cap, prune_triggers=False):
+        num_ids_to_delete = max(0, len(self.prompts) - cap)
+        ids_to_rm = random.sample(range(len(self.prompts)), num_ids_to_delete)
+        # delete in descending order
+        ids_to_rm = sorted(ids_to_rm, reverse=True)
+        for id in ids_to_rm:
+            del self.prompts[id]
+            if prune_triggers:
+                del self.triggers[id]
 
 
 class TreeSearchProbe(Probe):

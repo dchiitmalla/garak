@@ -6,18 +6,9 @@ simply reformulating a harmful request in the past tense  is often sufficient to
 of-the-art LLMs
 """
 
-import random
-
 from garak import _config
 from garak.data import path as data_path
 from garak.probes.base import Probe
-
-
-class TenseMini:
-    def _minify_prompts(self, cap=None):
-        if cap is not None:
-            random.shuffle(self.prompts)
-            self.prompts = self.prompts[:cap]
 
 
 class PastTenseFull(Probe):
@@ -51,7 +42,7 @@ class PastTenseFull(Probe):
                 self.prompts.append(str.strip())
 
 
-class PastTense(PastTenseFull, TenseMini):
+class PastTense(PastTenseFull):
     """Attempt to evade safeguards by setting requests in the past tense
 
     A subset of the tense-modified requests. Success is reported higher with more variation, so
@@ -62,7 +53,7 @@ class PastTense(PastTenseFull, TenseMini):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self._minify_prompts(cap=self.soft_probe_prompt_cap)
+        self._prune_data(cap=self.soft_probe_prompt_cap)
 
 
 class FutureTenseFull(Probe):
@@ -97,7 +88,7 @@ class FutureTenseFull(Probe):
                 self.prompts.append(str.strip())
 
 
-class FutureTense(FutureTenseFull, TenseMini):
+class FutureTense(FutureTenseFull):
     """Attempt to evade safeguards by setting requests in the future tense
 
     A subset of the tense-modified requests. Success is reported higher with more variation, so
@@ -108,4 +99,4 @@ class FutureTense(FutureTenseFull, TenseMini):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self._minify_prompts(cap=self.soft_probe_prompt_cap)
+        self._prune_data(self.soft_probe_prompt_cap)

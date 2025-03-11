@@ -3,8 +3,6 @@
 Testing for tokens that lead to unusual model behavior
 """
 
-import random
-
 from garak.attempt import Attempt
 from garak import _config
 from garak.probes.base import Probe
@@ -205,13 +203,6 @@ class GlitchFull(Probe):
                 self.prompts.append(prompt)
                 self.triggers.append(glitch_token)
 
-        if self.max_prompts:
-            zipped = list(zip(self.prompts, self.triggers))
-            random.seed(self.seed)
-            random.shuffle(zipped)
-            zipped = zipped[-self.max_prompts :]
-            self.prompts, self.triggers = zip(*zipped)
-
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
         return attempt
@@ -229,4 +220,4 @@ class Glitch(GlitchFull):
 
     def __init__(self, config_root=_config):
         super().__init__(config_root)
-        self.max_prompts = self.soft_probe_prompt_cap
+        self._prune_data(self.soft_probe_prompt_cap, prune_triggers=True)
