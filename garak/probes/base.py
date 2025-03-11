@@ -161,7 +161,9 @@ class Probe(Configurable):
         """hook called to process completed attempts; always called"""
         return attempt
 
-    def _mint_attempt(self, prompt=None, seq=None, bcp47="*") -> garak.attempt.Attempt:
+    def _mint_attempt(
+        self, prompt=None, seq=None, notes=None, bcp47="*"
+    ) -> garak.attempt.Attempt:
         """function for creating a new attempt given a prompt"""
         new_attempt = garak.attempt.Attempt(
             probe_classname=(
@@ -173,6 +175,7 @@ class Probe(Configurable):
             status=garak.attempt.ATTEMPT_STARTED,
             seq=seq,
             prompt=prompt,
+            notes=notes,
             bcp47=bcp47,
         )
 
@@ -242,7 +245,12 @@ class Probe(Configurable):
             prompts = self.translator.translate_prompts(prompts)
             lang = self.translator.target_lang
         for seq, prompt in enumerate(prompts):
-            attempts_todo.append(self._mint_attempt(prompt, seq, lang))
+            notes = (
+                {"pre_translation_prompt": self.prompts[seq]}
+                if lang != self.bcp47
+                else None
+            )
+            attempts_todo.append(self._mint_attempt(prompt, seq, notes, lang))
 
         # buff hook
         if len(_config.buffmanager.buffs) > 0:
@@ -370,8 +378,8 @@ class TreeSearchProbe(Probe):
                     continue
 
                 for prompt in self._gen_prompts(surface_form):
-                    a = self._mint_attempt(prompt, bcp47=self.bcp47)
-                    a.notes["surface_form"] = surface_form
+                    notes = {"surface_form": surface_form}
+                    a = self._mint_attempt(prompt, notes=notes, bcp47=self.bcp47)
                     attempts_todo.append(a)
 
                 surface_forms_probed.add(surface_form)

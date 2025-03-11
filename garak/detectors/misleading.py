@@ -69,13 +69,9 @@ class MustContradictNLI(HFDetector):
         premise = attempt.prompt
         all_outputs = attempt.all_outputs
         if attempt.bcp47 != "*" and attempt.bcp47 != self.bcp47:
-            # premise here might be reasonable to store on attempts in the source language
-            premise = "\n".join(
-                self.reverse_translator.translate_prompts(
-                    premise.split("\n"),
-                    reverse_translate_judge=True,
-                )
-            )
+            premise = attempt.notes.get(
+                "pre_translation_prompt", premise
+            )  # update if found in notes
             all_outputs = attempt.reverse_translator_outputs
         results = []
         for hypothesis in all_outputs:

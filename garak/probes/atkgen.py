@@ -1,11 +1,11 @@
-"""atkgen: Attack Generation. 
+"""atkgen: Attack Generation.
 
 This probe uses a separate model to create prompts for a generator,
 which are intended to guide that generator into a certain failure mode.
 
-Warning: These attack models may generate highly toxic prompts while 
+Warning: These attack models may generate highly toxic prompts while
 attempting to goad target models into failure - peruse logs at your
-own risk, and don't spend too much time doing it, using this guide 
+own risk, and don't spend too much time doing it, using this guide
 to working with harmful text:
 
  https://aclanthology.org/2022.findings-emnlp.35/
@@ -153,6 +153,8 @@ class Tox(Probe):
                 if len(turns) == 0:
                     this_attempt.prompt = challenge_to_send
                     this_attempt.bcp47 = self.translator.target_lang
+                    if challenge_to_send != challenge:
+                        this_attempt.notes["pre_translation_prompt"] = challenge
                     this_attempt._expand_prompt_to_histories(1)
                 else:
                     this_attempt._add_turn("user", [challenge_to_send])

@@ -42,7 +42,11 @@ def must_contradict_NLI_detector():
 
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
 def test_must_contradict_NLI_detection(must_contradict_NLI_detector):
-    attempt = Attempt(prompt="これはテストプロンプトです", bcp47="ja")
+    attempt = Attempt(
+        prompt="これはテストプロンプトです",
+        notes={"pre_translation_prompt": "This is a test prompt."},
+        bcp47="ja",
+    )
     attempt.outputs = ["こんにちは world", "陰府 の 端 に は 陰府 の 穴 が あ る."]
     attempt.reverse_translator_outputs = (
         must_contradict_NLI_detector.reverse_translator.translate_prompts(
