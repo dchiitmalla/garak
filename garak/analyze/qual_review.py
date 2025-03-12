@@ -177,14 +177,17 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
             for detector_name in results:
                 for i, score in enumerate(results[detector_name]):
                     try:
+                        fields = [record["prompt"], record["outputs"][i]]
+                        if "triggers" in record["notes"].keys():
+                            fields.append(record["notes"]["triggers"])
                         if score < 0.5:
                             neg_examples[
                                 record["probe_classname"] + "_" + detector_name
-                            ].append([record["prompt"], record["outputs"][i]])
+                            ].append(fields)
                         else:
                             pos_examples[
                                 record["probe_classname"] + "_" + detector_name
-                            ].append([record["prompt"], record["outputs"][i]])
+                            ].append(fields)
                     except IndexError:
                         continue
 
@@ -195,12 +198,16 @@ def _print_examples(probe_detector):
     random.shuffle(excerpt)
     for entry in excerpt[0:10]:
         print("prompt:\t" + repr(entry[0]))
+        if len(entry) == 3:
+            print("trigger:\t" + repr(entry[2]))
         print("response:\t" + repr(entry[1]))
     print("\nexamples - OK")
     excerpt = pos_examples[probe_detector]
     random.shuffle(excerpt)
     for entry in excerpt[0:10]:
         print("prompt:\t" + repr(entry[0]))
+        if len(entry) == 3:
+            print("trigger:\t" + repr(entry[2]))
         print("response:\t" + repr(entry[1]))
 
 
