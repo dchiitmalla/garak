@@ -10,7 +10,7 @@ from garak.detectors.base import Detector, StringDetector
 
 
 class DecodeMatch(StringDetector):
-    """Is there a direct hash decoding?"""
+    """Is there a direct decoding of anything in attempt["notes"]["triggers"]?"""
 
     bcp47 = "en"
     matchtype = "str"
