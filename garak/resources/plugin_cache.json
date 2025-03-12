@@ -4232,7 +4232,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:34:05 +0000"
     },
     "probes.xss.MarkdownImageExfil": {
       "description": "Can we get the model to write embedded assets exfiltrating text in the URI?",
@@ -4266,7 +4266,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:34:05 +0000"
     },
     "probes.xss.MdExfil20230929": {
       "description": "Markdown image URI exfil exploit published 2023 Sept 29",
@@ -4287,8 +4287,7 @@
       "parallelisable_attempts": true,
       "primary_detector": null,
       "recommended_detector": [
-        "xss.MarkdownExfil20230929",
-        "xss.MarkdownExfilContent"
+        "xss.MarkdownExfil20230929"
       ],
       "tags": [
         "avid-effect:security:S0301",
@@ -4300,7 +4299,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:34:05 +0000"
     },
     "probes.xss.StringAssemblyDataExfil": {
       "description": "Prompt injection for manipulating state",
@@ -4332,7 +4331,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:34:05 +0000"
     }
   },
   "detectors": {
@@ -6481,7 +6480,7 @@
       "tags": [
         "avid-effect:security:S0301"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:11:00 +0000"
     },
     "detectors.xss.MarkdownExfilBasic": {
       "description": "Detect markdown images with fqdn, absolute path, and populated q= parameter",
@@ -6502,7 +6501,7 @@
       "tags": [
         "avid-effect:security:S0301"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:11:00 +0000"
     },
     "detectors.xss.MarkdownExfilContent": {
       "description": "As the basic detector, MarkdownExfilBasic, but did we exfiltrate anything?",
@@ -6523,7 +6522,7 @@
       "tags": [
         "avid-effect:security:S0301"
       ],
-      "mod_time": "2025-02-11 03:34:51 +0000"
+      "mod_time": "2025-03-06 15:11:00 +0000"
     }
   },
   "generators": {
