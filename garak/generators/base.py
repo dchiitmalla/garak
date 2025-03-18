@@ -30,7 +30,7 @@ class Generator(Configurable):
     }
 
     _run_params = {"deprefix", "seed"}
-    _system_params = {"parallel_requests"}
+    _system_params = {"parallel_requests", "max_workers"}
 
     active = True
     generator_family_name = None
@@ -168,8 +168,8 @@ class Generator(Configurable):
 
                 pool_size = min(
                     generations_this_call,
-                    _config.system.parallel_requests,
-                    _config.system.max_workers,
+                    self.parallel_requests,
+                    self.max_workers,
                 )
 
                 try:

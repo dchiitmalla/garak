@@ -4,7 +4,7 @@
 """Base classes for probes.
 
 Probe plugins must inherit one of these. `Probe` serves as a template showing
-what expectations there are for inheriting classes. """
+what expectations there are for inheriting classes."""
 
 import copy
 import json
@@ -55,7 +55,7 @@ class Probe(Configurable):
     DEFAULT_PARAMS = {}
 
     _run_params = {"generations", "soft_probe_prompt_cap", "seed"}
-    _system_params = {"parallel_attempts"}
+    _system_params = {"parallel_attempts", "max_workers"}
 
     def __init__(self, config_root=_config):
         """Sets up a probe.
@@ -182,8 +182,8 @@ class Probe(Configurable):
 
             pool_size = min(
                 len(attempts),
-                _config.system.parallel_attempts,
-                _config.system.max_workers,
+                self.parallel_attempts,
+                self.max_workers,
             )
 
             try:
