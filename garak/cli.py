@@ -373,7 +373,9 @@ def main(arguments=None) -> None:
     def worker_count_validation(workers):
         iworkers = int(workers)
         if iworkers <= 0:
-            raise ValueError("Need >0 workers (int)" % workers)
+            raise ValueError(
+                "Need a number > 0 for --parallel_attempts, --parallel_requests"
+            )
         if iworkers > _config.system.max_workers:
             raise ValueError(
                 "Parallel worker count capped at %s (config.system.max_workers), try a lower value for --parallel_attempts or --parallel_requests"
