@@ -376,7 +376,7 @@ def main(arguments=None) -> None:
             raise ValueError("Need >0 workers (int)" % workers)
         if iworkers > _config.system.max_workers:
             raise ValueError(
-                "Parallel worker count capped at %s (config.system.max_workers)"
+                "Parallel worker count capped at %s (config.system.max_workers), try a lower value for --parallel_attempts or --parallel_requests"
                 % _config.system.max_workers
             )
         return iworkers
