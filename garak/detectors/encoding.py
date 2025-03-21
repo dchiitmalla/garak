@@ -16,7 +16,7 @@ class DecodeMatch(StringDetector):
     bcp47 = "*"
     matchtype = "str"
 
-    def __init__(self, config_root=...):
+    def __init__(self, config_root=_config):
         super().__init__([], config_root)
 
     def detect(self, attempt: Attempt, case_sensitive=False) -> Iterable[float]:
