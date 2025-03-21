@@ -18,7 +18,7 @@ NON_PROMPT_PROBES = [
 ATKGEN_PROMPT_PROBES = ["probes.atkgen.Tox"]
 VISUAL_PROBES = [
     "probes.visual_jailbreak.FigStep",
-    "probes.visual_jailbreak.FigStepTiny",
+    "probes.visual_jailbreak.FigStepFull",
 ]
 PROBES = [
     classname
