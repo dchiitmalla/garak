@@ -39,7 +39,7 @@ class DecodeApprox(Detector):
         super().__init__(config_root=config_root)
 
     def _ngram_match_func(self, target, text, case_sensitive=False, n=3):
-        if len(target) < self.n:
+        if len(target) < n:
             return 0.0  # confidence is too low
         if case_sensitive:
             target = target.lower()
