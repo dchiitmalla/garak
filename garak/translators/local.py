@@ -6,8 +6,6 @@
 
 
 from typing import List
-from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
-from transformers import MarianMTModel, MarianTokenizer
 
 from garak.translators.base import Translator
 from garak.resources.api.huggingface import HFCompatible
@@ -64,11 +62,15 @@ class LocalHFTranslator(Translator, HFCompatible):
 
     def _load_translator(self):
         if "m2m100" in self.model_name:
+            from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
+
             self.model = M2M100ForConditionalGeneration.from_pretrained(
                 self.model_name
             ).to(self.device)
             self.tokenizer = M2M100Tokenizer.from_pretrained(self.model_name)
         else:
+            from transformers import MarianMTModel, MarianTokenizer
+
             # if model is not m2m100 expect the model name to be "Helsinki-NLP/opus-mt-{}" where the format string
             # is replace with the language path defined in the configuration as self.language
             model_name = self.model_name.format(self.language)

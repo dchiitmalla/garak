@@ -203,9 +203,7 @@ class GlitchFull(Probe):
                 self.prompts.append(prompt)
                 self.triggers.append(glitch_token)
 
-        if hasattr(self, 'translator'):
-            if self.translator is not None:
-                self.triggers = self.translator.translate_prompts(self.triggers)
+        self.triggers = self.translator.translate_prompts(self.triggers)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

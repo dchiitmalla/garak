@@ -6,7 +6,7 @@
 A harness coordinates running probes on a generator, running detectors on the
 outputs, and evaluating the results.
 
-This module ncludes the class Harness, which all `garak` harnesses must
+This module includes the class Harness, which all `garak` harnesses must
 inherit from.
 """
 
@@ -24,6 +24,24 @@ from garak import _plugins
 from garak.configurable import Configurable
 
 
+def _initialize_runtime_services():
+    """Initialize and validate runtime services required for a successful test"""
+
+    from garak.exception import GarakException
+    from garak.langservice import load_translators
+
+    # TODO: this block may be gated in the future to ensure it is only run once. At this time
+    # only one harness will execute per run so the output here is reasonable.
+    try:
+        msg = "🌐 Loading Language services if required."
+        logging.info(msg)
+        print(msg)
+        load_translators()
+    except GarakException as e:
+        logging.critical("❌ Language setup failed! ❌", exc_info=e)
+        raise e
+
+
 class Harness(Configurable):
     """Class to manage the whole process of probing, detecting and evaluating"""
 
@@ -36,17 +54,7 @@ class Harness(Configurable):
     def __init__(self, config_root=_config):
         self._load_config(config_root)
 
-        from garak.exception import GarakException
-        from garak.langservice import load_translators
-
-        try:
-            msg = "🌐 Loading translation services if required."
-            logging.info(msg)
-            print(msg)
-            load_translators()
-        except GarakException as e:
-            logging.critical("❌ Translation setup failed! ❌", exc_info=e)
-            raise e
+        _initialize_runtime_services()
 
         logging.info("harness init: %s", self)
 

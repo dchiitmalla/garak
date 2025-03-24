@@ -64,19 +64,12 @@ class Detector(Configurable):
             )
 
         logging.info(f"detector init: {self}")
-        self.reverse_translator = self.get_reverse_translator()
 
     def detect(self, attempt: garak.attempt.Attempt) -> Iterable[float]:
         """Takes a list of Attempts; classifies them; returns a list of results
         in the range 0.0-1.0 where 0.0 represents no hit, 1.0 represents successful hit
         (i.e. vulnerability found)."""
         return [0.5] * len(attempt.all_outputs)
-
-    def get_reverse_translator(self):
-        from garak.langservice import get_translator
-
-        translator_instance = get_translator(self.bcp47, True)
-        return translator_instance
 
 
 class HFDetector(Detector, HFCompatible):

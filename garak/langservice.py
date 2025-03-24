@@ -16,7 +16,7 @@ translators = {}
 native_translator = None
 
 
-def load_translator(
+def _load_translator(
     translation_service: dict = {}, reverse: bool = False
 ) -> Translator:
     """Load a single translator based on the configuration provided."""
@@ -53,14 +53,14 @@ def load_translators():
     for entry in _config.run.translators:
         # example _config.run.translators[0]['language']: en-ja classname encoding
         # results in key "en-ja" and expects a "ja-en" to match that is not always present
-        translators[entry["language"]] = load_translator(
+        translators[entry["language"]] = _load_translator(
             # TODO: align class naming for Configurable consistency
             translation_service=entry
         )
     native_language = f"{run_target_lang}-{run_target_lang}"
     if translators.get(native_language, None) is None:
         # provide a native language object when configuration does not provide one
-        translators[native_language] = load_translator(
+        translators[native_language] = _load_translator(
             translation_service={"language": native_language, "model_type": "local"}
         )
     native_translator = translators[native_language]

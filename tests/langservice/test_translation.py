@@ -1,6 +1,6 @@
 import pytest
 
-from garak.langservice import load_translator
+from garak.langservice import _load_translator
 from garak.translators.base import split_input_text
 
 
@@ -30,7 +30,7 @@ def test_local_translate_single_language(translator_class, target_lang, model_na
         "model_type": translator_class,
         "model_name": model_name,
     }
-    translator = load_translator(translator_entry)
+    translator = _load_translator(translator_entry)
     input_text = "Hello, how are you?"
 
     translated_text = translator._get_response(input_text)
@@ -75,7 +75,7 @@ def test_same_source_and_target_language(translator_class, target_lang, model_na
         "model_type": translator_class,
         "model_name": model_name,
     }
-    translator = load_translator(translator_entry)
+    translator = _load_translator(translator_entry)
 
     input_text = ["Hello, how are you?"]
 
@@ -95,7 +95,7 @@ def translator_remote(target_lang, translator_class):
         "model_type": translator_class,
     }
     try:
-        translator = load_translator(translator_entry)
+        translator = _load_translator(translator_entry)
     except GarakException:
         # consider direct instance creation to catch the APIKeyMissingError instead
         pytest.skip("API key is not set, skipping test.")

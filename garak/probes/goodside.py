@@ -191,9 +191,8 @@ class Tag(Probe):
                                     )
                                 )
 
-        if self.translator is not None:
-            self.triggers = self.translator.translate_prompts(self.triggers)
-            self.attempt_descrs = self.translator.translate_descr(self.attempt_descrs)
+        self.triggers = self.translator.translate_prompts(self.triggers)
+        self.attempt_descrs = self.translator.translate_descr(self.attempt_descrs)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

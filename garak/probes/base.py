@@ -76,7 +76,7 @@ class Probe(Configurable):
                 self.description = self.__doc__.split("\n", maxsplit=1)[0]
             else:
                 self.description = ""
-        self.translator = self.get_translator()
+        self.translator = self._get_translator()
         if self.translator is not None and hasattr(self, "triggers"):
             # check for triggers that are not type str|list or just call translate_triggers
             if len(self.triggers) > 0:
@@ -91,15 +91,15 @@ class Probe(Configurable):
                     raise PluginConfigurationError(
                         f"trigger type: {type(self.triggers[0])} is not supported."
                     )
-        self.reverse_translator = self.get_reverse_translator()
+        self.reverse_translator = self._get_reverse_translator()
 
-    def get_translator(self):
+    def _get_translator(self):
         from garak.langservice import get_translator
 
         translator_instance = get_translator(self.bcp47)
         return translator_instance
 
-    def get_reverse_translator(self):
+    def _get_reverse_translator(self):
         from garak.langservice import get_translator
 
         translator_instance = get_translator(self.bcp47, True)
@@ -242,9 +242,8 @@ class Probe(Configurable):
         attempts_todo: Iterable[garak.attempt.Attempt] = []
         prompts = list(self.prompts)
         lang = self.bcp47
-        if self.translator is not None:
-            prompts = self.translator.translate_prompts(prompts)
-            lang = self.translator.target_lang
+        prompts = self.translator.translate_prompts(prompts)
+        lang = self.translator.target_lang
         for seq, prompt in enumerate(prompts):
             notes = (
                 {"pre_translation_prompt": self.prompts[seq]}
@@ -407,10 +406,15 @@ class TreeSearchProbe(Probe):
             attempts_completed = self._execute_all(attempts_todo)
 
             # reverse translate outputs
-            for attempt in attempts_completed:
-                attempt.reverse_translator_outputs = (
-                    self.reverse_translator.translate_prompts(attempt.all_outputs)
-                )
+            if self.translator.target_lang != self.bcp47:
+                attempt_iterator = tqdm.tqdm(attempts_completed, leave=False)
+                attempt_iterator.set_description(self.probename.replace("garak.", ""))
+                for this_attempt in attempt_iterator:
+                    this_attempt.reverse_translator_outputs = (
+                        self.reverse_translator.translate_prompts(
+                            this_attempt.all_outputs
+                        )
+                    )
 
             # now we call the detector 🙃
             node_results = []
