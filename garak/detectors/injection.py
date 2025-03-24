@@ -30,13 +30,7 @@ SQL_KEYWORDS = [
     "UPSERT",
 ]
 # SQLI_INDICATORS contains only a small handful of indicators used in our payloads.
-SQLI_INDICATORS = [
-    "--",
-    "IF(1=1",
-    "/*",
-    "'",
-    ";"
-]
+SQLI_INDICATORS = ["--", "IF(1=1", "/*", "'", ";"]
 
 SQL_REGEXES = {
     "comment_dash": r".*--.*",
@@ -46,7 +40,7 @@ SQL_REGEXES = {
     "union": r"(?i).*UNION.*",
     "char_casting": r"(?i).*chr(\(|%28).*",
     "system_catalog": r"(?i).*from\s+pg_.*",
-    "always_true": r"(?i).*OR\s+(['\w]+)=\1.*"
+    "always_true": r"(?i).*OR\s+(['\w]+)=\1.*",
 }
 
 
@@ -170,7 +164,9 @@ class SQLiEcho(Detector):
                 results.append(1.0)
                 continue
             # Python regex is slow. Condition on anchors first.
-            elif any(indicator in output for indicator in SQLI_INDICATORS) and any(kw in output for kw in SQL_KEYWORDS):
+            elif any(indicator in output for indicator in SQLI_INDICATORS) and any(
+                kw in output for kw in SQL_KEYWORDS
+            ):
                 for rule, expr in self.regex.items():
                     if re.search(expr, output):
                         results.append(1.0)
