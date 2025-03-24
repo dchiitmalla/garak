@@ -1,7 +1,10 @@
+# SPDX-FileCopyrightText: Portions Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Injection
 
-Probe for potential injection vulnerabilities such as template injection, code injection, SQL injection
+Probe for potential injection vulnerabilities such as template injection, code injection, SQL injection.
 """
 
 import garak.attempt
@@ -69,7 +72,9 @@ class JinjaTemplatePythonInjection(Probe):
 
 class SQLInjectionSystem(Probe):
     """Attempts to inject untrusted SQL commands into a SQL statement.
+
     NOTE: Detecting success will require inspection of the target SQL database and is intended for use in systems only.
+
     This probe is potentially harmful and should NEVER BE USED IN PRODUCTION ENVIRONMENTS.
     """
 
@@ -108,6 +113,7 @@ class SQLInjectionSystem(Probe):
 
 class SQLInjectionEcho(Probe):
     """Attempts to get the target to echo a SQL statement.
+
     In some applications, this will yield execution of the SQL command, resulting in a SQL injection vulnerability.
     """
 
