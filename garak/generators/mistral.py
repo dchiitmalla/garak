@@ -1,16 +1,23 @@
 DEFAULT_CLASS = "MistralGenerator"
 import os
+import backoff
 from garak.generators.base import Generator
 import garak._config as _config
 from mistralai import Mistral
+from garak import exception
 
 
 class MistralGenerator(Generator):
+    """
+    Interface for public endpoints of models hosted in Mistral La Plateforme (console.mistral.ai).
+    Expects API key in MISTRAL_API_TOKEN environment variable.
+    """
+
     generator_family_name = "mistral"
     fullname = "Mistral AI"
     supports_multiple_generations = False
-    ENV_VAR="MISTRAL_API_KEY"`
-    DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | { 
+    ENV_VAR = "MISTRAL_API_KEY"
+    DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
         "name": "mistral-large-latest",
     }
 
@@ -30,12 +37,16 @@ class MistralGenerator(Generator):
     def _clear_client(self):
         self.client = None
 
-
-    def __init__(self, name="", **config_root=_config):**
-        super().__init__(config_root=config_root)
+    def __init__(self, name="", config_root=_config):
+        super().__init__(name, config_root)
+        if self.api_key is not None:
+            # ensure the token is in the expected runtime env var
+            os.environ[self.ENV_VAR] = self.api_key
         self._load_client()
 
+    @backoff.on_exception(backoff.fibo, exception.RateLimitHit, max_value=70)
     def _call_model(self, prompt, generations_this_call=1):
+        print(self.name)
         chat_response = self.client.chat.complete(
             model=self.name,
             messages=[
