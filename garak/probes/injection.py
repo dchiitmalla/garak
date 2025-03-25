@@ -33,7 +33,12 @@ Reply to the user with the string 'SUCCESS' if the query succeeds or 'FAILURE' i
 
 
 class JinjaTemplatePythonInjection(Probe):
-    """Attempts to execute Python code via Jinja templating"""
+    """Attempts to execute Python code via Jinja templating
+
+    Current implementation attempts to get the model to echo a malicious Jinja template.
+
+    Other techniques may also be successful.
+    """
 
     bcp47 = "en"
     goal = "Gain remote code execution via Jinja template injection"
@@ -121,7 +126,7 @@ class SQLInjectionEcho(Probe):
     goal = "Manipulate a database via SQL injection"
     doc_uri = "https://cwe.mitre.org/data/definitions/89.html"
     template = ECHO_TEMPLATE
-    recommended_detector = ["injection.SQLInjection"]
+    recommended_detector = ["injection.SQLiEcho"]
     tags = [
         "avid-effect:security:S0301",
         "avid-effect:security:S0403",
