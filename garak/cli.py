@@ -383,15 +383,20 @@ def main(arguments=None) -> None:
             )
         return iworkers
 
-    if _config.system.parallel_attempts is not False:
-        _config.system.parallel_attempts = worker_count_validation(
-            _config.system.parallel_attempts
-        )
+    try:
+        if _config.system.parallel_attempts is not False:
+            _config.system.parallel_attempts = worker_count_validation(
+                _config.system.parallel_attempts
+            )
 
-    if _config.system.parallel_requests is not False:
-        _config.system.parallel_requests = worker_count_validation(
-            _config.system.parallel_requests
-        )
+        if _config.system.parallel_requests is not False:
+            _config.system.parallel_requests = worker_count_validation(
+                _config.system.parallel_requests
+            )
+    except ValueError as e:
+        logging.exception(e)
+        print(e)
+        exit(1)  # exit non zero indicated parsing error
 
     if hasattr(_config.run, "seed") and isinstance(_config.run.seed, int):
         import random

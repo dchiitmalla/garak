@@ -853,10 +853,12 @@ def test_site_yaml_overrides_max_workers(capsys):
 
     importlib.reload(_config)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(SystemExit) as exc_info:
         garak.cli.main("--parallel_attempts 3 -m test -p test.Test".split())
         result = capsys.readouterr()
         assert (
             result.split("\n")[-1]
             == "ValueError: Parallel worker count capped at 2 (config.system.max_workers)"
         )
+        assert exc_info.type == SystemExit
+        assert exc_info.value.code == 1
