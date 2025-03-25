@@ -2,8 +2,8 @@ import pytest
 import os
 
 # suppress all logging unless location defined in ENV
-if os.getenv("GARAK_LOG_PATH", None) is None:
-    os.environ["GARAK_LOG_PATH"] = str(os.devnull)
+if os.getenv("GARAK_LOG_FILE", None) is None:
+    os.environ["GARAK_LOG_FILE"] = str(os.devnull)
 
 from garak import _config, _plugins
 

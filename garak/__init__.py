@@ -8,13 +8,13 @@ import logging
 import os
 from garak import _config
 
-GARAK_LOG_PATH_VAR = "GARAK_LOG_PATH"
+GARAK_LOG_FILE_VAR = "GARAK_LOG_FILE"
 
 # allow for a file path configuration from the ENV and set for child processes
-_log_filename = os.getenv(GARAK_LOG_PATH_VAR, default=None)
+_log_filename = os.getenv(GARAK_LOG_FILE_VAR, default=None)
 if _log_filename is None:
     _log_filename = _config.transient.data_dir / "garak.log"
-    os.environ[GARAK_LOG_PATH_VAR] = str(_log_filename)
+    os.environ[GARAK_LOG_FILE_VAR] = str(_log_filename)
 
 _config.transient.log_filename = _log_filename
 
