@@ -3,7 +3,7 @@ import os
 import backoff
 from garak.generators.base import Generator
 import garak._config as _config
-from mistralai import Mistral
+from mistralai import Mistral, models
 from garak import exception
 
 
@@ -39,12 +39,9 @@ class MistralGenerator(Generator):
 
     def __init__(self, name="", config_root=_config):
         super().__init__(name, config_root)
-        if self.api_key is not None:
-            # ensure the token is in the expected runtime env var
-            os.environ[self.ENV_VAR] = self.api_key
         self._load_client()
 
-    @backoff.on_exception(backoff.fibo, exception.RateLimitHit, max_value=70)
+    @backoff.on_exception(backoff.fibo, models.SDKError, max_value=70)
     def _call_model(self, prompt, generations_this_call=1):
         print(self.name)
         chat_response = self.client.chat.complete(
