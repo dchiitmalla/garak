@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-""" Translator that translates a prompt. """
+"""Translator that translates a prompt."""
 
 
 from typing import List
@@ -11,15 +11,21 @@ import unicodedata
 import string
 import logging
 from garak.resources.api import nltk
-from nltk.corpus import words
 from langdetect import detect, DetectorFactory, LangDetectException
 import json
 
-# Ensure the NLTK words corpus is downloaded
-try:
-    nltk.data.find("corpora/words")
-except LookupError as e:
-    nltk.download("words", quiet=True)
+_intialized_words = False
+
+
+def _initialize_words():
+    global _intialized_words
+    if not _intialized_words:
+        # Ensure the NLTK words corpus is downloaded
+        try:
+            nltk.data.find("corpora/words")
+        except LookupError as e:
+            nltk.download("words", quiet=True)
+        _intialized_words = True
 
 
 def remove_english_punctuation(text: str) -> str:
@@ -42,6 +48,9 @@ def is_english(text):
         bool: True if more than 50% of the words are English, False otherwise.
     """
     # Load English words from NLTK
+    _initialize_words()
+    from nltk.corpus import words
+
     special_terms = {"ascii85", "encoded", "decoded", "acsii", "plaintext"}
     english_words = set(words.words()).union(special_terms)
 
