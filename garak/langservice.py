@@ -87,7 +87,7 @@ def load_translators():
 # * Should the harness process the probe for each target language in order?
 # * Should the probe instantiation just generate prompts in all requested languages and attach the language under test to the prompt values?
 # * Should we defer on multi-language runs and initially enforce a single value in `target_lang` to avoid the need for attempts to know the target language?
-def get_translator(source: str, reverse: bool = False):
+def get_translator(source: str, *, reverse: bool = False):
     """Provider for runtime translator consumed in probes and detectors.
 
     initially returns a single direction translator for the first value in `target_lang` to encapsulate target language outside plugins

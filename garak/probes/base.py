@@ -102,7 +102,7 @@ class Probe(Configurable):
     def _get_reverse_translator(self):
         from garak.langservice import get_translator
 
-        translator_instance = get_translator(self.bcp47, True)
+        translator_instance = get_translator(self.bcp47, reverse=True)
         return translator_instance
 
     def _attempt_prestore_hook(
