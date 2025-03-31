@@ -76,7 +76,7 @@ class Attempt:
         detector_results=None,
         goal=None,
         seq=-1,
-        bcp47="*",  # language code for prompt as sent to the target
+        bcp47=None,  # language code for prompt as sent to the target
         reverse_translator_outputs=None,
     ) -> None:
         self.uuid = uuid.uuid4()
