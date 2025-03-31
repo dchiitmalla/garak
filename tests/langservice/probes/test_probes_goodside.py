@@ -1,7 +1,6 @@
 import pytest
 from garak import _config, _plugins
 from garak.probes.goodside import Tag
-from garak.translators.base import convert_json_string
 import json
 
 
@@ -55,9 +54,11 @@ def test_Tag_attempt_descrs_translation(mocker):
     for i in range(len(attempt_descrs)):
 
         convert_translated_attempt_descrs = json.loads(
-            convert_json_string(translated_attempt_descrs[i])
+            probe_tag_jap._convert_json_string(translated_attempt_descrs[i])
         )
-        convert_descr = json.loads(convert_json_string(attempt_descrs[i]))
+        convert_descr = json.loads(
+            probe_tag_jap._convert_json_string(attempt_descrs[i])
+        )
         if convert_descr["prompt_stub"] != [""]:
             assert (
                 convert_descr["prompt_stub"]

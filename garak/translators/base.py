@@ -12,7 +12,6 @@ import string
 import logging
 from garak.resources.api import nltk
 from langdetect import detect, DetectorFactory, LangDetectException
-import json
 
 _intialized_words = False
 
@@ -126,19 +125,6 @@ def is_meaning_string(text: str) -> bool:
     return True
 
 
-def convert_json_string(json_string):
-    # Replace single quotes with double quotes
-    json_string = re.sub(r"'", '"', json_string)
-
-    # Replace True with true
-    json_string = re.sub("True", "true", json_string)
-
-    # Replace False with false
-    json_string = re.sub("False", "false", json_string)
-
-    return json_string
-
-
 # To be `Configurable` the root object must meet the standard type search criteria
 # { translators:
 #     "local": { # model_type
@@ -235,17 +221,11 @@ class Translator(Configurable):
     def _clean_line(self, line: str) -> str:
         return remove_english_punctuation(line.strip().lower().split())
 
-    def translate_prompts(
+    def translate(
         self,
         prompts: List[str],
         reverse_translate_judge: bool = False,
     ) -> List[str]:
-        if (
-            hasattr(self, "target_lang") is False
-            or self.source_lang == "*"
-            or self.target_lang == ""
-        ):
-            return prompts
         translated_prompts = []
         prompts_to_process = list(prompts)
         for prompt in prompts_to_process:
@@ -260,28 +240,3 @@ class Translator(Configurable):
                 translate_prompt = self._get_response(prompt)
                 translated_prompts.append(translate_prompt)
         return translated_prompts
-
-    def translate_descr(self, attempt_descrs: List[str]) -> List[str]:
-        translated_attempt_descrs = []
-        for descr in attempt_descrs:
-            descr = json.loads(convert_json_string(descr))
-            if type(descr["prompt_stub"]) is list:
-                translate_prompt_stub = self.translate_prompts(descr["prompt_stub"])
-            else:
-                translate_prompt_stub = self.translate_prompts([descr["prompt_stub"]])
-            if type(descr["payload"]) is list:
-                translate_payload = self.translate_prompts(descr["payload"])
-            else:
-                translate_payload = self.translate_prompts([descr["payload"]])
-            translated_attempt_descrs.append(
-                str(
-                    {
-                        "prompt_stub": translate_prompt_stub,
-                        "distractor": descr["distractor"],
-                        "payload": translate_payload,
-                        "az_only": descr["az_only"],
-                        "use refocusing statement": descr["use refocusing statement"],
-                    }
-                )
-            )
-        return translated_attempt_descrs

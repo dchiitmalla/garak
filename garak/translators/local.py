@@ -25,7 +25,7 @@ class NullTranslator(Translator):
     def _translate(self, text: str) -> str:
         return text
 
-    def translate_prompts(
+    def translate(
         self,
         prompts: List[str],
         reverse_translate_judge: bool = False,

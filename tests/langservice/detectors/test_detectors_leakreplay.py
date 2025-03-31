@@ -16,7 +16,7 @@ def reverse_translate(attempt) -> Attempt:
         for j, turn in enumerate(thread):
             if turn["role"] == "assistant":
                 attempt.messages[i][j]["content"] = "\n".join(
-                    reverse_translator.translate_prompts(turn["content"].split("\n"))
+                    reverse_translator.translate(turn["content"].split("\n"))
                 )
     return attempt
 

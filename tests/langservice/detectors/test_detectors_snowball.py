@@ -13,7 +13,7 @@ def reverse_translate(attempt) -> Attempt:
         "model_name": "facebook/m2m100_418M",
     }
     reverse_translator = _load_translator(translator_config)
-    return reverse_translator.translate_prompts(attempt.all_outputs)
+    return reverse_translator.translate(attempt.all_outputs)
 
 
 @pytest.mark.requires_storage(required_space_gb=2, path="/")

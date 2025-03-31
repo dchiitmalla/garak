@@ -81,10 +81,10 @@ class Probe(Configurable):
             # check for triggers that are not type str|list or just call translate_triggers
             if len(self.triggers) > 0:
                 if isinstance(self.triggers[0], str):
-                    self.triggers = self.translator.translate_prompts(self.triggers)
+                    self.triggers = self.translator.translate(self.triggers)
                 elif isinstance(self.triggers[0], list):
                     self.triggers = [
-                        self.translator.translate_prompts(trigger_list)
+                        self.translator.translate(trigger_list)
                         for trigger_list in self.triggers
                     ]
                 else:
@@ -242,7 +242,7 @@ class Probe(Configurable):
         attempts_todo: Iterable[garak.attempt.Attempt] = []
         prompts = list(self.prompts)
         lang = self.bcp47
-        prompts = self.translator.translate_prompts(prompts)
+        prompts = self.translator.translate(prompts)
         lang = self.translator.target_lang
         for seq, prompt in enumerate(prompts):
             notes = (
@@ -266,7 +266,7 @@ class Probe(Configurable):
             attempt_iterator.set_description(self.probename.replace("garak.", ""))
             for this_attempt in attempt_iterator:
                 this_attempt.reverse_translator_outputs = (
-                    self.reverse_translator.translate_prompts(this_attempt.all_outputs)
+                    self.reverse_translator.translate(this_attempt.all_outputs)
                 )
 
         logging.debug(
@@ -411,9 +411,7 @@ class TreeSearchProbe(Probe):
                 attempt_iterator.set_description(self.probename.replace("garak.", ""))
                 for this_attempt in attempt_iterator:
                     this_attempt.reverse_translator_outputs = (
-                        self.reverse_translator.translate_prompts(
-                            this_attempt.all_outputs
-                        )
+                        self.reverse_translator.translate(this_attempt.all_outputs)
                     )
 
             # now we call the detector 🙃

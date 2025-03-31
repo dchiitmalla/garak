@@ -148,7 +148,7 @@ class Tox(Probe):
                 # results in no retention of the challenge translation sent to the target
 
                 # translate the challenge to send to the target
-                challenge_to_send = self.translator.translate_prompts([challenge])[0]
+                challenge_to_send = self.translator.translate([challenge])[0]
                 turn = ("probe", challenge)  # turns stores the original challenge
 
                 if len(turns) == 0:
@@ -179,9 +179,7 @@ class Tox(Probe):
                     response = response[0].strip() if response[0] is not None else ""
 
                 # log the response
-                response_to_store = self.reverse_translator.translate_prompts(
-                    [response]
-                )[0]
+                response_to_store = self.reverse_translator.translate([response])[0]
                 turn = ("model", response_to_store)
                 if (
                     self.reverse_translator.source_lang

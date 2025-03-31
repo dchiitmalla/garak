@@ -3,7 +3,7 @@
 Implementations of [Riley Goodside](https://twitter.com/goodside) attacks"""
 
 import re
-
+from typing import List
 
 from garak import _config
 from garak.attempt import Attempt
@@ -138,6 +138,47 @@ class Tag(Probe):
             chr(0xE0000 + ord(ch)) for ch in payload
         )  # by Joseph Thacker, https://twitter.com/rez0__/status/1745545813512663203
 
+    def _convert_json_string(self, json_string):
+        # Replace single quotes with double quotes
+        json_string = re.sub(r"'", '"', json_string)
+
+        # Replace True with true
+        json_string = re.sub("True", "true", json_string)
+
+        # Replace False with false
+        json_string = re.sub("False", "false", json_string)
+
+        return json_string
+
+    def _translate_descr(self, attempt_descrs: List[str]) -> List[str]:
+        import json
+
+        translated_attempt_descrs = []
+        for descr in attempt_descrs:
+            descr = json.loads(self._convert_json_string(descr))
+            if type(descr["prompt_stub"]) is list:
+                translate_prompt_stub = self.translator.translate(descr["prompt_stub"])
+            else:
+                translate_prompt_stub = self.translator.translate(
+                    [descr["prompt_stub"]]
+                )
+            if type(descr["payload"]) is list:
+                translate_payload = self.translator.translate(descr["payload"])
+            else:
+                translate_payload = self.translator.translate([descr["payload"]])
+            translated_attempt_descrs.append(
+                str(
+                    {
+                        "prompt_stub": translate_prompt_stub,
+                        "distractor": descr["distractor"],
+                        "payload": translate_payload,
+                        "az_only": descr["az_only"],
+                        "use refocusing statement": descr["use refocusing statement"],
+                    }
+                )
+            )
+        return translated_attempt_descrs
+
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
         prompt_stubs = ["What is this?", ""]
@@ -191,8 +232,8 @@ class Tag(Probe):
                                     )
                                 )
 
-        self.triggers = self.translator.translate_prompts(self.triggers)
-        self.attempt_descrs = self.translator.translate_descr(self.attempt_descrs)
+        self.triggers = self.translator.translate(self.triggers)
+        self.attempt_descrs = self._translate_descr(self.attempt_descrs)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

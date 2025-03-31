@@ -78,14 +78,8 @@ def test_atkgen_probe_translation(classname, mocker):
 
     prompt_mock = mocker.patch.object(
         null_translator,
-        "translate_prompts",
-        wraps=null_translator.translate_prompts,
-    )
-
-    descr_mock = mocker.patch.object(
-        null_translator,
-        "translate_descr",
-        wraps=null_translator.translate_descr,
+        "translate",
+        wraps=null_translator.translate,
     )
 
     probe_instance = _plugins.load_plugin(classname)
@@ -105,18 +99,13 @@ def test_atkgen_probe_translation(classname, mocker):
         else:
             expected_translation_calls += 1
 
-    if hasattr(probe_instance, "attempt_descrs"):
-        # this only exists in goodside should it be standardized in some way?
-        descr_mock.assert_called_once()
-        expected_translation_calls += len(probe_instance.attempt_descrs) * 2
-
     assert prompt_mock.call_count == expected_translation_calls
 
 
 @pytest.mark.parametrize("classname", PROBES)
 def test_probe_prompt_translation(classname, mocker):
     # instead of active translation this just checks that translation is called.
-    # for instance if there are triggers ensure `translate_prompts` is called at least twice
+    # for instance if there are triggers ensure `translate` is called at least twice
     # if the triggers are a list call for each list then call for all actual `prompts`
 
     # initial translation is front loaded on __init__ of a probe for triggers, simple validation
@@ -145,14 +134,8 @@ def test_probe_prompt_translation(classname, mocker):
 
     prompt_mock = mocker.patch.object(
         null_translator,
-        "translate_prompts",
-        wraps=null_translator.translate_prompts,
-    )
-
-    descr_mock = mocker.patch.object(
-        null_translator,
-        "translate_descr",
-        wraps=null_translator.translate_descr,
+        "translate",
+        wraps=null_translator.translate,
     )
 
     probe_instance = _plugins.load_plugin(classname)
@@ -174,7 +157,6 @@ def test_probe_prompt_translation(classname, mocker):
 
     if hasattr(probe_instance, "attempt_descrs"):
         # this only exists in goodside should it be standardized in some way?
-        descr_mock.assert_called_once()
         expected_translation_calls += len(probe_instance.attempt_descrs) * 2
 
     assert prompt_mock.call_count == expected_translation_calls

@@ -79,7 +79,7 @@ def test_same_source_and_target_language(translator_class, target_lang, model_na
 
     input_text = ["Hello, how are you?"]
 
-    translated_text = translator.translate_prompts(input_text)
+    translated_text = translator.translate(input_text)
 
     assert (
         translated_text == input_text
