@@ -155,9 +155,6 @@ class Translator(Configurable):
         raise NotImplementedError
 
     def _get_response(self, input_text: str):
-        if self.source_lang is None or self.target_lang is None:
-            return input_text
-
         translated_lines = []
 
         split_text = split_input_text(input_text)
