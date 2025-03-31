@@ -111,7 +111,7 @@ def is_meaning_string(text: str) -> bool:
     try:
         lang = detect(text)
     except LangDetectException:
-        logging.debug("Could not detect a valid language.")
+        logging.debug("langdetect failed to detect a valid language.")
         return False
 
     if lang == "en":
@@ -119,7 +119,6 @@ def is_meaning_string(text: str) -> bool:
 
     # Length and pattern checks: Skip if it's too short or repetitive
     if len(text) < 3 or re.match(r"(.)\1{3,}", text):  # e.g., "aaaa" or "123123"
-        logging.debug(f"Detected short or repetitive sequence. text {text}")
         return False
 
     return True

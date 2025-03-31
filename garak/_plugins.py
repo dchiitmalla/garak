@@ -396,7 +396,7 @@ def load_plugin(path, break_on_fail=True, config_root=_config) -> object:
     except ValueError as ve:
         if break_on_fail:
             raise ValueError(
-                f'Expected plugin name in format category.module_name or category.module_name.class_name, got "{path}"'
+                f'Expected plugin name in format category.module_name.class_name or category.module_name, got "{path}"'
             ) from ve
         else:
             return False
