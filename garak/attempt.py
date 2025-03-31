@@ -201,6 +201,19 @@ class Attempt:
         assert isinstance(value, list)
         self._add_turn("user", value)
 
+    def prompt_for(self, bcp47) -> str:
+        if self.bcp47 != "*" and self.bcp47 != bcp47:
+            return self.notes.get(
+                "pre_translation_prompt", self.prompt
+            )  # update if found in notes
+
+        return self.prompt
+
+    def outputs_for(self, bcp47) -> List[str]:
+        if self.bcp47 != "*" and self.bcp47 != bcp47:
+            return self.reverse_translator_outputs
+        return self.all_outputs
+
     def _expand_prompt_to_histories(self, breadth):
         """expand a prompt-only message history to many threads"""
         if len(self.messages) == 0:

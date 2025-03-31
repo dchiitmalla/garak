@@ -135,10 +135,7 @@ class HFDetector(Detector, HFCompatible):
         # goal: skip None outputs
         # don't adjust attempt.outputs
 
-        all_outputs = attempt.all_outputs
-        if attempt.bcp47 != "*" and attempt.bcp47 != self.bcp47:
-            all_outputs = attempt.reverse_translator_outputs
-
+        all_outputs = attempt.outputs_for(self.bcp47)
         non_none_outputs = [v for k, v in enumerate(all_outputs) if v is not None]
         # non_none_offsets = [k for k,v in enumerate(all_outputs) if v is not None] # we'll want this when outputs+scores need to align
         try:
@@ -181,9 +178,7 @@ class StringDetector(Detector):
         self, attempt: garak.attempt.Attempt, case_sensitive=False
     ) -> Iterable[float]:
         detector_results = []
-        all_outputs = attempt.all_outputs
-        if attempt.bcp47 != "*" and attempt.bcp47 != self.bcp47:
-            all_outputs = attempt.reverse_translator_outputs
+        all_outputs = attempt.outputs_for(self.bcp47)
 
         for output in all_outputs:
             if output is None:
@@ -218,9 +213,7 @@ class TriggerListDetector(Detector):
         self, attempt: garak.attempt.Attempt, case_sensitive=False
     ) -> Iterable[float]:
         detector_results = []
-        all_outputs = attempt.all_outputs
-        if attempt.bcp47 != "*" and attempt.bcp47 != self.bcp47:
-            all_outputs = attempt.reverse_translator_outputs
+        all_outputs = attempt.outputs_for(self.bcp47)
 
         if "triggers" in attempt.notes:
             triggers = attempt.notes["triggers"]
