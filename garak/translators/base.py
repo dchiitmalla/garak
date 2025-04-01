@@ -98,7 +98,7 @@ def contains_invisible_unicode(text: str) -> bool:
     if not text:
         return False
     for char in text:
-        if unicodedata.category(char) not in {"Cf", "Cn", "Zs"}:
+        if unicodedata.category(char) not in {"Cc", "Cf", "Cn", "Zl", "Zp", "Zs"}:
             return False
     return True
 
