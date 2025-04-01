@@ -44,6 +44,7 @@ def _load_translator(
 
 
 def load_translators():
+    """Loads all translators defined in configuration and validate bi-directional support"""
     global translators, native_translator
     if len(translators) > 0:
         return True
@@ -80,30 +81,12 @@ def load_translators():
     raise GarakException(msg)
 
 
-# TODO: Future iteration concerns, should this return a set of translators for all requested target_lang targets?
-# In the base case I expect most target_lang values will target a single language however testing a multi-lingual aware model seems reasonable,
-# to that end a translator from the source lang of the prompts to each target language seems reasonable however it is unclear where in the process
-# the expansion should occur.
-# * Should the harness process the probe for each target language in order?
-# * Should the probe instantiation just generate prompts in all requested languages and attach the language under test to the prompt values?
-# * Should we defer on multi-language runs and initially enforce a single value in `target_lang` to avoid the need for attempts to know the target language?
 def get_translator(source: str, *, reverse: bool = False):
-    """Provider for runtime translator consumed in probes and detectors.
+    """Provides a singleton runtime translator consumed in probes and detectors.
 
-    initially returns a single direction translator for the first value in `target_lang` to encapsulate target language outside plugins
+    returns a single direction translator for the `_config.run.target_lang` to encapsulate target language outside plugins
     """
     load_translators()
-    target_lang = (
-        _config.run.target_lang if hasattr(_config.run, "target_lang") else "en"
-    )
-    target_langs = target_lang.split(",")
-    returned_translators = []
-    for dest in target_langs:
-        key = f"{source}-{dest}" if not reverse else f"{dest}-{source}"
-        translator = translators.get(key, None)
-        if translator is not None:
-            returned_translators.append(translator)
-    # return only the first translator for now
-    return (
-        returned_translators[0] if len(returned_translators) > 0 else native_translator
-    )
+    dest = _config.run.target_lang if hasattr(_config.run, "target_lang") else "en"
+    key = f"{source}-{dest}" if not reverse else f"{dest}-{source}"
+    return translators.get(key, native_translator)
