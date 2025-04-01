@@ -161,15 +161,15 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
     g = (json.loads(line.strip()) for line in open(sys.argv[1]) if line.strip())
     for record in g:
         if record["entry_type"] == "eval":
-            acc = record["passed"] / record["total"]
+            passrate = record["passed"] / record["total"]
             probe_module, probe_classname = record["probe"].split(".", 1)
             detector = record["detector"].replace("detector.", "")
             detector_module, detector_classname = detector.split(".", 1)
             z = c.get_z_score(
-                probe_module, probe_classname, detector_module, detector_classname, acc
+                probe_module, probe_classname, detector_module, detector_classname, passrate
             )
             probe_detector_scores[f"{record['probe']}_{detector}"] = {
-                "acc": acc,
+                "passrate": passrate,
                 "z": z,
             }
         elif record["entry_type"] == "attempt" and record["status"] == 2:
@@ -215,27 +215,27 @@ print("Tier 1")
 t1_probe_names = [probe_name for probe_name, tier in tiers.items() if tier == 1]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split("_")[0] in t1_probe_names:
-        z, acc = (
+        z, passrate = (
             probe_detector_scores[probe_detector]["z"],
-            probe_detector_scores[probe_detector]["acc"],
+            probe_detector_scores[probe_detector]["passrate"],
         )
-        if acc < garak.analyze.SCORE_DEFCON_BOUNDS[1] or (
+        if passrate < garak.analyze.SCORE_DEFCON_BOUNDS[1] or (
             z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]
         ):
             print("\n" + probe_detector)
-            if acc < garak.analyze.SCORE_DEFCON_BOUNDS[1]:
-                print(f"low acc {acc:0.4f}")
+            if passrate < garak.analyze.SCORE_DEFCON_BOUNDS[1]:
+                print(f"low pass rate {passrate:0.4f}")
             if z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]:
-                print(f"low z   {z:-0.4f}")
+                print(f"low z         {z:-0.4f}")
             _print_examples(probe_detector)
 
 print("\nTier 2")
 t2_probe_names = [probe_name for probe_name, tier in tiers.items() if tier == 2]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split("_")[0] in t2_probe_names:
-        z, acc = (
+        z, passrate = (
             probe_detector_scores[probe_detector]["z"],
-            probe_detector_scores[probe_detector]["acc"],
+            probe_detector_scores[probe_detector]["passrate"],
         )
         if z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]:
             print("\n" + probe_detector)
