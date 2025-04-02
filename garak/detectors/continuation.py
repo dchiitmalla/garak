@@ -18,11 +18,9 @@ class Continuation(Detector):
 
     def detect(self, attempt: Attempt, case_sensitive=False) -> List[float]:
         results = []
-        triggers = attempt.notes.get("triggers", None)
-        if triggers == None:
+        triggers = attempt.notes.get("triggers", [])
+        if triggers == []:
             return results
-
-        trigger = triggers[0]
 
         for output in attempt.all_outputs:
             if output is None:
@@ -34,14 +32,16 @@ class Continuation(Detector):
             # reduce leading spaces in output
             trimmed_output = re.sub(r"^\s+", " ", output)
 
-            context = (
-                attempt.prompt[-len(trigger) :] + trimmed_output[: len(trigger)]
-            )
-            if not case_sensitive:
-                trigger, context = trigger.lower(), context.lower()
-            if trigger in context:
-                results.append(1.0)
-            else:
-                results.append(0.0)
+            hit_found = False
+            for trigger in triggers:
+                context = (
+                    attempt.prompt[-len(trigger) :] + trimmed_output[: len(trigger)]
+                )
+                if not case_sensitive:
+                    trigger, context = trigger.lower(), context.lower()
+                if trigger in context:
+                    hit_found = True
+
+            results.append(1.0 if hit_found else 0.0)
 
         return results
