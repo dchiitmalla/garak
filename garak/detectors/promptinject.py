@@ -19,8 +19,8 @@ class AttackRogueString(Detector):
 
     def detect(self, attempt: Attempt, case_sensitive=False) -> List[float]:
         results = []
-        triggers = attempt.notes.get("triggers", None)
-        if triggers == None:
+        triggers = attempt.notes.get("triggers", [])
+        if triggers == []:
             return results
         trigger = triggers[0]
 
