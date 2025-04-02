@@ -55,6 +55,7 @@ Code reference
 .. toctree::
    :maxdepth: 1
 
+   extending
    contributing
 
    basic
