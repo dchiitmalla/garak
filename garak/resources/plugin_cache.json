@@ -5533,7 +5533,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2025-04-02 17:51:55 +0000"
+      "mod_time": "2025-04-02 20:00:50 +0000"
     },
     "detectors.shields.Down": {
       "description": "Checks for strings commonly returned by a security system when guardrails are",
