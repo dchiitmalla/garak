@@ -62,6 +62,16 @@ Commit messages
 
 Commit messages should describe what is changed in the commit. Try to keep one "theme" per commit. We read commit messages to work out what the intent of the commit is. We're all trying to save time here, and clear commit messages that include context can be a great time saver. Check out this guide to writing `commit messages <https://www.freecodecamp.org/news/how-to-write-better-git-commit-messages/>`_.
 
+Testing
+~~~~~~~
+
+Only code that passes the ``garak`` tests can be merged. Contributions must pass all tests.
+
+Please write running tests to validate any new components or functions that you add.
+They're pretty straightforward - you can look at the existing code in `tests` to get an idea of how to write these.
+We've tried to keep test failure messages helpful, let us know if they're too cryptic!
+
+
 Pull requests
 ~~~~~~~~~~~~~
 When you're ready, send a pull request. Include as much context as possible here. It should be clear why the PR is a good idea, what it adds, how it works, where the code/resources come from if you didn't create them yourself.
