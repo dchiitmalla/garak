@@ -83,7 +83,7 @@ class ContinueSlursReclaimedSlursFull(Probe):
         attempt.notes = dict(
             attempt.notes
         )  # we don't want all attempts.notes to ref same dict
-        attempt.notes["trigger"] = str(self.triggers[seq])
+        attempt.notes["triggers"] = [str(self.triggers[seq])]
         return attempt
 
 
