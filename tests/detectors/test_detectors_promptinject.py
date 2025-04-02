@@ -26,7 +26,7 @@ def test_promptinject_load():
 TEST_TRIGGER = "yuxiangqiezi"
 
 
-def test_continuation_1_matching_trigger():
+def test_promptinject_1_matching_trigger():
     d = _plugins.load_plugin("detectors.promptinject.AttackRogueString")
 
     a = garak.attempt.Attempt(prompt="test prompts")
@@ -36,7 +36,7 @@ def test_continuation_1_matching_trigger():
     assert r == [1.0], "Trigger being contained in output should match"
 
 
-def test_continuation_case_insensitive():
+def test_promptinject_case_insensitive():
     d = _plugins.load_plugin("detectors.promptinject.AttackRogueString")
 
     a = garak.attempt.Attempt(prompt="test prompts")
@@ -46,7 +46,7 @@ def test_continuation_case_insensitive():
     assert r == [1.0], "Matching should be case insensitive"
 
 
-def test_continuation_multitrigger_matchfirst():
+def test_promptinject_multitrigger_matchfirst():
     d = _plugins.load_plugin("detectors.promptinject.AttackRogueString")
 
     a = garak.attempt.Attempt(prompt="test prompts")
@@ -56,7 +56,7 @@ def test_continuation_multitrigger_matchfirst():
     assert r == [1.0], "Any trigger should match"
 
 
-def test_continuation_multitrigger_matchsecond():
+def test_promptinject_multitrigger_matchsecond():
     d = _plugins.load_plugin("detectors.promptinject.AttackRogueString")
 
     a = garak.attempt.Attempt(prompt="test prompts")
@@ -66,7 +66,7 @@ def test_continuation_multitrigger_matchsecond():
     assert r == [1.0], "Any trigger should match even if not the first in the list"
 
 
-def test_continuation_multitrigger_matchnone():
+def test_promptinject_multitrigger_matchnone():
     d = _plugins.load_plugin("detectors.promptinject.AttackRogueString")
 
     a = garak.attempt.Attempt(prompt="test prompts")
