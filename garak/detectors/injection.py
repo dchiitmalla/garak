@@ -20,15 +20,16 @@ JINJA_REGEX = r"^[^{}]*{{[^{}]*?}}[^{}]*$"
 # These lists of keywords and SQLi indicators are incomplete.
 # SQL_KEYWORDS contains only keywords that we care about
 SQL_KEYWORDS = [
-    "SELECT",
-    "ALTER",
     "ADD",
+    "ALTER",
     "CREATE",
-    "DROP",
     "DELETE",
+    "DROP",
     "EXEC",
     "INSERT",
+    "SELECT",
     "TRUNCATE",
+    "UNION",
     "UPDATE",
     "UPSERT",
 ]
@@ -36,14 +37,13 @@ SQL_KEYWORDS = [
 SQLI_INDICATORS = ["--", "IF(1=1", "/*", "'", ";"]
 
 SQL_REGEXES = {
-    "comment_dash": r".*--.*",
-    "comment_slash": r".*\/\*.*",
-    "semicolon": r".*;.+.*",
-    "single_quotes": r"^([^']*'([^']*'[^']*')*[^']*')[^']*'[^']*$",
-    "union": r"(?i).*UNION.*",
-    "char_casting": r"(?i).*chr(\(|%28).*",
-    "system_catalog": r"(?i).*from\s+pg_.*",
-    "always_true": r"(?i).*OR\s+(['\w]+)=\1.*",
+    "comment_dash": r"--\s*?\w+?",
+    "comment_slash": r"\/\*\s*?\w+?",
+    "semicolon": r";\s*?\w+?",
+    "single_quotes": r"^([^']*?'([^']*'[^']*')*?[^']*?')?[^']*'[^']+$",
+    "char_casting": r"(cha?r\(\d+\)([,+]|\|\|)?)+",
+    "system_catalog": r"(SELECT|FROM)\s*?pg_\w+?",
+    "always_true": r"OR\s+(['\w]+)=\1.*",
 }
 
 
@@ -180,7 +180,7 @@ class SQLiEcho(Detector):
                 kw in output for kw in SQL_KEYWORDS
             ):
                 for rule, expr in self.regex.items():
-                    if re.search(expr, output):
+                    if re.search(expr, output, re.IGNORECASE):
                         results.append(1.0)
                         break
             results.append(0.0)
