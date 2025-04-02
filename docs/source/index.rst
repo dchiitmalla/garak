@@ -55,9 +55,6 @@ Code reference
 .. toctree::
    :maxdepth: 1
 
-   extending
-   contributing
-
    basic
    attempt
    cli
@@ -67,6 +64,16 @@ Code reference
    payloads
    _config
    _plugins
+
+Building further
+^^^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 1
+
+   extending
+   contributing
+
 
 Plugin structure
 ^^^^^^^^^^^^^^^^
