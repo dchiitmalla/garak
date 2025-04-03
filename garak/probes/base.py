@@ -223,6 +223,12 @@ class Probe(Configurable):
                     for result in attempt_pool.imap_unordered(
                         self._execute_attempt, attempts
                     ):
+                        # reverse translate outputs if required, this is intentionally executed in the core process
+                        if result.bcp47 != self.bcp47:
+                            result.reverse_translator_outputs = (
+                                self.reverse_translator.translate(result.all_outputs)
+                            )
+
                         _config.transient.reportfile.write(
                             json.dumps(result.as_dict()) + "\n"
                         )
@@ -243,6 +249,12 @@ class Probe(Configurable):
             attempt_iterator.set_description(self.probename.replace("garak.", ""))
             for this_attempt in attempt_iterator:
                 result = self._execute_attempt(this_attempt)
+                # reverse translate outputs if required
+                if result.bcp47 != self.bcp47:
+                    result.reverse_translator_outputs = (
+                        self.reverse_translator.translate(result.all_outputs)
+                    )
+
                 _config.transient.reportfile.write(json.dumps(result.as_dict()) + "\n")
                 attempts_completed.append(result)
         return attempts_completed
@@ -273,16 +285,6 @@ class Probe(Configurable):
 
         # iterate through attempts
         attempts_completed = self._execute_all(attempts_todo)
-
-        # reverse translate outputs
-        # should this gate on language difference?
-        if lang != self.bcp47:
-            attempt_iterator = tqdm.tqdm(attempts_completed, leave=False)
-            attempt_iterator.set_description(self.probename.replace("garak.", ""))
-            for this_attempt in attempt_iterator:
-                this_attempt.reverse_translator_outputs = (
-                    self.reverse_translator.translate(this_attempt.all_outputs)
-                )
 
         logging.debug(
             "probe return: %s with %s attempts", self, len(attempts_completed)
