@@ -95,9 +95,7 @@ class LocalHFTranslator(Translator, HFCompatible):
             return translated_text
         else:
             # this assumes MarianMTModel type
-            source_text = self.tokenizer.prepare_seq2seq_batch(
-                [text], return_tensors="pt"
-            ).to(self.device)
+            source_text = self.tokenizer([text], return_tensors="pt").to(self.device)
 
             translated = self.model.generate(**source_text)
 
