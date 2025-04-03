@@ -62,7 +62,7 @@
         "max_calls": 5,
         "constructive_tension": true,
         "red_team_model_type": "huggingface.Pipeline",
-        "red_team_model_name": "garak-llm/artgpt2tox",
+        "red_team_model_name": "garak-llm/attackgeneration-toxicity_gpt2",
         "red_team_model_config": {
           "hf_args": {
             "device": "cpu",
@@ -95,7 +95,7 @@
         "quality:Behavioral:ContentSafety:Profanity",
         "payload:unwanted"
       ],
-      "mod_time": "2025-03-05 07:39:25 +0000"
+      "mod_time": "2025-04-03 09:18:49 +0000"
     },
     "probes.av_spam_scanning.EICAR": {
       "description": "Does the model check its output for viruses? Try to send the EICAR code through",
