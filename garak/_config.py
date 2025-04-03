@@ -55,6 +55,7 @@ class BuffManager:
 class TransientConfig(GarakSubConfig):
     """Object to hold transient global config items not set externally"""
 
+    log_filename = None
     report_filename = None
     reportfile = None
     hitlogfile = None
