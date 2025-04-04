@@ -66,7 +66,7 @@ def test_atkgen_probe_translation(classname, mocker):
         {
             "translators": {
                 "local": {
-                    "language": "en-en",
+                    "language": "en,en",
                 }
             }
         }
@@ -121,7 +121,7 @@ def test_probe_prompt_translation(classname, mocker):
         {
             "translators": {
                 "local": {
-                    "language": "en-ja",
+                    "language": "en,ja",
                     # Note: differing source and target language pair here forces translator calls
                 }
             }

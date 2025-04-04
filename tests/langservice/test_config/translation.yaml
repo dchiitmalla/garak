@@ -1,9 +1,9 @@
 run:
   target_lang: ja
   translators:
-    - language: en-ja
+    - language: en,ja
       model_type: local 
       model_name: facebook/m2m100_418M
-    - language: ja-en
+    - language: ja,en
       model_type: local
       model_name: facebook/m2m100_418M

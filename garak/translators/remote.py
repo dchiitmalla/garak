@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-""" Translator that translates a prompt. """
+"""Translator that translates a prompt."""
 
 
 import logging
 
 from garak.exception import BadGeneratorException
 from garak.translators.base import Translator
+
+VALIDATION_STRING = "A"  # just send a single ASCII character for a sanity check
 
 
 class RivaTranslator(Translator):
@@ -36,6 +38,10 @@ class RivaTranslator(Translator):
         "id", "cs", "en"
     ]
     # fmt: on
+    # Applied when a service only supports regions specific codes
+    bcp47_overrides = {
+        "es": "es-US",
+    }
 
     # avoid attempt to pickle the client attribute
     def __getstate__(self) -> object:
@@ -56,8 +62,10 @@ class RivaTranslator(Translator):
             and self.target_lang in self.bcp47_support
         ):
             raise BadGeneratorException(
-                f"Language pair {self.source_lang}-{self.target_lang} is not supported for this translator service."
+                f"Language pair {self.language} is not supported for {self.__class__.__name__} services at {self.uri}."
             )
+        self._source_lang = self.bcp47_overrides.get(self.source_lang, self.source_lang)
+        self._target_lang = self.bcp47_overrides.get(self.target_lang, self.target_lang)
 
         import riva.client
 
@@ -71,12 +79,15 @@ class RivaTranslator(Translator):
             ],
         )
         self.client = riva.client.NeuralMachineTranslationClient(auth)
+        self.client.translate(
+            [VALIDATION_STRING], "", self._source_lang, self._target_lang
+        )  # exception handling is intentionally not implemented to raise on invalid config for remote services.
 
     # TODO: consider adding a backoff here and determining if a connection needs to be re-established
     def _translate(self, text: str) -> str:
         try:
             response = self.client.translate(
-                [text], "", self.source_lang, self.target_lang
+                [text], "", self._source_lang, self._target_lang
             )
             return response.translations[0].text
         except Exception as e:
@@ -105,6 +116,10 @@ class DeeplTranslator(Translator):
         "en"
     ]
     # fmt: on
+    # Applied when a service only supports regions specific codes
+    bcp47_overrides = {
+        "en": "en-US",
+    }
 
     def _load_translator(self):
         from deepl import Translator
@@ -114,16 +129,20 @@ class DeeplTranslator(Translator):
             and self.target_lang in self.bcp47_support
         ):
             raise BadGeneratorException(
-                f"Language pair {self.source_lang}-{self.target_lang} is not supported for this translator service."
+                f"Language pair {self.language} is not supported for {self.__class__.__name__} services."
             )
+        self._source_lang = self.bcp47_overrides.get(self.source_lang, self.source_lang)
+        self._target_lang = self.bcp47_overrides.get(self.target_lang, self.target_lang)
 
         self.client = Translator(self.api_key)
+        self.client.translate_text(
+            VALIDATION_STRING, self._source_lang, self._target_lang
+        )  # exception handling is intentionally not implemented to raise on invalid config for remote services.
 
     def _translate(self, text: str) -> str:
         try:
-            target_lang = "EN-US" if self.target_lang == "en" else self.target_lang
             return self.client.translate_text(
-                text, source_lang=self.source_lang, target_lang=target_lang
+                text, source_lang=self._source_lang, target_lang=self._target_lang
             ).text
         except Exception as e:
             logging.error(f"Translation error: {str(e)}")

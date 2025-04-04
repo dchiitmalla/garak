@@ -141,7 +141,7 @@ class Translator(Configurable):
     def __init__(self, config_root: dict = {}) -> None:
         self._load_config(config_root=config_root)
 
-        self.source_lang, self.target_lang = self.language.split("-")
+        self.source_lang, self.target_lang = self.language.split(",")
 
         self._validate_env_var()
 

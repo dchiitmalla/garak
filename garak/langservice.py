@@ -27,7 +27,7 @@ def _load_translator(
     logging.debug(
         f"translation_service: {translation_service['language']} reverse: {reverse}"
     )
-    source_lang, target_lang = translation_service["language"].split("-")
+    source_lang, target_lang = translation_service["language"].split(",")
     if source_lang == target_lang:
         return NullTranslator(translator_config)
     model_type = translation_service["model_type"]
@@ -58,7 +58,7 @@ def load_translators():
             # TODO: align class naming for Configurable consistency
             translation_service=entry
         )
-    native_language = f"{run_target_lang}-{run_target_lang}"
+    native_language = f"{run_target_lang},{run_target_lang}"
     if translators.get(native_language, None) is None:
         # provide a native language object when configuration does not provide one
         translators[native_language] = _load_translator(
@@ -69,14 +69,14 @@ def load_translators():
     has_all_required = True
     source_lang, target_lang = None, None
     for translator_key in translators.keys():
-        source_lang, target_lang = translator_key.split("-")
-        if translators.get(f"{target_lang}-{source_lang}", None) is None:
+        source_lang, target_lang = translator_key.split(",")
+        if translators.get(f"{target_lang},{source_lang}", None) is None:
             has_all_required = False
             break
     if has_all_required:
         return has_all_required
 
-    msg = f"The translator configuration provided is missing language: {target_lang}-{source_lang}. Configuration must specify translators for each direction."
+    msg = f"The translator configuration provided is missing language: {target_lang},{source_lang}. Configuration must specify translators for each direction."
     logging.error(msg)
     raise GarakException(msg)
 
@@ -88,5 +88,5 @@ def get_translator(source: str, *, reverse: bool = False):
     """
     load_translators()
     dest = _config.run.target_lang if hasattr(_config.run, "target_lang") else "en"
-    key = f"{source}-{dest}" if not reverse else f"{dest}-{source}"
+    key = f"{source},{dest}" if not reverse else f"{dest},{source}"
     return translators.get(key, native_translator)

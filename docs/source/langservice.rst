@@ -71,13 +71,13 @@ Translation function is configured in the ``run`` section of a configuration wit
 target_lang   - A single ``bcp47`` entry designating the language of the target under test. "ja", "fr", "jap" etc.
 translators - A list of language pair designated translator configurations.
 
-* Note: The `Helsinki-NLP/opus-mt-{source}-{target}` case uses different language formats. The language codes used to name models are inconsistent. 
+* Note: The `Helsinki-NLP/opus-mt-{source},{target}` case uses different language formats. The language codes used to name models are inconsistent. 
 Two-digit codes can usually be found `here<https://developers.google.com/admin-sdk/directory/v1/languages>`_, while three-digit codes require
 a search such as “language code {code}". More details can be found `here <https://github.com/Helsinki-NLP/OPUS-MT-train/tree/master/models>`_.
 
 A translator configuration is provided using the project's configurable pattern with the following required keys:
 
-* ``language``   - A ``-`` separated pair of ``bcp47`` entires describing translation format provided by the configuration
+* ``language``   - A ``,`` separated pair of ``bcp47`` entires describing translation format provided by the configuration
 * ``model_type`` - the module and optional instance class to be instantiated. local, remote, remote.DeeplTranslator etc.
 * ``model_name`` - (optional) the model name loaded for translation, required for ``local`` translator model_type
 
@@ -93,11 +93,11 @@ An example template is provided below.
 run:
   target_lang: {target language code}
   translators:
-    - language: {source language code}-{target language code}
+    - language: {source language code},{target language code}
       api_key: {your API key}
       model_type: {translator module or module.classname}
       model_name: {huggingface model name} 
-    - language: {target language code}-{source language code}
+    - language: {target language code},{source language code}
       api_key: {your API key}
       model_type: {translator module or module.classname}
       model_name: {huggingface model name} 
@@ -117,9 +117,9 @@ You use the following yaml config.
 run:
   target_lang: {target language code}
   translators:
-    - language: {source language code}-{target language code}
+    - language: {source language code},{target language code}
       model_type: remote.DeeplTranslator
-    - language: {target language code}-{source language code}
+    - language: {target language code},{source language code}
       model_type: remote.DeeplTranslator
 
 
@@ -140,9 +140,9 @@ You use the following yaml config.
 run:
   target_lang: {target language code}
   translators:
-    - language: {source language code}-{target language code}
+    - language: {source language code},{target language code}
       model_type: remote
-    - language: {target language code}-{source language code}
+    - language: {target language code},{source language code}
       model_type: remote
 
 
@@ -162,9 +162,9 @@ You use the following yaml config.
 run:
   target_lang: jap
   translators:
-    - language: en-jap
+    - language: en,jap
       model_type: local
-    - language: jap-en
+    - language: jap,en
       model_type: local
 
 .. code-block:: bash
@@ -180,10 +180,10 @@ contain ``m2m100`` to be loaded by garak.
 run:
   target_lang: ja
   translators:
-    - language: en-ja
+    - language: en,ja
       model_type: local
       model_name: facebook/m2m100_418M
-    - language: jap-en
+    - language: jap,en
       model_type: local
       model_name: facebook/m2m100_418M
 

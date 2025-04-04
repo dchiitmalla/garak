@@ -11,7 +11,7 @@ def reverse_translate(attempt) -> Attempt:
     from garak.langservice import _load_translator
 
     translator_config = {
-        "language": "ja-en",
+        "language": "ja,en",
         "model_type": "local",
     }
     reverse_translator = _load_translator(translator_config)

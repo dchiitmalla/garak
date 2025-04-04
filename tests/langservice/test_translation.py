@@ -20,10 +20,10 @@ def test_split_input_text():
 @pytest.mark.parametrize(
     "translator_class, target_lang, model_name",
     [
-        ("local", "en-ja", "facebook/m2m100_418M"),
-        ("local", "en-fr", "facebook/m2m100_418M"),
-        ("local", "en-jap", "Helsinki-NLP/opus-mt-{}"),
-        ("local", "en-fr", "Helsinki-NLP/opus-mt-{}"),
+        ("local", "en,ja", "facebook/m2m100_418M"),
+        ("local", "en,fr", "facebook/m2m100_418M"),
+        ("local", "en,jap", "Helsinki-NLP/opus-mt-{}"),
+        ("local", "en,fr", "Helsinki-NLP/opus-mt-{}"),
     ],
 )
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
@@ -65,9 +65,9 @@ def test_local_translate_single_language(translator_class, target_lang, model_na
 @pytest.mark.parametrize(
     "translator_class, target_lang, model_name",
     [
-        ("local", "en-en", "facebook/m2m100_418M"),
-        ("local", "en-en", "facebook/m2m100_418M"),
-        ("local", "en-en", "Helsinki-NLP/opus-mt-{}"),
+        ("local", "en,en", "facebook/m2m100_418M"),
+        ("local", "en,en", "facebook/m2m100_418M"),
+        ("local", "en,en", "Helsinki-NLP/opus-mt-{}"),
     ],
 )
 @pytest.mark.requires_storage(required_space_gb=2, path="/")
@@ -109,18 +109,18 @@ def translator_remote(target_lang, translator_class):
 @pytest.mark.parametrize(
     "target_lang, translator_class, input_text",
     [
-        ("en-ja", "remote.RivaTranslator", "Hello, how are you?"),
-        ("en-fr", "remote.RivaTranslator", "Hello, how are you?"),
-        ("en-ar", "remote.RivaTranslator", "Hello, how are you?"),
-        ("en-ja", "remote.DeeplTranslator", "Hello, how are you?"),
-        ("en-fr", "remote.DeeplTranslator", "Hello, how are you?"),
-        ("en-ar", "remote.DeeplTranslator", "Hello, how are you?"),
-        ("ja-en", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
-        ("ja-fr", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
-        ("ja-ar", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
-        ("ja-en", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
-        ("ja-fr", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
-        ("ja-ar", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
+        ("en,ja", "remote.RivaTranslator", "Hello, how are you?"),
+        ("en,fr", "remote.RivaTranslator", "Hello, how are you?"),
+        ("en,ar", "remote.RivaTranslator", "Hello, how are you?"),
+        ("en,ja", "remote.DeeplTranslator", "Hello, how are you?"),
+        ("en,fr", "remote.DeeplTranslator", "Hello, how are you?"),
+        ("en,ar", "remote.DeeplTranslator", "Hello, how are you?"),
+        ("ja,en", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
+        ("ja,fr", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
+        ("ja,ar", "remote.RivaTranslator", "こんにちは。調子はどうですか?"),
+        ("ja,en", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
+        ("ja,fr", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
+        ("ja,ar", "remote.DeeplTranslator", "こんにちは。調子はどうですか?"),
     ],
 )
 def test_remote_translate_single_language(
