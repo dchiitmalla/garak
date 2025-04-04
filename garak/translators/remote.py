@@ -41,6 +41,8 @@ class RivaTranslator(Translator):
     # Applied when a service only supports regions specific codes
     bcp47_overrides = {
         "es": "es-US",
+        "zh": "zh-TW",
+        "pr": "pt-PT",
     }
 
     # avoid attempt to pickle the client attribute
