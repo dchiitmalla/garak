@@ -166,7 +166,11 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
             detector = record["detector"].replace("detector.", "")
             detector_module, detector_classname = detector.split(".", 1)
             z = c.get_z_score(
-                probe_module, probe_classname, detector_module, detector_classname, passrate
+                probe_module,
+                probe_classname,
+                detector_module,
+                detector_classname,
+                passrate,
             )
             probe_detector_scores[f"{record['probe']}_{detector}"] = {
                 "passrate": passrate,
@@ -202,7 +206,7 @@ def _print_examples(probe_detector):
             print("trigger:\t" + repr(entry[2]))
         print("response:\t" + repr(entry[1]))
     print("\nexamples - OK")
-    excerpt = pos_examples[probe_detector]
+    excerpt = neg_examples[probe_detector]
     random.shuffle(excerpt)
     for entry in excerpt[0:10]:
         print("prompt:\t" + repr(entry[0]))
@@ -229,7 +233,9 @@ for probe_detector in probe_detector_scores.keys():
                 print(f"low z         {z:-0.4f}")
             _print_examples(probe_detector)
         else:
-            print(f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n")
+            print(
+                f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n"
+            )
 
 print("\nTier 2")
 t2_probe_names = [probe_name for probe_name, tier in tiers.items() if tier == 2]
@@ -244,4 +250,6 @@ for probe_detector in probe_detector_scores.keys():
             print(f"low z   {z:-0.4f}")
             _print_examples(probe_detector)
         else:
-            print(f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n")
+            print(
+                f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n"
+            )
