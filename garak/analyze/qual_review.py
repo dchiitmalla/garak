@@ -228,6 +228,8 @@ for probe_detector in probe_detector_scores.keys():
             if z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]:
                 print(f"low z         {z:-0.4f}")
             _print_examples(probe_detector)
+        else:
+            print(f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n")
 
 print("\nTier 2")
 t2_probe_names = [probe_name for probe_name, tier in tiers.items() if tier == 2]
@@ -241,3 +243,5 @@ for probe_detector in probe_detector_scores.keys():
             print("\n" + probe_detector)
             print(f"low z   {z:-0.4f}")
             _print_examples(probe_detector)
+        else:
+            print(f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n")
