@@ -157,6 +157,10 @@ c = garak.analyze.calibration.Calibration()
 probe_detector_scores = {}
 pos_examples = defaultdict(list)
 neg_examples = defaultdict(list)
+
+print(sys.argv[1])
+print()
+
 with open(sys.argv[1], "r", encoding="utf-8") as report_file:
     g = (json.loads(line.strip()) for line in open(sys.argv[1]) if line.strip())
     for record in g:
@@ -184,12 +188,12 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
                         fields = [record["prompt"], record["outputs"][i]]
                         if "triggers" in record["notes"].keys():
                             fields.append(record["notes"]["triggers"])
-                        if score < 0.5:
-                            neg_examples[
+                        if score > 0.5:
+                            pos_examples[
                                 record["probe_classname"] + "_" + detector_name
                             ].append(fields)
                         else:
-                            pos_examples[
+                            neg_examples[
                                 record["probe_classname"] + "_" + detector_name
                             ].append(fields)
                     except IndexError:
