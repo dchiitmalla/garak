@@ -92,6 +92,8 @@ def test_probe_metadata(classname):
     assert isinstance(p.modality, dict), "probes need to describe available modalities"
     assert "in" in p.modality, "probe modalities need an in descriptor"
     assert isinstance(p.modality["in"], set), "modality descriptors must be sets"
+    assert p.tier is not None, "probe tier must be specified"
+    assert p.tier in ("u", 1, 2, 3), "probe tier must be one of: 1 2 3 'u'"
 
 
 @pytest.mark.parametrize("plugin_name", PROBES)
