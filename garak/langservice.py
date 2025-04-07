@@ -16,17 +16,13 @@ translators = {}
 native_translator = None
 
 
-def _load_translator(
-    translation_service: dict = {}, reverse: bool = False
-) -> Translator:
+def _load_translator(translation_service: dict = {}) -> Translator:
     """Load a single translator based on the configuration provided."""
     translator_instance = None
     translator_config = {
         "translators": {translation_service["model_type"]: translation_service}
     }
-    logging.debug(
-        f"translation_service: {translation_service['language']} reverse: {reverse}"
-    )
+    logging.debug(f"translation_service: {translation_service['language']}")
     source_lang, target_lang = translation_service["language"].split(",")
     if source_lang == target_lang:
         return NullTranslator(translator_config)
