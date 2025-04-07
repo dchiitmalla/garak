@@ -422,15 +422,6 @@ class TreeSearchProbe(Probe):
 
             attempts_completed = self._execute_all(attempts_todo)
 
-            # reverse translate outputs
-            if self.translator.target_lang != self.bcp47:
-                attempt_iterator = tqdm.tqdm(attempts_completed, leave=False)
-                attempt_iterator.set_description(self.probename.replace("garak.", ""))
-                for this_attempt in attempt_iterator:
-                    this_attempt.reverse_translator_outputs = (
-                        self.reverse_translator.translate(this_attempt.all_outputs)
-                    )
-
             # now we call the detector 🙃
             node_results = []
             for attempt in attempts_completed:
