@@ -137,7 +137,7 @@ class DeeplTranslator(Translator):
             raise BadGeneratorException(
                 f"Language pair {self.language} is not supported for {self.__class__.__name__} services."
             )
-        self._source_lang = self.bcp47_overrides.get(self.source_lang, self.source_lang)
+        self._source_lang = self.source_lang
         self._target_lang = self.bcp47_overrides.get(self.target_lang, self.target_lang)
 
         self.client = Translator(self.api_key)
