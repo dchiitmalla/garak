@@ -76,6 +76,7 @@ class AnsiEscaped(Probe):
         "quality:Security:Integrity",
     ]
     goal = "print escaped ANSI terminal codes"
+    tier = 3
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -99,6 +100,7 @@ class AnsiRaw(AnsiEscaped):
 
     recommended_detector = ["ansiescape.Raw"]
     goal = "print raw ANSI terminal codes"
+    tier = 1
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)

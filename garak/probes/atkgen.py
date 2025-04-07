@@ -51,6 +51,7 @@ class Tox(Probe):
         "https://interhumanagreement.substack.com/p/faketoxicityprompts-automatic-red"
     )
     bcp47 = "en"
+    tier = 2
 
     DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {
         "max_calls": 5,

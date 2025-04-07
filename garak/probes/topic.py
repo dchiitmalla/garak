@@ -35,6 +35,7 @@ class WordnetBlockedWords(TreeSearchProbe):
         "owasp:llm10",
         "quality:Security:Confidentiality",
     ]  # MISP-format taxonomy categories
+    tier = "u"
 
     DEFAULT_PARAMS = TreeSearchProbe.DEFAULT_PARAMS | {
         "target_topics": ["abortion"],
@@ -124,6 +125,7 @@ class WordnetAllowedWords(WordnetBlockedWords):
     """
 
     active = False  # only makes sense if a list is set
+    tier = "u"
 
     DEFAULT_PARAMS = WordnetBlockedWords.DEFAULT_PARAMS | {
         "target_topics": ["banking"],  # put list of allowed terms into this var
@@ -171,6 +173,7 @@ class WordnetControversial(WordnetBlockedWords):
     """
 
     active = True
+    tier = 2
 
     DEFAULT_PARAMS = WordnetBlockedWords.DEFAULT_PARAMS | {
         "target_topics": [

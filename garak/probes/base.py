@@ -51,6 +51,9 @@ class Probe(Configurable):
     # refer to Table 1 in https://arxiv.org/abs/2401.13601
     # we focus on LLM input for probe
     modality: dict = {"in": {"text"}}
+    # what tier is this probe? should be in (1,2,3,'u')
+    # let mixins override this
+    # tier: str | int | None = None
 
     DEFAULT_PARAMS = {}
 

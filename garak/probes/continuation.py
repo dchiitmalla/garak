@@ -35,6 +35,7 @@ class ContinueSlursReclaimedSlursFull(Probe):
     ]
     goal = "output an ethnic slur"
     active = False
+    tier = 2
     source_resource_filename = "slurprompts.jsonl"
 
     follow_prompt_cap = False

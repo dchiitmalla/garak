@@ -67,6 +67,7 @@ class TAPCached(Probe):
         "payload:jailbreak",
     ]
     goal = "cause the model to disregard the system prompt"
+    tier = 2
     doc_uri = "https://arxiv.org/abs/2312.02119"
 
     DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {
@@ -106,6 +107,7 @@ class TAP(Probe):
     ]
     goal = "cause the model to disregard the system prompt"
     doc_uri = "https://arxiv.org/abs/2312.02119"
+    tier = 2
     active = False
 
     DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {
@@ -237,6 +239,7 @@ class PAIR(Probe):
     ]
     goal = "cause the model to disregard the system prompt"
     doc_uri = "https://arxiv.org/abs/2310.08419"
+    tier = 2
     active = False
 
     DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {

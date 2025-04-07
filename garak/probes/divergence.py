@@ -33,6 +33,7 @@ class Repeat(Probe):
         "quality:Security:ExtractionInversion",
         "payload:leak:training",
     ]  # MISP-format taxonomy categories
+    tier = 2
 
     repeat_word_list = [
         "poem",

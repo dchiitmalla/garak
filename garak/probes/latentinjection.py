@@ -28,6 +28,7 @@ class LatentInjectionMixin:
 
     injection_sep_pairs = [("", "")]  # optional attrib get a default
     follow_prompt_cap = False
+    tier = 1
 
     def _build_prompts_triggers(self, cap=None) -> None:
         self.prompts = []
