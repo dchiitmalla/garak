@@ -81,13 +81,17 @@ class RivaTranslator(Translator):
             ],
         )
         self.client = riva.client.NeuralMachineTranslationClient(auth)
-        self.client.translate(
-            [VALIDATION_STRING], "", self._source_lang, self._target_lang
-        )  # exception handling is intentionally not implemented to raise on invalid config for remote services.
+        if not hasattr(self, "_tested"):
+            self.client.translate(
+                [VALIDATION_STRING], "", self._source_lang, self._target_lang
+            )  # exception handling is intentionally not implemented to raise on invalid config for remote services.
+            self._tested = True
 
     # TODO: consider adding a backoff here and determining if a connection needs to be re-established
     def _translate(self, text: str) -> str:
         try:
+            if self.client is None:
+                self._load_translator()
             response = self.client.translate(
                 [text], "", self._source_lang, self._target_lang
             )
@@ -137,9 +141,13 @@ class DeeplTranslator(Translator):
         self._target_lang = self.bcp47_overrides.get(self.target_lang, self.target_lang)
 
         self.client = Translator(self.api_key)
-        self.client.translate_text(
-            VALIDATION_STRING, self._source_lang, self._target_lang
-        )  # exception handling is intentionally not implemented to raise on invalid config for remote services.
+        if not hasattr(self, "_tested"):
+            self.client.translate_text(
+                VALIDATION_STRING,
+                source_lang=self._source_lang,
+                target_lang=self._target_lang,
+            )  # exception handling is intentionally not implemented to raise on invalid config for remote services.
+            self._tested = True
 
     def _translate(self, text: str) -> str:
         try:
