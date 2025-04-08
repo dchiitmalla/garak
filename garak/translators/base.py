@@ -81,7 +81,8 @@ def is_english(text):
 def split_input_text(input_text: str) -> list:
     """Split input text based on the presence of ': '."""
     if (
-        ": " in input_text
+        input_text is not None
+        and ": " in input_text
         and "http://" not in input_text
         and "https://" not in input_text
     ):
@@ -225,14 +226,12 @@ class Translator(Configurable):
         translated_prompts = []
         prompts_to_process = list(prompts)
         for prompt in prompts_to_process:
-            if reverse_translate_judge:
+            translate_prompt = prompt
+            if prompt is not None and reverse_translate_judge:
                 mean_word_judge = is_meaning_string(prompt)
                 if mean_word_judge:
                     translate_prompt = self._get_response(prompt)
-                    translated_prompts.append(translate_prompt)
-                else:
-                    translated_prompts.append(prompt)
             else:
                 translate_prompt = self._get_response(prompt)
-                translated_prompts.append(translate_prompt)
+            translated_prompts.append(translate_prompt)
         return translated_prompts
