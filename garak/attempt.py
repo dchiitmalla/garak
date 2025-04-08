@@ -202,7 +202,7 @@ class Attempt:
         self._add_turn("user", value)
 
     def prompt_for(self, bcp47) -> str:
-        if self.bcp47 != "*" and self.bcp47 != bcp47:
+        if self.bcp47 != "*" and bcp47 != "*" and self.bcp47 != bcp47:
             return self.notes.get(
                 "pre_translation_prompt", self.prompt
             )  # update if found in notes
@@ -210,7 +210,7 @@ class Attempt:
         return self.prompt
 
     def outputs_for(self, bcp47) -> List[str]:
-        if self.bcp47 != "*" and self.bcp47 != bcp47:
+        if self.bcp47 != "*" and bcp47 != "*" and self.bcp47 != bcp47:
             return self.reverse_translator_outputs
         return self.all_outputs
 
