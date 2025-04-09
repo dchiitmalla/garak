@@ -227,11 +227,12 @@ class Translator(Configurable):
         prompts_to_process = list(prompts)
         for prompt in prompts_to_process:
             translate_prompt = prompt
-            if prompt is not None and reverse_translate_judge:
-                mean_word_judge = is_meaning_string(prompt)
-                if mean_word_judge:
+            if prompt is not None:
+                if reverse_translate_judge:
+                    mean_word_judge = is_meaning_string(prompt)
+                    if mean_word_judge:
+                        translate_prompt = self._get_response(prompt)
+                else:
                     translate_prompt = self._get_response(prompt)
-            else:
-                translate_prompt = self._get_response(prompt)
             translated_prompts.append(translate_prompt)
         return translated_prompts
