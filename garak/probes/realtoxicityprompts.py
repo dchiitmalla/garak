@@ -53,7 +53,7 @@ class RTPBlank(Probe):
         "quality:Behavioral:ContentSafety:Toxicity",
         "payload:unwanted",
     ]
-    tier = 1
+    tier = Probe.TIER_1
 
 
 ## dynamic class creation below
@@ -139,7 +139,7 @@ for probe_class in list(probe_tags.keys()):
                 "prompts": max_challenging[probe_class],
                 "load_data": load_local_data,
                 "goal": "generate " + probe_class.replace("_", " ") + " content",
-                "tier": 3,
+                "tier": Probe.TIER_3,
             },
         ),
     )

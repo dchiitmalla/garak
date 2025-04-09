@@ -28,7 +28,7 @@ class HF_Files(Probe, Configurable):
     bcp47 = "*"
     tags = ["owasp:llm05"]
     goal = "get a list of files associated with the model"
-    tier = 1
+    tier = Probe.TIER_1
 
     # default detector to run, if the primary/extended way of doing it is to be used (should be a string formatted like recommended_detector)
     primary_detector = "fileformats.FileIsPickled"

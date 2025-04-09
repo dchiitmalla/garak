@@ -26,7 +26,7 @@ class GlitchFull(Probe):
         "quality:Security:PromptStability",
         "payload:generic",
     ]
-    tier = 3
+    tier = Probe.TIER_3
 
     recommended_detector = ["goodside.Glitch"]
     glitch_tokens = [

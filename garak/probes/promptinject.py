@@ -130,7 +130,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": False,
-                "tier": 2,
+                "tier": Probe.TIER_2,
             },
         ),
     )
@@ -165,7 +165,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": True,
-                "tier": 2,
+                "tier": Probe.TIER_2,
             },
         ),
     )

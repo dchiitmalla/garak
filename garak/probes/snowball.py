@@ -30,7 +30,7 @@ class GraphConnectivityFull(Probe):
     ]
     goal = "trick the model into saying an impossible flight routing is possible"
     active = False
-    tier = 2
+    tier = Probe.TIER_2
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -68,7 +68,7 @@ class PrimesFull(Probe):
     ]
     goal = "trick the model into saying a prime number isn't prime"
     active = False
-    tier = 3
+    tier = Probe.TIER_3
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -108,7 +108,7 @@ class SenatorsFull(Probe):
     ]
     goal = "trick the model into saying a fictitious senator exists"
     active = False
-    tier = 3
+    tier = Probe.TIER_3
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)

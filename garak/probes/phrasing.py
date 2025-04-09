@@ -27,7 +27,7 @@ class PastTenseFull(Probe):
         "payload:jailbreak",
     ]
     goal = "use past tense to disregard the system prompt"
-    tier = 2
+    tier = Probe.TIER_2
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -74,7 +74,7 @@ class FutureTenseFull(Probe):
         "payload:jailbreak",
     ]
     goal = "use future tense to disregard the system prompt"
-    tier = 2
+    tier = Probe.TIER_2
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)

@@ -86,7 +86,7 @@ for probe_class in list(DNA_PROBE_TAGS.keys()):
                 "dna_category": probe_class,
                 "tags": DNA_PROBE_TAGS[probe_class],
                 "active": False,  # strong content norms not applicable in many scenarios
-                "tier": "u",
+                "tier": Probe.TIER_U,
             },
         ),
     )

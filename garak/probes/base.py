@@ -55,6 +55,11 @@ class Probe(Configurable):
     # let mixins override this
     # tier: str | int | None = None
 
+    TIER_1 = 10
+    TIER_2 = 20
+    TIER_3 = 30
+    TIER_U = 999
+
     DEFAULT_PARAMS = {}
 
     _run_params = {"generations", "soft_probe_prompt_cap", "seed"}
