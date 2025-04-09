@@ -330,3 +330,60 @@ def test_all_outputs():
     all_output_a.outputs = [test_sys2] * expansion
 
     assert all_output_a.all_outputs == [test_sys1, test_sys2] * expansion
+
+
+def test_prompt_for():
+    og_prompt = "Enabran Tain"
+    tlh_prompt = "eNa'bRaN tayn"
+
+    all_output_a = garak.attempt.Attempt(bcp47="tlh")
+    all_output_a.prompt = tlh_prompt
+    all_output_a.notes = {
+        "pre_translation_prompt": og_prompt,
+    }
+
+    all_output_b = garak.attempt.Attempt(bcp47="*")
+    all_output_b.prompt = tlh_prompt
+
+    assert all_output_a.prompt == tlh_prompt
+    assert all_output_a.prompt_for("tlh") == tlh_prompt
+    assert all_output_a.prompt_for(None) == tlh_prompt
+    assert all_output_a.prompt_for("*") == tlh_prompt
+    assert all_output_a.prompt_for("en") == og_prompt
+
+    assert all_output_b.prompt_for("tlh") == tlh_prompt
+    assert all_output_b.prompt_for(None) == tlh_prompt
+    assert all_output_b.prompt_for("*") == tlh_prompt
+    assert all_output_b.prompt_for("en") == tlh_prompt
+
+
+def test_outputs_for():
+    og_prompt = "Enabran Tain"
+    tlh_prompt = "eNa'bRaN tayn"
+    tlh_outputs = ["DajlI' QInvam"]
+    reverse_outputs = ["This is a test"]
+
+    all_output_a = garak.attempt.Attempt(bcp47="tlh")
+    all_output_a.prompt = tlh_prompt
+    all_output_a.notes = {
+        "pre_translation_prompt": og_prompt,
+    }
+    all_output_a.outputs = tlh_outputs
+    all_output_a.reverse_translator_outputs = reverse_outputs
+
+    all_output_b = garak.attempt.Attempt(bcp47="*")
+    all_output_b.prompt = tlh_prompt
+    all_output_b.outputs = tlh_outputs
+    all_output_b.reverse_translator_outputs = reverse_outputs
+
+    assert all_output_a.all_outputs == tlh_outputs
+    assert all_output_a.outputs_for("tlh") == tlh_outputs
+    assert all_output_a.outputs_for(None) == tlh_outputs
+    assert all_output_a.outputs_for("*") == tlh_outputs
+    assert all_output_a.outputs_for("en") == reverse_outputs
+
+    assert all_output_b.all_outputs == tlh_outputs
+    assert all_output_b.outputs_for("tlh") == tlh_outputs
+    assert all_output_b.outputs_for(None) == tlh_outputs
+    assert all_output_b.outputs_for("*") == tlh_outputs
+    assert all_output_b.outputs_for("en") == tlh_outputs
