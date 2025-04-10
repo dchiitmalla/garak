@@ -257,3 +257,8 @@ for probe_detector in probe_detector_scores.keys():
             print(
                 f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n"
             )
+
+print("\nNot processed:")
+processed_probes = t1_probe_names + t2_probe_names
+for entry in [probe_detector for probe_detector in probe_detector_scores.keys() if probe_detector.split("_")[0] not in processed_probes]:
+    print(entry)
