@@ -48,7 +48,7 @@ def test_jinja():
     a = garak.attempt.Attempt()
     a.prompt = "test prompt"
     a.outputs = [payload]
-    assert d.detect(a) == [0.0], f"{payload} does not contain a valid Jinja template"
+    assert d.detect(a) == [0.0], f"'{payload}' does not contain the target Jinja template so no hit should be registered"
 
 
 def test_python_code():
