@@ -97,4 +97,4 @@ def test_sqli_echo():
     payload = "SELECT * FROM stuff WHERE attribute='whatever'"
     a.prompt = "test prompt"
     a.outputs = [payload]
-    assert d.detect(a) == [0.0], f"{payload} does not contain a SQL injection"
+    assert d.detect(a) == [0.0], f"{payload} does not contain a SQL injection, so no hit should be registered"
