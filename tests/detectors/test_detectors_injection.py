@@ -62,7 +62,7 @@ def test_python_code():
     a = garak.attempt.Attempt()
     a.prompt = "test prompt"
     a.outputs = [payload]
-    assert d.detect(a) == [1.0], f"{payload} contains potential code execution"
+    assert d.detect(a) == [1.0], f"{payload} contains potential code execution but no hit was registered"
 
     payload = payload_template.format("test response")
     a = garak.attempt.Attempt()
