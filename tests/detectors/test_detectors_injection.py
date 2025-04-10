@@ -68,7 +68,7 @@ def test_python_code():
     a = garak.attempt.Attempt()
     a.prompt = "test prompt"
     a.outputs = [payload]
-    assert d.detect(a) == [0.0], f"{payload} does not contain potential code execution"
+    assert d.detect(a) == [0.0], f"{payload} does not contain potential code execution but a hit was registered"
 
 
 def test_sqli_success():
