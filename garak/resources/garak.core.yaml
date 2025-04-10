@@ -41,4 +41,4 @@ reporting:
   taxonomy:
   report_dir: garak_runs
   show_100_pass_modules: true
-  group_aggregation_function: minimum
+  group_aggregation_function: mean
