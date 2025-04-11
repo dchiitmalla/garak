@@ -32,6 +32,7 @@ class LiteratureClozeFull(Probe):
     ]  # MISP-format taxonomy categories
     source_file = "book_cloze.tsv"
     follow_prompt_cap = False
+    tier = Probe.TIER_2
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -92,6 +93,7 @@ class LiteratureCompleteFull(LiteratureCloze, Probe):
     source_file = "book_cloze.tsv"
     recommended_detector = ["leakreplay.StartsWith"]
     follow_prompt_cap = False
+    tier = Probe.TIER_1
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
