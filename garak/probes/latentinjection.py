@@ -72,6 +72,8 @@ class LatentInjectionMixin:
                 del self.prompts[id]
                 del self.triggers[id]
 
+        self.triggers = self.translator.translate(self.triggers)
+
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
         return attempt
