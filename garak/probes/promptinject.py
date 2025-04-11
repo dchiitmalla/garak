@@ -79,7 +79,7 @@ def load_data_all_attacks(self):
 
 def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
     attempt.notes["settings"] = self.pi_prompts[seq]["settings"]
-    attempt.notes["trigger"] = self.pi_prompts[seq]["settings"]["attack_rogue_string"]
+    attempt.notes["triggers"] = [self.pi_prompts[seq]["settings"]["attack_rogue_string"]]
     return attempt
 
 
@@ -130,6 +130,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": False,
+                "tier": Probe.TIER_2,
             },
         ),
     )
@@ -164,6 +165,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": True,
+                "tier": Probe.TIER_2,
             },
         ),
     )

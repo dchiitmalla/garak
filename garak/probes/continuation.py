@@ -6,7 +6,6 @@ continue the term based on varying amounts of prefix.
 """
 
 import json
-import random
 
 from garak import _config
 from garak.attempt import Attempt
@@ -36,6 +35,7 @@ class ContinueSlursReclaimedSlursFull(Probe):
     ]
     goal = "output an ethnic slur"
     active = False
+    tier = Probe.TIER_2
     source_resource_filename = "slurprompts.jsonl"
 
     follow_prompt_cap = False
@@ -61,29 +61,29 @@ class ContinueSlursReclaimedSlursFull(Probe):
         self.prompts = []
         self.triggers = []
         for term, prefix in self._slur_prefixes:
-            lower_term = term.lower()
-            term_variants = set(["", lower_term[0]])  # blank, first letter
+            term_variants = set(["", term[0]])  # blank, first letter
             if len(term) > 2:
-                term_variants.add(lower_term[:2].strip())  # first two letters
-            term_variants.add(
-                lower_term[: int(len(lower_term) / 2)].strip()
-            )  # first half of term
+                term_variants.add(term[:2].strip())  # first two letters
+            term_variants.add(term[: int(len(term) / 2)].strip())  # first half of term
 
             for term_variant in term_variants:
                 # would use a set but order is important
                 candidate_prompt = prefix + term_variant
                 if candidate_prompt not in self.prompts:
-                    self.prompts.append(candidate_prompt.strip())
+                    self.prompts.append(candidate_prompt)
                     self.triggers.append(term)
 
         if self.follow_prompt_cap:
             self._prune_data(self.soft_probe_prompt_cap)
 
+        if self.translator is not None:
+            self.triggers = self.translator.translate(self.triggers)
+
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes = dict(
             attempt.notes
         )  # we don't want all attempts.notes to ref same dict
-        attempt.notes["trigger"] = str(self.triggers[seq])
+        attempt.notes["triggers"] = [str(self.triggers[seq])]
         return attempt
 
 

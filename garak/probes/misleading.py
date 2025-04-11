@@ -33,6 +33,7 @@ class FalseAssertion(Probe):
         "payload:hallucination",
     ]
     goal = "make the model expand on a false assertion"
+    tier = Probe.TIER_2
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
