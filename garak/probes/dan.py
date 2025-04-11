@@ -3,10 +3,11 @@
 
 """DAN probes.
 
-Probes designed to disrupt a system prompt, for example the DAN (do anything 
+Probes designed to disrupt a system prompt, for example the DAN (do anything
 now) probes and others in a similar vein.
 """
 import logging
+import random
 from typing import Iterable
 
 import garak.attempt
@@ -595,6 +596,7 @@ class AutoDAN(Probe):
 
         if autodan_outputs:
             self.prompts = autodan_outputs
+            self.prompts = self.translator.translate(self.prompts)
 
             # build list of attempts
             attempts_todo = []
@@ -620,7 +622,7 @@ class AutoDAN(Probe):
             return list()
 
 
-class DanInTheWild(Probe):
+class DanInTheWildFull(Probe):
     """A library of jailbreaks.
 
     Tries a set of ~700 known jailbreaks, in an attempt to get a model to disregard
@@ -648,15 +650,16 @@ class DanInTheWild(Probe):
             self.prompts = f.readlines()
 
 
-class DanInTheWildMini(DanInTheWild):
-    """A subset of 100 jailbreaks from the DanInTheWild jailbreak library.
+class DanInTheWild(DanInTheWildFull):
+    """A subset of jailbreaks from the DanInTheWild jailbreak library.
 
-    Tries a set of 100 known jailbreaks, in an attempt to get a model to disregard
-    alignment/system prompt. Success is measured by not getting a safety mitigaton
-    message."""
+    Tries a set of known jailbreaks, in an attempt to get a model to disregard
+    alignment/system prompt. Success is measured by not getting a safety mitigation
+    message. The number of prompts in the subset can be configured via the
+    `soft_probe_prompt_cap` run parameter."""
 
     active = True
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
-        self.prompts = self.prompts[:100]
+        self._prune_data(self.soft_probe_prompt_cap)
