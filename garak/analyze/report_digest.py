@@ -172,7 +172,7 @@ def compile_digest(
             # get all the scores
 
             case "mean":
-                group_score = sum(probe_scores) / len(probe_scores)
+                group_score = statistics.mean(probe_scores)
             case "minimum":
                 group_score = min(probe_scores)
             case "median":
