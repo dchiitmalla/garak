@@ -639,6 +639,7 @@ class LatentWhoisSnippet(LatentInjectionFactSnippetEiffelFull):
 
     DEFAULT_PARAMS = LatentInjectionFactSnippetEiffelFull.DEFAULT_PARAMS | {
         "shuffle": True,
+        "generations": 1,
         "contexts_per_generation": 8,
     }
 

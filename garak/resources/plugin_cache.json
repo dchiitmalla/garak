@@ -2408,6 +2408,7 @@
       "description": "String-based latent prompt injections in whois reports",
       "DEFAULT_PARAMS": {
         "shuffle": true,
+        "generations": 1,
         "contexts_per_generation": 8
       },
       "TIER_1": 10,
