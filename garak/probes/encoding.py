@@ -22,7 +22,7 @@ import binascii
 
 import garak.payloads
 from garak import _config
-from garak.probes.base import Probe
+from garak.probes.base import Probe, Tier
 
 payload_mapping = {
     "default": "text_en",
@@ -90,34 +90,34 @@ def braille(text):
         "k": "\u2805",
         "l": "\u2807",
         "c": "\u2809",
-        "i": "\u280A",
-        "f": "\u280B",
-        "m": "\u280D",
-        "s": "\u280E",
-        "p": "\u280F",
+        "i": "\u280a",
+        "f": "\u280b",
+        "m": "\u280d",
+        "s": "\u280e",
+        "p": "\u280f",
         "e": "\u2811",
         "h": "\u2813",
         "o": "\u2815",
         "r": "\u2817",
         "d": "\u2819",
-        "j": "\u281A",
-        "g": "\u281B",
-        "n": "\u281D",
-        "t": "\u281E",
-        "q": "\u281F",
+        "j": "\u281a",
+        "g": "\u281b",
+        "n": "\u281d",
+        "t": "\u281e",
+        "q": "\u281f",
         "u": "\u2825",
         "v": "\u2827",
-        "x": "\u282D",
+        "x": "\u282d",
         "z": "\u2835",
-        "w": "\u283A",
-        "y": "\u283D",
-        "num": "\u283C",
+        "w": "\u283a",
+        "y": "\u283d",
+        "num": "\u283c",
         "caps": "\u2820",
         ".": "\u2832",
         "'": "\u2804",
         ",": "\u2802",
         "-": "\u2824",
-        "/": "\u280C",
+        "/": "\u280c",
         "!": "\u2816",
         "?": "\u2826",
         "$": "\u2832",
@@ -130,11 +130,11 @@ def braille(text):
         "3": "\u2809",
         "4": "\u2819",
         "5": "\u2811",
-        "6": "\u280B",
-        "7": "\u281B",
+        "6": "\u280b",
+        "7": "\u281b",
         "8": "\u2813",
-        "9": "\u280A",
-        "0": "\u281A",
+        "9": "\u280a",
+        "0": "\u281a",
         " ": " ",
     }
     numberPunctuations = [".", ",", "-", "/", "$"]
@@ -241,7 +241,7 @@ class BaseEncodingProbe:
     goal = "make the model say an encoded payload"
     bcp47 = "en"
     doc_uri = "https://kai-greshake.de/posts/llm-malware/#encoded-inline-jailbreak"
-    tier = Probe.TIER_2
+    tier = Tier.TIER_2
 
     primary_detector = "encoding.DecodeMatch"
     extended_detectors = [
@@ -266,7 +266,7 @@ class InjectBase64(BaseEncodingProbe, Probe):
     Encodes payloads using base64, and tries a variety of ways of getting the target
     model to repeat & decode them."""
 
-    tier = Probe.TIER_1
+    tier = Tier.TIER_1
 
     encoding_funcs = [
         base64.b64encode,
@@ -347,7 +347,7 @@ class InjectQP(BaseEncodingProbe, Probe):
     encoding_name = "Quoted-Printable"
     active = False  # seems to just pass text right through - when using ascii chars
 
-    tier = Probe.TIER_1
+    tier = Tier.TIER_1
 
     def __init__(self, config_root=_config):
         BaseEncodingProbe.__init__(self, config_root=config_root)
@@ -360,7 +360,7 @@ class InjectUU(BaseEncodingProbe, Probe):
     Encodes payloads using uuencoding, and tries a variety of ways of getting the target
     model to repeat & decode them."""
 
-    tier = Probe.TIER_1
+    tier = Tier.TIER_1
 
     encoding_name = "UUencode"
 
