@@ -33,6 +33,8 @@ jobs:
     name: Nightly MacOS
     if: github.repository_owner == 'NVIDIA'
     uses: ./.github/workflows/test_macos.yml
+    with:
+      store-cache: true
   package_test:
     name: Nightly Packaging
     if: github.repository_owner == 'NVIDIA'
