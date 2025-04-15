@@ -1603,6 +1603,119 @@
       ],
       "mod_time": "2025-04-09 06:45:56 +0000"
     },
+    "probes.exploitation.JinjaTemplatePythonInjection": {
+      "description": "Attempts to execute Python code via Jinja templating",
+      "DEFAULT_PARAMS": {
+        "payload_name": "python_code_execution"
+      },
+      "TIER_1": 10,
+      "TIER_2": 20,
+      "TIER_3": 30,
+      "TIER_U": 999,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://portswigger.net/web-security/server-side-template-injection",
+      "extended_detectors": [],
+      "goal": "Gain remote code execution via Jinja template injection",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": null,
+      "recommended_detector": [
+        "exploitation.JinjaTemplateDetector",
+        "exploitation.PythonCodeExecution"
+      ],
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "payload:malicious:renderer",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:94",
+        "cwe:95",
+        "cwe:1336"
+      ],
+      "mod_time": "2025-04-11 16:29:24 +0000"
+    },
+    "probes.exploitation.SQLInjectionEcho": {
+      "description": "Attempts to get the target to echo a SQL statement.",
+      "DEFAULT_PARAMS": {
+        "payload_name": "sql_injection"
+      },
+      "TIER_1": 10,
+      "TIER_2": 20,
+      "TIER_3": 30,
+      "TIER_U": 999,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://cwe.mitre.org/data/definitions/89.html",
+      "extended_detectors": [],
+      "goal": "Manipulate a database via SQL injection",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": null,
+      "recommended_detector": [
+        "exploitation.SQLiEcho"
+      ],
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:89",
+        "cwe:1426",
+        "cwe:1427"
+      ],
+      "mod_time": "2025-04-11 16:29:24 +0000"
+    },
+    "probes.exploitation.SQLInjectionSystem": {
+      "description": "Attempts to inject untrusted SQL commands into a SQL statement.",
+      "DEFAULT_PARAMS": {
+        "payload_name": "sql_injection"
+      },
+      "TIER_1": 10,
+      "TIER_2": 20,
+      "TIER_3": 30,
+      "TIER_U": 999,
+      "active": false,
+      "bcp47": "en",
+      "doc_uri": "https://cwe.mitre.org/data/definitions/89.html",
+      "extended_detectors": [],
+      "goal": "Manipulate a database via SQL injection",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": null,
+      "recommended_detector": [
+        "exploitation.SQLiSuccess"
+      ],
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:89",
+        "cwe:1426",
+        "cwe:1427"
+      ],
+      "mod_time": "2025-04-11 16:29:24 +0000"
+    },
     "probes.fileformats.HF_Files": {
       "description": "Get a manifest of files associated with a Hugging Face generator",
       "DEFAULT_PARAMS": {},
@@ -4540,7 +4653,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-04-09 06:45:56 +0000"
+      "mod_time": "2025-04-11 16:05:55 +0000"
     },
     "probes.xss.MarkdownImageExfil": {
       "description": "Can we get the model to write embedded assets exfiltrating text in the URI?",
@@ -4577,7 +4690,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-04-09 06:45:56 +0000"
+      "mod_time": "2025-04-11 16:05:55 +0000"
     },
     "probes.xss.MdExfil20230929": {
       "description": "Markdown image URI exfil exploit published 2023 Sept 29",
@@ -4613,7 +4726,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-04-09 06:45:56 +0000"
+      "mod_time": "2025-04-11 16:05:55 +0000"
     },
     "probes.xss.StringAssemblyDataExfil": {
       "description": "Prompt injection for manipulating state",
@@ -4647,7 +4760,7 @@
         "quality:Security:PromptStability",
         "quality:Security:ExtractionInversion"
       ],
-      "mod_time": "2025-04-09 06:45:56 +0000"
+      "mod_time": "2025-04-11 16:05:55 +0000"
     }
   },
   "detectors": {
@@ -4668,7 +4781,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-08-23 16:13:06 +0000"
+      "mod_time": "2025-04-10 08:04:26 +0000"
     },
     "detectors.always.Pass": {
       "description": "Always Pass (for testing & prototyping)",
@@ -4687,7 +4800,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-08-23 16:13:06 +0000"
+      "mod_time": "2025-04-10 08:04:26 +0000"
     },
     "detectors.always.Passthru": {
       "description": "Send existing attempt detection results; use first detector",
@@ -4706,7 +4819,26 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2024-08-23 16:13:06 +0000"
+      "mod_time": "2025-04-10 08:04:26 +0000"
+    },
+    "detectors.always.Random": {
+      "description": "Always return a random result (for testing & prototyping)",
+      "DEFAULT_PARAMS": {
+        "skip": false
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "*",
+      "doc_uri": null,
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [],
+      "mod_time": "2025-04-10 08:04:26 +0000"
     },
     "detectors.ansiescape.Escaped": {
       "description": "pick up escaped ANSI escape sequences",
@@ -5083,6 +5215,128 @@
       "recall": 0.0,
       "tags": [],
       "mod_time": "2025-03-24 16:38:39 +0000"
+    },
+    "detectors.exploitation.JinjaTemplateDetector": {
+      "description": "Detect that a valid jinja template was provided.",
+      "DEFAULT_PARAMS": {
+        "skip": false
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "*",
+      "doc_uri": "https://portswigger.net/web-security/server-side-template-injection",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "payload:leak:chat",
+        "payload:malicious:renderer",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:94",
+        "cwe:95",
+        "cwe:1426",
+        "cwe:1427"
+      ],
+      "mod_time": "2025-04-14 16:14:35 +0000"
+    },
+    "detectors.exploitation.PythonCodeExecution": {
+      "description": "Detect the presence of python that will execute commands on the system.",
+      "DEFAULT_PARAMS": {
+        "skip": false
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "*",
+      "doc_uri": "https://portswigger.net/kb/issues/00100f10_python-code-injection",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:94",
+        "cwe:95",
+        "cwe:1336",
+        "cwe:1426",
+        "cwe:1427"
+      ],
+      "mod_time": "2025-04-14 16:14:35 +0000"
+    },
+    "detectors.exploitation.SQLiEcho": {
+      "description": "",
+      "DEFAULT_PARAMS": {
+        "skip": false
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://cwe.mitre.org/data/definitions/89.html",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:89",
+        "cwe:1426",
+        "cwe:1427"
+      ],
+      "mod_time": "2025-04-14 16:14:35 +0000"
+    },
+    "detectors.exploitation.SQLiSuccess": {
+      "description": "",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "str"
+      },
+      "accuracy": null,
+      "active": true,
+      "bcp47": "en",
+      "doc_uri": "https://cwe.mitre.org/data/definitions/89.html",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:security:S0301",
+        "avid-effect:security:S0403",
+        "owasp:llm02",
+        "owasp:llm06",
+        "quality:Security:PromptStability",
+        "quality:Security:ExtractionInversion",
+        "cwe:89",
+        "cwe:1426",
+        "cwe:1427"
+      ],
+      "mod_time": "2025-04-14 16:14:35 +0000"
     },
     "detectors.fileformats.FileIsExecutable": {
       "description": "",
