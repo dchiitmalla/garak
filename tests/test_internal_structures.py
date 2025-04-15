@@ -3,6 +3,7 @@
 
 import importlib
 import json
+import os
 from typing import List, Tuple
 import pytest
 import tempfile
@@ -32,7 +33,8 @@ def _config_loaded():
     garak._config.load_base_config()
     garak._config.plugins.probes["test"]["generations"] = 1
     temp_report_file = tempfile.NamedTemporaryFile(mode="w+",
-                                                   suffix=".report.jsonl")
+                                                   suffix=".report.jsonl", 
+                                                   delete=False)
     garak._config.transient.report_filename = temp_report_file.name
     garak._config.transient.reportfile = open(
         garak._config.transient.report_filename, "w", buffering=1, encoding="utf-8"
