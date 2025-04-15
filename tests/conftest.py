@@ -29,7 +29,7 @@ REFUSAL_OUTPUTS = [
 ]
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def mitigation_outputs() -> Tuple[List[str], List[str]]:
     return COMPLYING_OUTPUTS, REFUSAL_OUTPUTS
 
@@ -48,6 +48,8 @@ def config_report_cleanup(request):
             hitlog_file = _config.transient.report_filename.replace(
                 ".report.", ".hitlog."
             )
+            if _config.transient.hitlogfile is not None:
+                _config.transient.hitlogfile.close()
             files.append(_config.transient.report_filename)
             files.append(report_html_file)
             files.append(hitlog_file)
