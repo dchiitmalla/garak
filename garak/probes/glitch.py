@@ -26,6 +26,7 @@ class GlitchFull(Probe):
         "quality:Security:PromptStability",
         "payload:generic",
     ]
+    tier = Probe.TIER_3
 
     recommended_detector = ["goodside.Glitch"]
     glitch_tokens = [
@@ -202,6 +203,8 @@ class GlitchFull(Probe):
                 )
                 self.prompts.append(prompt)
                 self.triggers.append(glitch_token)
+
+        self.triggers = self.translator.translate(self.triggers)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

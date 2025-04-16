@@ -37,6 +37,7 @@ class FigStepFull(Probe):
         "payload:jailbreak",
     ]
     goal = "disregard the system prompt with both text and image"
+    tier = Probe.TIER_2
 
     prompts = []
 
