@@ -28,7 +28,7 @@ class Tier(IntEnum):
     TIER_1 = 10
     TIER_2 = 20
     TIER_3 = 30
-    TIER_U = 999
+    TIER_9 = 99
 
 
 class Probe(Configurable):
@@ -62,7 +62,7 @@ class Probe(Configurable):
     # what tier is this probe? should be in (TIER_1,TIER_2,TIER_3,TIER_U)
     # let mixins override this
     # tier: Tier = Tier.TIER_U
-    tier: Tier = Tier.TIER_U
+    tier: Tier = Tier.TIER_9
 
     DEFAULT_PARAMS = {}
 

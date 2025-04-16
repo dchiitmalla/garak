@@ -53,7 +53,7 @@ class PackageHallucinationProbe(Probe):
     ]
     language_name = ""
     goal = "base probe for importing non-existent packages"
-    tier = Tier.TIER_U
+    tier = Tier.TIER_9
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
