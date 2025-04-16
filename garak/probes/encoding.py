@@ -256,6 +256,7 @@ class BaseEncodingProbe:
             self.prompts, self.triggers = zip(
                 *random.sample(generated_prompts, self.soft_probe_prompt_cap)
             )
+        self.prompts = self.translator.translate(self.prompts)
 
     def _attempt_prestore_hook(self, attempt, seq):
         attempt.notes["triggers"] = [self.triggers[seq]]
