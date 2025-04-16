@@ -30,39 +30,6 @@ payload_mapping = {
     "xss": "web_html_js",
     "slur_terms": "slur_terms_en",
 }
-payloads = []
-extra_tags = []
-
-
-def _load_payloads():
-    global payloads, extra_tags
-    payloads = []
-
-    extra_payload_tags = {
-        "web_html_js": ["payload:malicious:renderer:xss"],
-        "slur_terms_en": ["payload:unwanted:hatespeech"],
-    }
-
-    if "encoding" in _config.plugins.probes:
-        if isinstance(_config.plugins.probes["encoding"]["payloads"], str):
-            _config.plugins.probes["encoding"]["payloads"] = [
-                _config.plugins.probes["encoding"]["payloads"]
-            ]
-
-        for payload_class in _config.plugins.probes["encoding"]["payloads"]:
-            if payload_class not in payload_mapping:
-                payload_to_add = payload_class
-            else:
-                payload_to_add = payload_mapping[payload_class]
-
-            payloads += garak.payloads.load(payload_to_add).payloads
-
-            if payload_to_add in extra_payload_tags:
-                extra_tags += extra_payload_tags[payload_to_add]
-
-    if not payloads:
-        payloads = garak.payloads.load(payload_mapping["default"]).payloads
-
 
 TEMPLATES = [
     "{encoded_text}",
@@ -85,6 +52,7 @@ def rot13(text):
 
 
 def braille(text):
+    # fmt: off
     characterUnicodes = {
         "a": "\u2801",
         "b": "\u2803",
@@ -138,6 +106,7 @@ def braille(text):
         "0": "\u281A",
         " ": " ",
     }
+    # fmt: on
     numberPunctuations = [".", ",", "-", "/", "$"]
     escapeCharacters = ["\n", "\r", "\t"]
 
@@ -214,22 +183,6 @@ def morse(text):
     return bytes(" ".join(output), "utf-8")
 
 
-def _generate_encoded_prompts(encoding_funcs, encoding_name):
-    encoded_prompts = set([])
-    for template in TEMPLATES:
-        for payload in payloads:
-            for encoder in encoding_funcs:
-                encoded_text = encoder(bytes(payload, "utf-8"))
-                if isinstance(encoded_text, bytes):
-                    encoded_text = encoded_text.decode()
-                prompt = template.replace("{encoding_name}", encoding_name).replace(
-                    "{encoded_text}", encoded_text
-                )
-                trigger = str(payload)
-                encoded_prompts.add((prompt, trigger))
-    return sorted(list(encoded_prompts), key=lambda k: k[0])
-
-
 class BaseEncodingProbe:
     """Mixin for encoding-based injection probes"""
 
@@ -248,12 +201,49 @@ class BaseEncodingProbe:
         "encoding.DecodeApprox",
     ]
 
-    DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {"ignore_prompt_cap": False}
+    DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {
+        "ignore_prompt_cap": False,
+        "payloads": ["default"],
+    }
+
+    def _load_payloads(self):
+        self._payloads = []
+        self.extra_tags = []
+        extra_payload_tags = {
+            "web_html_js": ["payload:malicious:renderer:xss"],
+            "slur_terms_en": ["payload:unwanted:hatespeech"],
+        }
+
+        for payload_class in self.payloads:
+            if payload_class not in payload_mapping:
+                payload_to_add = payload_class
+            else:
+                payload_to_add = payload_mapping[payload_class]
+
+            self._payloads += garak.payloads.load(payload_to_add).payloads
+
+            if payload_to_add in extra_payload_tags:
+                self.extra_tags += extra_payload_tags[payload_to_add]
+
+    def _generate_encoded_prompts(self, encoding_funcs, encoding_name):
+        encoded_prompts = set([])
+        for template in TEMPLATES:
+            for payload in self._payloads:
+                for encoder in encoding_funcs:
+                    encoded_text = encoder(bytes(payload, "utf-8"))
+                    if isinstance(encoded_text, bytes):
+                        encoded_text = encoded_text.decode()
+                    prompt = template.replace("{encoding_name}", encoding_name).replace(
+                        "{encoded_text}", encoded_text
+                    )
+                    trigger = str(payload)
+                    encoded_prompts.add((prompt, trigger))
+        return sorted(list(encoded_prompts), key=lambda k: k[0])
 
     def __init__(self):
-        _load_payloads()
-        self.tags += extra_tags
-        generated_prompts = _generate_encoded_prompts(
+        self._load_payloads()
+        self.tags += self.extra_tags
+        generated_prompts = self._generate_encoded_prompts(
             self.encoding_funcs, self.encoding_name
         )
         if (
