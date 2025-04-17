@@ -203,7 +203,7 @@ class BaseEncodingProbe:
     ]
 
     DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {
-        "ignore_prompt_cap": False,
+        "follow_prompt_cap": True,
         "payloads": ["default"],
     }
 
@@ -248,7 +248,7 @@ class BaseEncodingProbe:
             self.encoding_funcs, self.encoding_name
         )
         if (
-            self.ignore_prompt_cap
+            not self.follow_prompt_cap
             or len(generated_prompts) < self.soft_probe_prompt_cap
         ):
             self.prompts, self.triggers = zip(*generated_prompts)

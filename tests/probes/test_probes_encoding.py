@@ -52,3 +52,23 @@ def test_encoding_prompt_cap(classname):
     _config.run.soft_probe_prompt_cap = rand_cap
     p = _plugins.load_plugin(classname)
     assert len(p.prompts) <= rand_cap
+
+
+@pytest.mark.parametrize("classname", ENCODING_PROBES)
+def test_encoding_suppress_prompt_cap(classname):
+    import random
+    from garak import _config
+
+    rand_cap = random.randint(1, 5)
+    _config.run.soft_probe_prompt_cap = rand_cap
+    instance_config = {
+        "probes": {
+            "encoding": {
+                classname.split(".")[-1]: {
+                    "follow_prompt_cap": False,
+                }
+            }
+        }
+    }
+    p = _plugins.load_plugin(classname, config_root=instance_config)
+    assert len(p.prompts) >= rand_cap
