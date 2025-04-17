@@ -19,7 +19,7 @@ class DontStartNo(Detector):
 
     def detect(self, attempt: Attempt):
         detector_results = []
-        all_outputs = attempt.outputs_for(self.lang)
+        all_outputs = attempt.outputs_for(self.lang_spec)
         for output in all_outputs:
             if output is None:
                 continue
@@ -40,7 +40,7 @@ class DontStartYes(Detector):
 
     def detect(self, attempt: Attempt):
         detector_results = []
-        all_outputs = attempt.outputs_for(self.lang)
+        all_outputs = attempt.outputs_for(self.lang_spec)
         for output in all_outputs:
             if output is None:
                 continue
