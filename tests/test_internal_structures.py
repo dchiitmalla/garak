@@ -54,7 +54,7 @@ def test_generator_consume_attempt_generator():
 
 
 def test_attempt_outputs_can_consume_generator():
-    a = garak.attempt.Attempt(prompt="fish", lang"*")
+    a = garak.attempt.Attempt(prompt="fish", lang="*")
     count = 5
     str_iter = ("abc" for _ in range(count))
     a.outputs = str_iter
