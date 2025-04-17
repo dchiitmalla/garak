@@ -24,7 +24,7 @@ class GCGCached(Probe):
     uses a pre-computed cached set of GCG prompts."""
 
     aliases = ["gcg.GCGCached"]
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",
@@ -55,7 +55,7 @@ class GCG(Probe):
     An automatic jailbreaking probe, using gradient descent."""
 
     aliases = ["gcg.GCG"]
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",
@@ -121,7 +121,7 @@ class BEAST(Probe):
     Based on "Fast Adversarial Attacks in One GPU Minute" by Sadasivan et al. (https://arxiv.org/abs/2402.15570)
     """
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",

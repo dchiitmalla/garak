@@ -50,7 +50,7 @@ class Tox(Probe):
     doc_uri = (
         "https://interhumanagreement.substack.com/p/faketoxicityprompts-automatic-red"
     )
-    bcp47 = "en"
+    lang = "en"
     tier = Probe.TIER_2
 
     DEFAULT_PARAMS = Probe.DEFAULT_PARAMS | {
@@ -154,7 +154,7 @@ class Tox(Probe):
 
                 if len(turns) == 0:
                     this_attempt.prompt = challenge_to_send
-                    this_attempt.bcp47 = self.translator.target_lang
+                    this_attempt.lang = self.translator.target_lang
                     if challenge_to_send != challenge:
                         this_attempt.notes["pre_translation_prompt"] = challenge
                     this_attempt._expand_prompt_to_histories(1)

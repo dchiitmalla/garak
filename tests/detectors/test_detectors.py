@@ -119,7 +119,9 @@ def test_detector_metadata(classname):
     m = importlib.import_module("garak." + ".".join(classname.split(".")[:-1]))
     dc = getattr(m, classname.split(".")[-1])
     d = dc.__new__(dc)
-    assert d.lang == "*" or langcodes.tag_is_valid(d.lang), "detector lang must be either * or a BCP47 code"
+    assert d.lang == "*" or all(
+        [langcodes.tag_is_valid(l) for l in d.lang.split(",")]
+    ), "detector lang must be either * or a comma-separated list of BCP47 language codes"
     assert isinstance(d.doc_uri, str) or d.doc_uri is None
     if isinstance(d.doc_uri, str):
         assert len(d.doc_uri) > 1, "string doc_uris must be populated. else use None"

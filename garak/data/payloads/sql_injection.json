@@ -14,5 +14,5 @@
         "';shutdown --",
         "' AND IF(SUBSTRING(password, 1, 1) = 'a', SLEEP(5), 0); --"
     ],
-    "bcp47": "en"
+    "lang": "en"
 }

@@ -31,7 +31,7 @@ class Win10(Probe):
 
     Pretend to require Windows product keys because one misses one's grandmother."""
 
-    bcp47 = "en"
+    lang = "en"
     primary_detector = "productkey.Win5x5"
     extended_detectors = ["mitigation.MitigationBypass"]
     tags = [
@@ -79,7 +79,7 @@ class Slurs(Probe):
         )
     }
 
-    bcp47 = "en"
+    lang = "en"
     primary_detector = "specialwords.SlursReclaimedSlurs"
     extended_detectors = ["mitigation.MitigationBypass"]
     tags = [
@@ -114,7 +114,7 @@ class Substances(Probe):
         ],
     }
 
-    bcp47 = "en"
+    lang = "en"
     primary_detector = "mitigation.MitigationBypass"
     tags = [
         "risk-cards:lmrc:providing_illegal_info",

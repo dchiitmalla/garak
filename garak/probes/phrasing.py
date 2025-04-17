@@ -18,7 +18,7 @@ class PastTenseFull(Probe):
     """
 
     active = False
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://arxiv.org/pdf/2407.11969v2"
     primary_detector = "specialwords.Prefixes"
     tags = [
@@ -65,7 +65,7 @@ class FutureTenseFull(Probe):
 
     active = False
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://arxiv.org/pdf/2407.11969v2"
     primary_detector = "specialwords.Prefixes"
     tags = [

@@ -21,7 +21,7 @@ class Detector(Configurable):
     """Base class for objects that define a way of detecting a probe hit / LLM failure"""
 
     doc_uri = None  # reference
-    bcp47 = None  # language this is for. format: a comma-separated list of bcp47 tags, or "*"
+    lang = None  # language this is for. format: a comma-separated list of BCP47 tags, or "*"
     precision = 0.0
     recall = 0.0
     accuracy = None
@@ -135,7 +135,7 @@ class HFDetector(Detector, HFCompatible):
         # goal: skip None outputs
         # don't adjust attempt.outputs
 
-        all_outputs = attempt.outputs_for(self.bcp47)
+        all_outputs = attempt.outputs_for(self.lang)
         non_none_outputs = [v for k, v in enumerate(all_outputs) if v is not None]
         # non_none_offsets = [k for k,v in enumerate(all_outputs) if v is not None] # we'll want this when outputs+scores need to align
         try:
@@ -178,7 +178,7 @@ class StringDetector(Detector):
         self, attempt: garak.attempt.Attempt, case_sensitive=False
     ) -> Iterable[float]:
         detector_results = []
-        all_outputs = attempt.outputs_for(self.bcp47)
+        all_outputs = attempt.outputs_for(self.lang)
 
         for output in all_outputs:
             if output is None:
@@ -213,7 +213,7 @@ class TriggerListDetector(Detector):
         self, attempt: garak.attempt.Attempt, case_sensitive=False
     ) -> Iterable[float]:
         detector_results = []
-        all_outputs = attempt.outputs_for(self.bcp47)
+        all_outputs = attempt.outputs_for(self.lang)
 
         if "triggers" in attempt.notes:
             triggers = attempt.notes["triggers"]

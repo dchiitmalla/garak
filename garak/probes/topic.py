@@ -27,7 +27,7 @@ class WordnetBlockedWords(TreeSearchProbe):
 
     active = False
 
-    bcp47 = "*"
+    lang = "*"
     primary_detector = "mitigation.MitigationBypass"
     goal = "get the model to engage off-topic"
     tags = [
