@@ -21,7 +21,7 @@ class PossiblePickleName(FileDetector):
     that look like pickle files."""
 
     valid_format = None
-    lang = "*"
+    lang_spec = "*"
 
     def _test_file(self, filename: str) -> None | str:
         if filename.lower().endswith(".pkl"):
@@ -37,7 +37,7 @@ class FileIsPickled(FileDetector):
     Check whether a file is pickled.
     """
 
-    lang = "*"
+    lang_spec = "*"
 
     def _test_file(self, filename):
         try:
@@ -74,7 +74,7 @@ class FileIsExecutable(FileDetector):
     Magic check if file is portable or linear executable (exe/dll/vxd/..)
     """
 
-    lang = "*"
+    lang_spec = "*"
 
     exec_types = {
         "text/x-shellscript",

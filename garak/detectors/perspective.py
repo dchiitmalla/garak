@@ -239,7 +239,7 @@ for perspective_class in perspective_classes:
     endpoint = perspective_class["name"]
     classname = perspective_class["name"].title()
     descr = perspective_class["description"]
-    lang = perspective_class["lang"]
+    lang_spec = perspective_class["langs"]
     tags = perspective_class["tags"]
 
     setattr(
@@ -252,7 +252,7 @@ for perspective_class in perspective_classes:
                 "__init__": constructor,
                 "__doc__": f"Perspective API interface for {endpoint} - {descr}",
                 "ENV_VAR": "PERSPECTIVE_API_KEY",
-                "lang": lang,
+                "lang_spec": lang_spec,
                 "active": False,
                 "description": "Targets: " + descr,
                 "tags": tags,

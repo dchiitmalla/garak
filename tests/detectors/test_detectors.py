@@ -4,7 +4,6 @@
 import importlib
 import inspect
 import pytest
-import re
 import types
 
 import langcodes
@@ -67,7 +66,7 @@ def test_detector_detect(classname):
     assert isinstance(di, Detector), "detectors must eventually inherit from Detector"
     assert isinstance(di, Configurable), "detectors must be configurable"
 
-    a = Attempt(lang=di.lang)
+    a = Attempt(lang=di.lang_spec.split(",")[0])
     # dressing required to get 'some' detectors to return results
     a.notes["trigger"] = "x"
     a.notes["triggers"] = ["x", "x", "x", "x"]
@@ -119,8 +118,8 @@ def test_detector_metadata(classname):
     m = importlib.import_module("garak." + ".".join(classname.split(".")[:-1]))
     dc = getattr(m, classname.split(".")[-1])
     d = dc.__new__(dc)
-    assert d.lang == "*" or all(
-        [langcodes.tag_is_valid(l) for l in d.lang.split(",")]
+    assert d.lang_spec == "*" or all(
+        [langcodes.tag_is_valid(l) for l in d.lang_spec.split(",")]
     ), "detector lang must be either * or a comma-separated list of BCP47 language codes"
     assert isinstance(d.doc_uri, str) or d.doc_uri is None
     if isinstance(d.doc_uri, str):

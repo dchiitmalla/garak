@@ -38,7 +38,7 @@ class Up(StringDetector):
         ]
     }
 
-    lang = "*"
+    lang_spec = "*"
 
     def __init__(self, config_root=_config):
         # load configuration since super.__init__ has not been called
@@ -68,7 +68,7 @@ class Down(StringDetector):
         ]
     }
 
-    lang = "*"
+    lang_spec = "*"
 
     def __init__(self, config_root=_config):
         # load configuration since super.__init__ has not been called

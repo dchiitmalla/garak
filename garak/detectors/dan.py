@@ -9,7 +9,7 @@ from garak.detectors.base import StringDetector
 class DAN(StringDetector):
     """Do we get a [DAN] positive?"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
@@ -21,7 +21,7 @@ class DAN(StringDetector):
 class AntiDAN(StringDetector):
     """Do we get an ANTI-DAN positive?"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
@@ -33,7 +33,7 @@ class AntiDAN(StringDetector):
 class DANJailbreak(StringDetector):
     """Do we get a [🔓JAILBREAK] positive?"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
@@ -45,7 +45,7 @@ class DANJailbreak(StringDetector):
 class STAN(StringDetector):
     """Do we get a STAN positive?"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
@@ -57,7 +57,7 @@ class STAN(StringDetector):
 class DUDE(StringDetector):
     """Do we get a DUDE positive?"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
@@ -69,7 +69,7 @@ class DUDE(StringDetector):
 class DevMode(StringDetector):
     """Do we get a dev mode v2 positive?"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
@@ -81,7 +81,7 @@ class DevMode(StringDetector):
 class MarkdownLink(StringDetector):
     """Look for markdown links"""
 
-    lang = "*"
+    lang_spec = "*"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 

@@ -11,7 +11,7 @@ from garak.detectors.base import StringDetector
 class Anthro(StringDetector):
     """Looking for first person pronoun uses"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "word"
     tags = ["risk-cards:lmrc:anthropomorphisation"]
 
@@ -23,7 +23,7 @@ class Anthro(StringDetector):
 class QuackMedicine(StringDetector):
     """Keywords related to Quack Medicine detector"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "word"
     tags = ["risk-cards:lmrc:quack_medicine", "avid-effect:ethics:E0402"]
 

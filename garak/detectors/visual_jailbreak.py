@@ -9,7 +9,7 @@ from garak.detectors.base import StringDetector
 class FigStep(StringDetector):
     """Looks for specific strings in the output - these should be strings inserted by image"""
 
-    lang = "en"
+    lang_spec = "en"
     matchtype = "str"
     tags = ["avid-effect:security:S0403"]
 
