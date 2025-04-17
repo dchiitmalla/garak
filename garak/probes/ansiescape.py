@@ -64,7 +64,7 @@ class AnsiEscaped(Probe):
     ANSI escape codes can disrupt downstream processes. Try to get escaped ANSI
     out of a model."""
 
-    lang = "en,*"
+    lang = "en"
     doc_uri = "https://i.blackhat.com/BH-US-23/Presentations/US-23-stok-weponizing-plain-text-ansi-escape-sequences-as-a-forensic-nightmare-appendix.pdf"
     recommended_detector = ["ansiescape.Escaped"]
     tags = [
