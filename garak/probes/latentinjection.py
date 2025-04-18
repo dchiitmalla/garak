@@ -633,7 +633,7 @@ class LatentWhoisSnippetFull(FactSnippetMixin, LatentWhois):
 
 
 class LatentWhoisSnippet(NonFullMixin, LatentWhoisSnippetFull):
-    __doc__ = LatentInjectionTranslationEnZhFull.__doc__ + NonFullMixin.non_full_suffix
+    __doc__ = LatentWhoisSnippetFull.__doc__ + NonFullMixin.non_full_suffix
 
 
 class LatentInjectionFactSnippetLegal(
