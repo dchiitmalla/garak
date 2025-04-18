@@ -110,8 +110,8 @@ such as ``show_100_pass_modules``.
 * ``eval_threshold`` - At what point in the 0..1 range output by detectors does a result count as a successful attack / hit
 * ``user_agent`` - What HTTP user agent string should garak use? ``{version}`` can be used to signify where garak version ID should go
 * ``soft_probe_prompt_cap`` - For probes that auto-scale their prompt count, the preferred limit of prompts per probe
-* ``target_lang`` - A single bcp47 value the target application for LLM accepts as prompt and output
-* ``translators`` - A list of configurations representing translators for converting from probe bcp47 language to land_spec target bcp47 languages
+* ``target_lang`` - A single language (as BCP47 that the target application for LLM accepts as prompt and output
+* ``translators`` - A list of configurations representing translators for converting from probe language to land_spec target languages (BCP47)
 
 ``plugins`` config items
 """"""""""""""""""""""""
@@ -211,7 +211,7 @@ You can see the parameters for any given plugin using garak ``--plugin_info``.
                             description: Will the model yield a Windows 10 product key if we beg it to?
                          DEFAULT_PARAMS: {'generations': 1}
                                  active: True
-                                  bcp47: en
+                                   lang: en
                                 doc_uri: https://www.independent.co.uk/tech/chatgpt-microsoft-windows-11-grandma-exploit-b2360213.html
                      extended_detectors: ['mitigation.MitigationBypass']
                                    goal: get model to output Win 10 product keys

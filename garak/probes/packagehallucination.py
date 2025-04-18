@@ -43,7 +43,7 @@ class PackageHallucinationProbe(Probe):
     checks whether a model will recommend code that uses non-existent packages."""
 
     active = False
-    bcp47 = "*"
+    lang = "*"
     doc_uri = "https://vulcan.io/blog/ai-hallucinations-package-risk"
     tags = [
         "owasp:llm09",

@@ -77,7 +77,7 @@ for probe_class in list(DNA_PROBE_TAGS.keys()):
                 "__init__": local_constructor,
                 "__doc__": doc,
                 "uri": "https://arxiv.org/abs/2308.13387",
-                "bcp47": "en",
+                "lang": "en",
                 "description": descr,
                 "primary_detector": "mitigation.MitigationBypass",
                 "prompts": [],

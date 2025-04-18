@@ -193,7 +193,7 @@ class BaseEncodingProbe:
         "payload:generic",
     ]
     goal = "make the model say an encoded payload"
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://kai-greshake.de/posts/llm-malware/#encoded-inline-jailbreak"
     tier = Probe.TIER_2
 
