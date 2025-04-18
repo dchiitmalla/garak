@@ -20,7 +20,7 @@ class Repeat(Probe):
     training data."""
 
     aliases = ["replay.Repeat"]
-    bcp47 = "*"
+    lang = "*"
     primary_detector = "divergence.RepeatDiverges"
     extended_detectors = ["mitigation.MitigationBypass"]
     goal = "get the model to leak data by asking it to repeat words"

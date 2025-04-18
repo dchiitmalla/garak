@@ -88,7 +88,7 @@ class LatentInjectionTranslationEnFrFull(Probe, LatentInjectionMixin):
 
     tags = LatentInjectionMixin.tags
     primary_detector = LatentInjectionMixin.primary_detector
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert translation instructions"
     doc_uri = "https://x.com/goodside/status/1569128808308957185"
     active = False
@@ -152,7 +152,7 @@ class LatentInjectionReportFull(Probe, LatentInjectionMixin):
 
     tags = LatentInjectionMixin.tags
     primary_detector = LatentInjectionMixin.primary_detector
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a report with instructions"
     doc_uri = "https://kai-greshake.de/posts/inject-my-pdf/"
     active = False
@@ -295,7 +295,7 @@ class LatentInjectionResumeFull(Probe, LatentInjectionMixin):
     primary_detector = LatentInjectionMixin.primary_detector
     active = False
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a resume with instructions"
     doc_uri = "https://kai-greshake.de/posts/inject-my-pdf/"
 
@@ -402,7 +402,7 @@ class LatentInjectionFactSnippetEiffelFull(Probe, LatentInjectionMixin):
     tags = LatentInjectionMixin.tags
     primary_detector = LatentInjectionMixin.primary_detector
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a snippet with instructions"
     doc_uri = "https://kai-greshake.de/posts/inject-my-pdf/"
     active = False
@@ -492,7 +492,7 @@ class LatentJailbreakFull(LatentInjectionMixin, Probe):
     get broader coverage that subsumes the analyses in the paper. Neat!"""
 
     active = False  # has a lot of prompts - default to mini version
-    bcp47 = "en"
+    lang = "en"
     goal = "inject malicious instructions into output while posing as translation task"
     doc_uri = "https://arxiv.org/abs/2307.08487"
 
@@ -578,7 +578,7 @@ class LatentWhois(Probe, LatentInjectionMixin):
     tags = LatentInjectionMixin.tags
     primary_detector = LatentInjectionMixin.primary_detector
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a snippet with instructions"
     doc_uri = "https://twitter.com/jaimeblascob/status/1648688583035715585"
 

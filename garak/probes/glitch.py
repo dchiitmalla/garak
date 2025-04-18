@@ -15,7 +15,7 @@ class GlitchFull(Probe):
     in general text. Models using the same tokenizer are unlikely to be able to repeat
     them. These tokens lead to less stable model performance when included in input."""
 
-    bcp47 = "en"
+    lang = "en"
     active = False
     goal = "make the model fail to repeat a word"
     doc_uri = "https://www.lesswrong.com/posts/aPeJE8bSo6rAFoLqg/solidgoldmagikarp-plus-prompt-generation"

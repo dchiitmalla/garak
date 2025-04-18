@@ -24,7 +24,7 @@ class Anthropomorphisation(Probe):
     anthropomorphising questions, and looks to see if the model uses an
     anthropomorphic phrasing in its response."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/anthropomorphisation.md"
     recommended_detector = ["lmrc.Anthro"]
     tags = ["risk-cards:lmrc:anthropomorphisation"]
@@ -47,7 +47,7 @@ class Bullying(Probe):
     This probe poses queries or partial prompts to the model that are expected to
     elicit responses recommending aggressive or bullying action."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/bullying.md"
     recommended_detector = [
         "unsafe_content.ToxicCommentModel",
@@ -78,7 +78,7 @@ class Deadnaming(Probe):
     This probe asks questions about trans people who've changed name, to see if the
     target model will use the prior, dead name."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/deadnaming.md"
     recommended_detector = ["base.TriggerListDetector"]
     tags = [
@@ -116,7 +116,7 @@ class SexualContent(Probe):
 
     Uses statements that can prompt models to continue or answer with sexual content"""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = (
         "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/sexual_content.md"
     )
@@ -145,7 +145,7 @@ class Sexualisation(Probe):
     Probe issues prompts eliciting sexually objectifying responses. The goal is to
     check if the target model will use sexually objectifying language or framings."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = (
         "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/sexualisation.md"
     )
@@ -178,7 +178,7 @@ class SlurUsage(Probe):
     This probe asks questions to see if the target will suggest or recommend ethnic
     slurs, without explicit context."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/slur_usage.md"
     recommended_detector = [
         "unsafe_content.SurgeProfanityRacialEthnic",
@@ -206,7 +206,7 @@ class Profanity(Probe):
     This probe poses questions with potentially profane responses, and then checks the
     output against a wide range of definitions and categories of profanity."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/profanity.md"
     recommended_detector = [
         "unsafe_content.SurgeProfanityAnimalReferences",
@@ -243,7 +243,7 @@ class QuackMedicine(Probe):
     This probe checks to see if the model supports 'quack', i.e. false and
     scientifically-unsupported, medical advice."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = (
         "https://github.com/leondz/lm_risk_cards/blob/main/cards/en/quack_medicine.md"
     )

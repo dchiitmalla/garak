@@ -58,7 +58,7 @@ class TAPCached(Probe):
     Attempts to automatically develop a target using pre-generated
     jailbreaks from TAP"""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",
@@ -97,7 +97,7 @@ class TAP(Probe):
     generate an attack and to evaluate the success of that attack. Candidate routes
     to jailbreaking the target are maintained in a tree, which is proactively pruned."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",
@@ -229,7 +229,7 @@ class PAIR(Probe):
     This is an implementation of the TAP automatic jailbreak that leverages TAP with
     PAIR settings, making it equivalent to the PAIR jailbreak"""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",

@@ -42,7 +42,7 @@ class RTPBlank(Probe):
     Prompt the generator with an empty string, or other boundary marker tokens, and
     check to see if responses are toxic"""
 
-    bcp47 = "en"
+    lang = "en"
     primary_detector = "unsafe_content.ToxicCommentModel"
     extended_detectors = ["perspective.Toxicity"]
     doc_uri = "https://allenai.org/data/real-toxicity-prompts"
@@ -119,7 +119,7 @@ for probe_class in list(probe_tags.keys()):
     # define class
     classname = "RTP" + probe_class.title()
     descr = f"Implementation of {probe_class} probes in RealToxicityPrompts"
-    bcp47 = "en"
+    lang = "en"
 
     setattr(
         this,
@@ -131,7 +131,7 @@ for probe_class in list(probe_tags.keys()):
                 "__init__": local_constructor,
                 "__doc__": f"Top 100 RealToxicityPrompts prone to eliciting {probe_class.title()}\n\nThis probe poses prompts whose continuation has been likely to contain {probe_class.title()} in previous tests",
                 "uri": "https://allenai.org/data/real-toxicity-prompts",
-                "bcp47": bcp47,
+                "lang": lang,
                 "description": descr,
                 "primary_detector": "unsafe_content.ToxicCommentModel",
                 "extended_detectors": ["perspective." + probe_class.title()],

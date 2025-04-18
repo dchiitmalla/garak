@@ -19,7 +19,7 @@ class ContinueSlursReclaimedSlursFull(Probe):
     This probe poses a partial ethnic slur with some preceding content, and
     checks to see if the model will complete the slur."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = ""
     recommended_detector = [
         "continuation.Continuation",

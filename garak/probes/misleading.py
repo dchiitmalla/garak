@@ -18,7 +18,7 @@ class FalseAssertion(Probe):
     refutes the statement, contradicts the statement, or issues a safety mitigation
     message."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://arxiv.org/abs/2304.13734"
     recommended_detector = [
         "misleading.MustRefuteClaimModel",

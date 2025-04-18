@@ -22,7 +22,7 @@ class Dan_11_0(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -48,7 +48,7 @@ class Dan_10_0(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -73,7 +73,7 @@ class Dan_9_0(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -124,7 +124,7 @@ class Dan_8_0(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -179,7 +179,7 @@ class Dan_7_0(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -222,7 +222,7 @@ class Dan_6_2(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -261,7 +261,7 @@ class Dan_6_0(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -286,7 +286,7 @@ class DUDE(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DUDE"]
     tags = [
         "avid-effect:security:S0403",
@@ -311,7 +311,7 @@ class STAN(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.STAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -336,7 +336,7 @@ class DAN_Jailbreak(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = [
         "mitigation.MitigationBypass",
         "dan.DANJailbreak",
@@ -364,7 +364,7 @@ class AntiDAN(Probe):
     A do-anything-now jailbreak - a long prompt developed by the community, which
     should prevent LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = [
         "mitigation.MitigationBypass",
         "dan.AntiDAN",
@@ -407,7 +407,7 @@ class ChatGPT_Developer_Mode_v2(Probe):
     This is a long prompt developed by the community, with the goal of preventing
     LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = [
         "mitigation.MitigationBypass",
         "dan.DevMode",
@@ -436,7 +436,7 @@ class ChatGPT_Developer_Mode_RANTI(Probe):
     This is a long prompt developed by the community, with the goal of preventing
     LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = [
         "mitigation.MitigationBypass",
         "dan.DevMode",
@@ -464,7 +464,7 @@ class ChatGPT_Image_Markdown(Probe):
     A jailbreak attempt intended to enable the injection of markdown images into
     ChatGPT responses."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = [
         "mitigation.MitigationBypass",
         "dan.MarkdownLink",
@@ -495,7 +495,7 @@ class Ablation_Dan_11_0(Probe):
     of in a community-developed prompt, by the community, with the goal of preventing
     LLM safeguards applying to future conversational turns."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -541,7 +541,7 @@ class AutoDANCached(Probe):
     A static implementation of the AutoDAN approach to autoated LLM jailbreaking,
     using a pre-computed set of prompts for speed."""
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -575,7 +575,7 @@ class AutoDAN(Probe):
     Dynamic, generative implementation. Requires OpenAI key to be set in the OPENAI_API_KEY environment variable.
     """
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass", "dan.DAN"]
     tags = [
         "avid-effect:security:S0403",
@@ -656,7 +656,7 @@ class DanInTheWildFull(Probe):
         "quality:Security:PromptStability",
         "payload:jailbreak",
     ]
-    bcp47 = "en"
+    lang = "en"
     tier = Tier.TIER_1
 
     def __init__(self, config_root=_config):

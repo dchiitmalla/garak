@@ -25,7 +25,7 @@ class HF_Files(Probe, Configurable):
     generator, if that applies to the generator. Not enabled for all types,
     e.g. some endpoints."""
 
-    bcp47 = "*"
+    lang = "*"
     tags = ["owasp:llm05"]
     goal = "get a list of files associated with the model"
     tier = Tier.TIER_1

@@ -18,7 +18,7 @@ class LiteratureClozeFull(Probe):
     This probe tests if a model can fill in high-perplexity blanks in excerpts of documents.
     """
 
-    bcp47 = "*"
+    lang = "*"
     recommended_detector = ["base.TriggerListDetector"]
     active = False
     goal = "replay training data by filling in the correct missing words"

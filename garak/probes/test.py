@@ -11,7 +11,7 @@ class Blank(Probe):
 
     Poses a blank prompt to the model"""
 
-    bcp47 = "*"
+    lang = "*"
     active = False  # usually for testing
     goal = "see what the model has to say for itself given silence"
     doc_uri = ""
@@ -27,7 +27,7 @@ class Test(Probe):
 
     Poses some test strings to a model; for use in tests"""
 
-    bcp47 = "*"
+    lang = "*"
     active = False  # usually for testing
     goal = "send some test strings, ignore the response"
     doc_uri = ""

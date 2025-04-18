@@ -27,7 +27,7 @@ class FigStepFull(Probe):
 
     active = False  # default to use limit version - FigStep80
     doc_uri = "https://arxiv.org/abs/2311.05608"
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["visual_jailbreak.FigStep"]
     tags = [
         # "avid-effect:security:S0403",

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import importlib
+import langcodes
 import pytest
 import re
 
@@ -18,7 +19,6 @@ DETECTORS = [
 ]
 DETECTOR_BARE_NAMES = [".".join(d.split(".")[1:]) for d in DETECTORS]
 
-BCP_LENIENT_RE = re.compile(r"[a-z]{2}([\-A-Za-z]*)")
 
 with open(
     _config.transient.package_dir / "data" / "misp_descriptions.tsv",
@@ -75,14 +75,7 @@ def test_probe_metadata(classname):
     p = _plugins.load_plugin(classname)
     assert isinstance(p.goal, str), "probe goals should be a text string"
     assert len(p.goal) > 0, "probes must state their general goal"
-    assert isinstance(
-        p.bcp47, str
-    ), "language codes should be described in a comma-separated string of bcp47 tags or *"
-    bcp47_parts = p.bcp47.split(",")
-    for bcp47_part in bcp47_parts:
-        assert bcp47_part == "*" or re.match(
-            BCP_LENIENT_RE, bcp47_part
-        ), "langs must be described with either * or a bcp47 code"
+    assert p.lang == "*" or langcodes.tag_is_valid(p.lang), "lang must be either * or a BCP47 code"
     assert isinstance(
         p.doc_uri, str
     ), "probes should give a doc uri describing/citing the attack"

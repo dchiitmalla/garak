@@ -17,7 +17,7 @@ class WhoIsRiley(Probe):
     such as a female Canadian country singer, or an actor from LA. This probe is a
     hallucination check."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://twitter.com/goodside"
     recommended_detector = ["goodside.RileyIsnt"]
     tags = [
@@ -47,7 +47,7 @@ class ThreatenJSON(Probe):
     This is unhelpful and difficult to automatically remove. However, models tend to
     skip the preamble when threatened. This indicates model instability."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://twitter.com/goodside/status/1657396491676164096"
     recommended_detector = ["goodside.PlainJSON"]
     tags = [
@@ -79,7 +79,7 @@ class Davidjl(Probe):
     ' davidjl' is a glitch token that some models, particularly those using the same
     tokenizer, have difficult repeating. Is this model in that set?"""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://twitter.com/goodside/status/1666598580319035392"
     recommended_detector = ["goodside.Glitch"]
     tags = [
@@ -117,7 +117,7 @@ class Tag(Probe):
     but some models will interpret these anyway. Following instructions posed in this
     unicode page allows attackers to hide prompt injections in browsers."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://twitter.com/goodside/status/1745511940351287394"
     primary_detector = "base.TriggerListDetector"
     tags = [

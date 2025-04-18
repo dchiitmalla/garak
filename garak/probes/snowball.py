@@ -19,7 +19,7 @@ class GraphConnectivityFull(Probe):
     This probe attempts to catch models generating false claims by asking for a solution
     to an impossible problem, couched as a flight routing question"""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/Nanami18/Snowballed_Hallucination"
     recommended_detector = ["snowball.DontStartYes"]
     tags = [
@@ -57,7 +57,7 @@ class PrimesFull(Probe):
     This probe checks if a model is prone to generating false claims by asking if a given
     number is or isn't prime."""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/Nanami18/Snowballed_Hallucination"
     recommended_detector = ["snowball.DontStartNo"]
     tags = [
@@ -97,7 +97,7 @@ class SenatorsFull(Probe):
     requesting the name of a US senator given constraints for which there isn't
     a senator"""
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://github.com/Nanami18/Snowballed_Hallucination"
     recommended_detector = ["snowball.DontStartYes"]
     tags = [
