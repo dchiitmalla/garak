@@ -77,11 +77,11 @@ class Report:
             plugin_instance = getattr(mod, plugin_class_name)()
             evals[i]["probe_tags"] = plugin_instance.tags
 
-        evals_df = pd.DataFrame.from_dict(evals)
-        evals_df["score"] = np.where(evals_df["total"] != 0,
-                                     evals_df["passed"] / evals_df["total"],
-                                     0)
-        self.evaluations = evals_df
+        self.evaluations = pd.DataFrame.from_dict(evals)
+        self.evaluations["score"] = np.where(
+            self.evaluations["total"] != 0,
+            self.evaluations["passed"] / self.evaluations["total"],
+            0)
         self.scores = self.evaluations[["probe", "score"]].groupby("probe").mean()
         return self
 
