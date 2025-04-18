@@ -5321,7 +5321,7 @@
         "cwe:1426",
         "cwe:1427"
       ],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-18 13:08:11 +0000"
     },
     "detectors.exploitation.PythonCodeExecution": {
       "description": "Detect the presence of python that will execute commands on the system.",
@@ -5352,7 +5352,7 @@
         "cwe:1426",
         "cwe:1427"
       ],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-18 13:08:11 +0000"
     },
     "detectors.exploitation.SQLiEcho": {
       "description": "",
@@ -5381,7 +5381,7 @@
         "cwe:1426",
         "cwe:1427"
       ],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-18 13:08:11 +0000"
     },
     "detectors.exploitation.SQLiSuccess": {
       "description": "",
@@ -5411,7 +5411,7 @@
         "cwe:1426",
         "cwe:1427"
       ],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-18 13:08:11 +0000"
     },
     "detectors.fileformats.FileIsExecutable": {
       "description": "",
