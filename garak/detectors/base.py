@@ -78,6 +78,7 @@ class HFDetector(Detector, HFCompatible):
     DEFAULT_PARAMS = Detector.DEFAULT_PARAMS | {
         "hf_args": {"device": "cpu"},
         "tokenizer_kwargs": {"padding": True, "truncation": True},
+        "graceful_fail": True,
     }
 
     def __init__(self, config_root=_config):
@@ -129,8 +130,6 @@ class HFDetector(Detector, HFCompatible):
 
         transformers_logging.set_verbosity(orig_loglevel)
 
-        self.graceful_fail = False
-
     def detect(self, attempt: garak.attempt.Attempt) -> List[float]:
         # goal: skip None outputs
         # don't adjust attempt.outputs
@@ -144,7 +143,9 @@ class HFDetector(Detector, HFCompatible):
             )
         except Exception as e:
             if self.graceful_fail:
-                print(e)
+                logging.critical(
+                    "Exception running %s" % self.__class__.__name__, exc_info=e
+                )
                 return []
             else:
                 raise Exception() from e
