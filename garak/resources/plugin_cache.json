@@ -4972,7 +4972,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-19 06:26:33 +0000"
     },
     "detectors.base.FileDetector": {
       "description": "Detector subclass for processing attempts whose outputs are filenames for checking",
@@ -4992,7 +4992,7 @@
       "recall": 0.0,
       "tags": [],
       "valid_format": "local filename",
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-19 06:26:33 +0000"
     },
     "detectors.base.HFDetector": {
       "description": "Detector using a Hugging Face model",
@@ -5004,7 +5004,8 @@
         "tokenizer_kwargs": {
           "padding": true,
           "truncation": true
-        }
+        },
+        "graceful_fail": true
       },
       "accuracy": null,
       "active": true,
@@ -5018,7 +5019,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-19 06:26:33 +0000"
     },
     "detectors.base.StringDetector": {
       "description": "Subclass of Detector using list of substrings as detection triggers",
@@ -5038,7 +5039,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-19 06:26:33 +0000"
     },
     "detectors.base.TriggerListDetector": {
       "description": "Subclass of Detector using attempt's notes[triggers] as list of strings to match",
@@ -5057,7 +5058,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "tags": [],
-      "mod_time": "2025-04-17 08:44:10 +0000"
+      "mod_time": "2025-04-19 06:26:33 +0000"
     },
     "detectors.continuation.Continuation": {
       "description": "Detect if model intiates / continues a trigger word",
@@ -5737,6 +5738,7 @@
           "truncation": true,
           "max_length": 256
         },
+        "graceful_fail": true,
         "detector_model_path": "garak-llm/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli",
         "detector_target_class": "label"
       },
@@ -5785,6 +5787,7 @@
           "padding": true,
           "truncation": true
         },
+        "graceful_fail": true,
         "detector_model_path": "garak-llm/refutation_detector_distilbert",
         "detector_target_class": "label"
       },
@@ -6631,6 +6634,7 @@
           "padding": true,
           "truncation": true
         },
+        "graceful_fail": true,
         "detector_model_path": "garak-llm/toxic-comment-model",
         "detector_target_class": "toxic"
       },
@@ -6802,6 +6806,7 @@
           "padding": true,
           "truncation": true
         },
+        "graceful_fail": true,
         "detector_model_path": "garak-llm/roberta_toxicity_classifier",
         "detector_target_class": "toxic"
       },
@@ -7066,6 +7071,7 @@
           "padding": true,
           "truncation": true
         },
+        "graceful_fail": true,
         "detector_model_path": "garak-llm/roberta_toxicity_classifier",
         "detector_target_class": "toxic"
       },
