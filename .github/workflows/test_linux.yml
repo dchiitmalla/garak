@@ -46,7 +46,7 @@ jobs:
           path: |
             .cache/garak/data
             .cache/huggingface
-          key: hf-cache-shared
+          key: garak-test-resources-shared
 
       - name: Install dependencies
         run: |

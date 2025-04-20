@@ -50,7 +50,7 @@ jobs:
             .cache/garak/data
             .cache/huggingface
           enableCrossOsArchive: true
-          key: hf-cache-shared
+          key: garak-test-resources-shared
 
       - name: Install dependencies
         run: |
