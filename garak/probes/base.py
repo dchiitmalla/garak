@@ -25,10 +25,10 @@ import garak.resources.theme
 
 
 class Tier(IntEnum):
-    TIER_1 = 10
-    TIER_2 = 20
-    TIER_3 = 30
-    TIER_9 = 99
+    TIER_1 = 1
+    TIER_2 = 2
+    TIER_3 = 3
+    TIER_9 = 9
 
 
 class Probe(Configurable):
