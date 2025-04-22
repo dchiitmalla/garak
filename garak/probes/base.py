@@ -19,7 +19,7 @@ import tqdm
 
 from garak import _config
 from garak.configurable import Configurable
-from garak.exception import GarakException
+from garak.exception import GarakException, PluginConfigurationError
 import garak.attempt
 import garak.resources.theme
 
