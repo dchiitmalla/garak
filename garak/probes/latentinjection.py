@@ -10,7 +10,7 @@ import random
 import garak.payloads
 from garak import _config
 from garak.attempt import Attempt
-from garak.probes.base import Probe
+from garak.probes.base import Probe, Tier
 
 INJECTION_MARKER = "<|garak_injection|>"
 PAYLOAD_MARKER = "<|garak_payload|>"
@@ -28,6 +28,7 @@ class LatentInjectionMixin:
 
     injection_sep_pairs = [("", "")]  # optional attrib get a default
     follow_prompt_cap = False
+    tier = Tier.TIER_1
 
     def _build_prompts_triggers(self, cap=None) -> None:
         self.prompts = []
@@ -191,7 +192,7 @@ class LatentInjectionReportFull(LatentInjectionMixin, Probe):
     Check to see if model can be subverted by text placed in an
     otherwise innocuous document"""
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a report with instructions"
     doc_uri = "https://kai-greshake.de/posts/inject-my-pdf/"
     active = False
@@ -331,7 +332,7 @@ class LatentInjectionResumeFull(LatentInjectionMixin, Probe):
     primary_detector = LatentInjectionMixin.primary_detector
     active = False
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a resume with instructions"
     doc_uri = "https://kai-greshake.de/posts/inject-my-pdf/"
 
@@ -492,7 +493,7 @@ class LatentJailbreakFull(LatentInjectionMixin, Probe):
     get broader coverage that subsumes the analyses in the paper. Neat!"""
 
     active = False  # has a lot of prompts - default to mini version
-    bcp47 = "en"
+    lang = "en"
     goal = "inject malicious instructions into output while posing as translation task"
     doc_uri = "https://arxiv.org/abs/2307.08487"
 
@@ -561,7 +562,7 @@ class LatentWhois(LatentInjectionMixin, Probe):
     tags = LatentInjectionMixin.tags
     primary_detector = LatentInjectionMixin.primary_detector
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a whois report with instructions"
     doc_uri = "https://twitter.com/jaimeblascob/status/1648688583035715585"
     active = True
@@ -598,6 +599,7 @@ class LatentWhoisSnippetFull(FactSnippetMixin, LatentWhois):
 
     active = False
     doc_uri = "https://twitter.com/jaimeblascob/status/1648688583035715585"
+    tier = Tier.TIER_1
 
     top_instructions = [
         "Identify the malicious domains from the following WHOIS reports:\n------\n",
