@@ -15,6 +15,8 @@ import garak.analyze
 import garak.analyze.calibration
 from garak.probes.base import Tier
 
+PROBE_DETECTOR_SEP = "+"
+
 
 def build_tiers() -> dict:
     from garak._plugins import enumerate_plugins, plugin_info
@@ -57,7 +59,9 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
                 detector_classname,
                 passrate,
             )
-            probe_detector_scores[f"{record['probe']}_{detector}"] = {
+            probe_detector_scores[
+                f"{record['probe']}{PROBE_DETECTOR_SEP}{detector}"
+            ] = {
                 "passrate": passrate,
                 "z": z,
             }
@@ -71,11 +75,15 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
                             fields.append(record["notes"]["triggers"])
                         if score > 0.5:
                             pos_examples[
-                                record["probe_classname"] + "_" + detector_name
+                                record["probe_classname"]
+                                + PROBE_DETECTOR_SEP
+                                + detector_name
                             ].append(fields)
                         else:
                             neg_examples[
-                                record["probe_classname"] + "_" + detector_name
+                                record["probe_classname"]
+                                + PROBE_DETECTOR_SEP
+                                + detector_name
                             ].append(fields)
                     except IndexError:
                         continue
@@ -103,7 +111,7 @@ def _print_examples(probe_detector):
 print("Tier 1")
 t1_probe_names = tiers[Tier.TIER_1]
 for probe_detector in probe_detector_scores.keys():
-    if probe_detector.split("_")[0] in t1_probe_names:
+    if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t1_probe_names:
         z, passrate = (
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["passrate"],
@@ -125,7 +133,7 @@ for probe_detector in probe_detector_scores.keys():
 print("\nTier 2")
 t2_probe_names = tiers[Tier.TIER_2]
 for probe_detector in probe_detector_scores.keys():
-    if probe_detector.split("_")[0] in t2_probe_names:
+    if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t2_probe_names:
         z, passrate = (
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["passrate"],
@@ -144,6 +152,6 @@ processed_probes = t1_probe_names + t2_probe_names
 for entry in [
     probe_detector
     for probe_detector in probe_detector_scores.keys()
-    if probe_detector.split("_")[0] not in processed_probes
+    if probe_detector.split(PROBE_DETECTOR_SEP)[0] not in processed_probes
 ]:
     print(entry)
