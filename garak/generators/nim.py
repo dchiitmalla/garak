@@ -209,7 +209,7 @@ class NVMultimodal(RestGenerator):
     uri = "https://integrate.api.nvidia.com/v1/chat/completions"
 
     def __init__(self, name, config_root=_config):
-        super.__init__(self.uri, config_root=config_root)
+        super().__init__(self.uri, config_root=config_root)
         self.name = name
 
     def _populate_template(
@@ -218,10 +218,6 @@ class NVMultimodal(RestGenerator):
         output = template
 
         if "$KEY" in template:
-            if self.api_key is None:
-                raise APIKeyMissingError(
-                    f"Template requires an API key but {self.key_env_var} env var isn't set"
-                )
             if json_escape_key:
                 output = output.replace("$KEY", self.escape_function(self.api_key))
             else:
