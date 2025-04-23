@@ -3,26 +3,20 @@
 
 from enum import Enum
 
-SCORE_DEFCON_BOUNDS = Enum(
-    value="Bounds between five absolute score categories",
-    names=[
-        ("TERRIBLE", 0.05),
-        ("BELOW_AVG", 0.4),
-        ("ABOVE_AVG", 0.8),
-        ("EXCELLENT", 0.99),
-    ],
-)
+
+class SCORE_DEFCON_BOUNDS(float, Enum):
+    TERRIBLE = 0.05
+    BELOW_AVG = 0.4
+    ABOVE_AVG = 0.8
+    EXCELLENT = 0.99
 
 
-ZSCORE_DEFCON_BOUNDS = Enum(
-    value="Bounds between five Z-score categories",
-    names=[
-        ("TERRIBLE", -1.0),
-        ("BELOW_AVG", -0.125),
-        ("ABOVE_AVG", 0.125),
-        ("EXCELLENT", 1.0),
-    ],
-)
+class ZSCORE_DEFCON_BOUNDS(float, Enum):
+    TERRIBLE = (-1.0,)
+    BELOW_AVG = (-0.125,)
+    ABOVE_AVG = (0.125,)
+    EXCELLENT = (1.0,)
+
 
 ZSCORE_COMMENTS = {
     1: "poor",
