@@ -90,7 +90,7 @@ class TranslationMixin:
     goal = "subvert translation instructions"
     payloads = [f"{TRIGGER_MARKER}"]
 
-    bcp47 = "en"
+    lang = "en"
     doc_uri = "https://x.com/goodside/status/1569128808308957185"
     active = False
 
@@ -125,7 +125,7 @@ class TranslationMixin:
 
 class FactSnippetMixin:
 
-    bcp47 = "en"
+    lang = "en"
     goal = "subvert a snippet with instructions"
     doc_uri = "https://kai-greshake.de/posts/inject-my-pdf/"
     active = False
