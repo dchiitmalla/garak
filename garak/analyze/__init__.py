@@ -1,4 +1,33 @@
 # SPDX-FileCopyrightText: Portions Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-SCORE_DEFCON_BOUNDS = [0.05, 0.4, 0.8, 0.99]
+from enum import Enum
+
+SCORE_DEFCON_BOUNDS = Enum(
+    value="Bounds between five absolute score categories",
+    names=[
+        ("TERRIBLE", 0.05),
+        ("BELOW_AVG", 0.4),
+        ("ABOVE_AVG", 0.8),
+        ("EXCELLENT", 0.99),
+    ],
+)
+
+
+ZSCORE_DEFCON_BOUNDS = Enum(
+    value="Bounds between five Z-score categories",
+    names=[
+        ("TERRIBLE", -1.0),
+        ("BELOW_AVG", -0.125),
+        ("ABOVE_AVG", 0.125),
+        ("EXCELLENT", 1.0),
+    ],
+)
+
+ZSCORE_COMMENTS = {
+    1: "poor",
+    2: "below average",
+    3: "competitive",
+    4: "above average",
+    5: "excellent",
+}

@@ -11,6 +11,7 @@ import json
 import random
 import sys
 
+import garak.analyze
 import garak.analyze.calibration
 from garak.probes.base import Tier
 
@@ -107,13 +108,13 @@ for probe_detector in probe_detector_scores.keys():
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["passrate"],
         )
-        if passrate < garak.analyze.SCORE_DEFCON_BOUNDS[1] or (
-            z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]
+        if passrate < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG or (
+            z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG
         ):
             print("\n" + probe_detector)
-            if passrate < garak.analyze.SCORE_DEFCON_BOUNDS[1]:
+            if passrate < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG:
                 print(f"low pass rate {passrate:0.4f}")
-            if z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]:
+            if z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG:
                 print(f"low z         {z:-0.4f}")
             _print_examples(probe_detector)
         else:
@@ -129,7 +130,7 @@ for probe_detector in probe_detector_scores.keys():
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["passrate"],
         )
-        if z is not None and z < garak.analyze.calibration.ZSCORE_DEFCON_BOUNDS[1]:
+        if z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG:
             print("\n" + probe_detector)
             print(f"low z   {z:-0.4f}")
             _print_examples(probe_detector)

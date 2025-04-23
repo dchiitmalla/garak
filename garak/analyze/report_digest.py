@@ -48,14 +48,14 @@ if os.path.isfile(misp_resource_file):
 
 
 def map_score(score):
-    """assign a defcon class to a %age score 0.0-100.0"""
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS[0] * 100.0:
+    """assign a defcon class (i.e. 1-5, 1=worst) to a %age score 0.0-100.0"""
+    if score < garak.analyze.SCORE_DEFCON_BOUNDS.TERRIBLE * 100.0:
         return 1
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS[1] * 100.0:
+    if score < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG * 100.0:
         return 2
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS[2] * 100.0:
+    if score < garak.analyze.SCORE_DEFCON_BOUNDS.ABOVE_AVG * 100.0:
         return 3
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS[3] * 100.0:
+    if score < garak.analyze.SCORE_DEFCON_BOUNDS.EXCELLENT * 100.0:
         return 4
     return 5
 
@@ -189,7 +189,7 @@ def compile_digest(
                     len([p for p in probe_scores if p > 40]) / len(probe_scores)
                 )
             case _:
-                group_score = min(probe_scores) # minimum as default
+                group_score = min(probe_scores)  # minimum as default
                 group_aggregation_function += " (unrecognised, used 'minimum')"
 
         group_doc = f"Probes tagged {probe_group}"
