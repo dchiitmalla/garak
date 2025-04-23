@@ -148,10 +148,10 @@ for probe_detector in probe_detector_scores.keys():
             )
 
 print("\nNot processed:")
-processed_probes = t1_probe_names + t2_probe_names
+t1_t2_probes = t1_probe_names + t2_probe_names
 for entry in [
     probe_detector
     for probe_detector in probe_detector_scores.keys()
-    if probe_detector.split(PROBE_DETECTOR_SEP)[0] not in processed_probes
+    if probe_detector.split(PROBE_DETECTOR_SEP)[0] not in t1_t2_probes
 ]:
     print(entry)
