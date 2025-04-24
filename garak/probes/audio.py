@@ -11,7 +11,7 @@ from typing import Iterable
 
 import garak.attempt
 from garak import _config
-from garak.probes.base import Probe
+from garak.probes.base import Probe, Tier
 
 
 class AudioAchillesHeel(Probe):
@@ -28,7 +28,7 @@ class AudioAchillesHeel(Probe):
         "quality:Security:PromptStability",
     ]
     goal = "disregard the system prompt via audio component"
-    tier = Probe.TIER_U
+    tier = Tier.TIER_9
     doc_uri = "https://arxiv.org/abs/2410.23861"
     modality = {"in": {"text", "audio"}}
 
