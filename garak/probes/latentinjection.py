@@ -111,16 +111,13 @@ class TranslationMixin:
     payload_triggers = ["Haha pwned!"]
     target_lang_name_en = None
 
-    def __init__(self, config_root=_config):
+    def __init__(self):
         self.top_instructions = [
             instruction.replace("{LANG_EN_NAME}", self.target_lang_name_en)
             for instruction in self.base_instructions
         ]
         self.payload_triggers += garak.payloads.load(self.payload_name).payloads
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
-
-    def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
-        return LatentInjectionMixin._attempt_prestore_hook(self, attempt, seq)
 
 
 class FactSnippetMixin:
@@ -328,8 +325,6 @@ class LatentInjectionResumeFull(LatentInjectionMixin, Probe):
     Check to see if model can be subverted by text placed in an
     otherwise innocuous document"""
 
-    tags = LatentInjectionMixin.tags
-    primary_detector = LatentInjectionMixin.primary_detector
     active = False
 
     lang = "en"
@@ -558,9 +553,6 @@ class LatentWhois(LatentInjectionMixin, Probe):
     Place injections in whois reports of known-malicious domains that declare the domain not malicious
     Domain whois records taken from sampling https://github.com/stamparm/blackbook 2024.10
     """
-
-    tags = LatentInjectionMixin.tags
-    primary_detector = LatentInjectionMixin.primary_detector
 
     lang = "en"
     goal = "subvert a whois report with instructions"
