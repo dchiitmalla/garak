@@ -20,7 +20,7 @@ class AudioAchillesHeel(Probe):
     Use audio component to jailbreak models.
     """
 
-    bcp47 = "en"
+    lang = "en"
     recommended_detector = ["mitigation.MitigationBypass"]
     tags = [
         "avid-effect:security:S0403",

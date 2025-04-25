@@ -5,12 +5,21 @@
 
 import logging
 import random
+import json
+import os
+import requests
+import backoff
 from typing import List, Union
 
 import openai
 
 from garak import _config
-from garak.exception import GarakException, APIKeyMissingError
+from garak.exception import (
+    GarakException,
+    APIKeyMissingError,
+    RateLimitHit,
+    BadGeneratorException,
+)
 from garak.generators.openai import OpenAICompatible
 from garak.generators.rest import RestGenerator
 
@@ -183,51 +192,30 @@ class NVMultimodal(RestGenerator):
     followed by <img> and/or <audio> tags ala https://build.nvidia.com/microsoft/phi-4-multimodal-instruct
     """
 
-    DEFAULT_PARAMS = RestGenerator.DEFAULT_PARAMS | {
-        "headers": {
-            "Authorization": "Bearer $KEY",
-            "Accept": "application/json",
-        },
-        "req_template_json_object": """{
-        "model": "$NAME",
-        "messages": [
-            {
-                "role": "user",
-                "content": "$INPUT",
-            }
-        ],
-        "max_tokens": 512,
-        "temperature": 0.10,
-        "top_p": 0.70,
-        "stream": False,
-    }""",
-    }
+    DEFAULT_PARAMS = RestGenerator.DEFAULT_PARAMS
 
     ENV_VAR = "NIM_API_KEY"
     generator_family_name = "NVMultimodal"
     modality = {"in": {"text", "image", "audio"}, "out": {"text"}}
     uri = "https://integrate.api.nvidia.com/v1/chat/completions"
 
-    def __init__(self, name, config_root=_config):
+    def __init__(self, name="", config_root=_config):
         super().__init__(self.uri, config_root=config_root)
         self.name = name
+        self.headers = self._get_headers()
 
-    def _populate_template(
-        self, template: str, text: str, json_escape_key: bool = False
-    ) -> str:
-        output = template
+    def _get_headers(self):
+        headers = {
+            "Authorization": f"Bearer {os.getenv(self.ENV_VAR)}",
+            "Accept": "application/json",
+        }
+        return headers
 
-        if "$KEY" in template:
-            if json_escape_key:
-                output = output.replace("$KEY", self.escape_function(self.api_key))
-            else:
-                output = output.replace("$KEY", self.api_key)
-
-        if "$NAME" in template:
-            output = output.replace("$NAME", self.name)
+    def prepare_payload(self, text: str) -> str:
+        output = {"model": self.name}
 
         if isinstance(text, str):
-            output = output.replace("$INPUT", text)
+            output["messages"] = [{"role": "user", "content": text}]
         elif isinstance(text, dict):
             import base64
             from pathlib import Path
@@ -251,7 +239,7 @@ class NVMultimodal(RestGenerator):
                 prompt_string += (
                     f'<audio src="data:audio/{audio_extension};base64,{audio_b64}" />'
                 )
-            output.replace("$INPUT", prompt_string)
+            output["messages"] = [{"role": "user", "content": prompt_string}]
 
         else:
             raise TypeError(
@@ -259,6 +247,87 @@ class NVMultimodal(RestGenerator):
             )
 
         return output
+
+    @backoff.on_exception(backoff.fibo, RateLimitHit, max_value=70)
+    def _call_model(
+        self, prompt: str, generations_this_call: int = 1
+    ) -> List[Union[str, None]]:
+        """Individual call to get a rest from the REST API
+
+        :param prompt: the input to be placed into the request template and sent to the endpoint
+        :type prompt: str
+        """
+
+        request_data = self.prepare_payload(prompt)
+        request_headers = self.headers
+
+        # the prompt should not be sent via data when using a GET request. Prompt should be
+        # serialized as parameters, in general a method could be created to add
+        # the prompt data to a request via params or data based on the action verb
+        data_kw = "params" if self.http_function == requests.get else "data"
+        req_kArgs = {
+            data_kw: request_data,
+            "headers": request_headers,
+            "timeout": self.request_timeout,
+            "proxies": self.proxies,
+            "verify": self.verify_ssl,
+        }
+        try:
+            resp = requests.post(self.uri, **req_kArgs)
+        except UnicodeEncodeError as uee:
+            # only RFC2616 (latin-1) is guaranteed
+            # don't print a repr, this might leak api keys
+            logging.error(
+                "Only latin-1 encoding supported by HTTP RFC 2616, check headers and values for unusual chars",
+                exc_info=uee,
+            )
+            raise BadGeneratorException from uee
+
+        if resp.status_code in self.skip_codes:
+            logging.debug(
+                "REST skip prompt: %s - %s, uri: %s",
+                resp.status_code,
+                resp.reason,
+                self.uri,
+            )
+            return [None]
+
+        if resp.status_code in self.ratelimit_codes:
+            raise RateLimitHit(
+                f"Rate limited: {resp.status_code} - {resp.reason}, uri: {self.uri}"
+            )
+
+        if str(resp.status_code)[0] == "3":
+            raise NotImplementedError(
+                f"REST URI redirection: {resp.status_code} - {resp.reason}, uri: {self.uri}"
+            )
+
+        if str(resp.status_code)[0] == "4":
+            raise ConnectionError(
+                f"REST URI client error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
+            )
+
+        if str(resp.status_code)[0] == "5":
+            error_msg = f"REST URI server error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
+            if self.retry_5xx:
+                raise IOError(error_msg)
+            raise ConnectionError(error_msg)
+
+        response_object = resp.json()
+        try:
+            response = [response_object["choices"][0]["message"]["content"]]
+        except KeyError as ke:
+            logging.error(
+                "Failed to find proper keys in JSON response object", exc_info=ke
+            )
+            response = [None]
+        except IndexError as ie:
+            logging.error(
+                "Failed to find properly structures JSON response object", exc_info=ie
+            )
+            response = [None]
+
+        return response
 
 
 DEFAULT_CLASS = "NVOpenAIChat"

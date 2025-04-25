@@ -115,6 +115,9 @@ lint = [
 calibration = [
   "scipy>=1.14.0",
 ]
+audio = [
+  "soundfile>=0.13.1"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/NVIDIA/garak"
