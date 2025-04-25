@@ -12,10 +12,10 @@ class SCORE_DEFCON_BOUNDS(float, Enum):
 
 
 class ZSCORE_DEFCON_BOUNDS(float, Enum):
-    TERRIBLE = (-1.0,)
-    BELOW_AVG = (-0.125,)
-    ABOVE_AVG = (0.125,)
-    EXCELLENT = (1.0,)
+    TERRIBLE = -1.0
+    BELOW_AVG = -0.125
+    ABOVE_AVG = 0.125
+    EXCELLENT = 1.0
 
 
 ZSCORE_COMMENTS = {
