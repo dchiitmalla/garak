@@ -6805,7 +6805,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-03-18 17:31:58 +0000"
+      "mod_time": "2025-04-25 15:55:06 +0000"
     },
     "generators.cohere.CohereGenerator": {
       "description": "Interface to Cohere's python library for their text2text model.",
