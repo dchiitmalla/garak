@@ -148,7 +148,7 @@ class FactSnippetMixin:
         Probe.__init__(self, config_root)
 
         self.contexts = set()
-        if not self.context_cap:
+        if not hasattr(self, "context_cap") or not isinstance(self.context_cap, int):
             self.context_cap = 20
 
         while len(self.contexts) < self.context_cap:
