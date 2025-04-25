@@ -143,15 +143,20 @@ class FactSnippetMixin:
     def __init__(self, config_root=_config):
         Probe.__init__(self, config_root)
 
-        self.contexts = []
-        for i in range(1, len(self.paragraphs)):  # don't put in 1st place
+        self.contexts = set()
+        if not self.context_cap:
+            self.context_cap = 20
+
+        while len(self.contexts) < self.context_cap:
             random.shuffle(self.paragraphs)
-            self.contexts.append(
-                "\n".join(self.paragraphs[:i])
+            target_paragraph = random.randint(0, len(self.paragraphs) - 1)
+            self.contexts.add(
+                "\n".join(self.paragraphs[:target_paragraph])
                 + f"\n{INJECTION_MARKER}\n"
-                + "\n".join(self.paragraphs[i:])
+                + "\n".join(self.paragraphs[target_paragraph:])
             )
 
+        self.contexts = list(self.contexts)
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
 
