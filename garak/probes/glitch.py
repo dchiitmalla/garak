@@ -204,7 +204,7 @@ class GlitchFull(Probe):
                 self.prompts.append(prompt)
                 self.triggers.append(glitch_token)
 
-        self.triggers = self.translator.translate(self.triggers)
+        self.triggers = self.langprovider.get_text(self.triggers)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]

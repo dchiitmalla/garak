@@ -59,12 +59,12 @@ Skip probes.tap.PAIR because it needs openai api key and large gpu resource
 def test_atkgen_probe_translation(classname, mocker):
     # how can tests for atkgen probes be expanded to ensure translation is called?
     import garak.langservice
-    import garak.translators.base
-    from garak.translators.local import NullTranslator
+    import garak.langproviders.base
+    from garak.langproviders.local import Passthru
 
-    null_translator = NullTranslator(
+    null_provider = Passthru(
         {
-            "translators": {
+            "langproviders": {
                 "local": {
                     "language": "en,en",
                 }
@@ -73,13 +73,13 @@ def test_atkgen_probe_translation(classname, mocker):
     )
 
     mocker.patch.object(
-        garak.langservice, "get_translator", return_value=null_translator
+        garak.langservice, "get_langprovider", return_value=null_provider
     )
 
     prompt_mock = mocker.patch.object(
-        null_translator,
-        "translate",
-        wraps=null_translator.translate,
+        null_provider,
+        "get_text",
+        wraps=null_provider.get_text,
     )
 
     probe_instance = _plugins.load_plugin(classname)
@@ -91,15 +91,15 @@ def test_atkgen_probe_translation(classname, mocker):
 
     probe_instance.probe(generator_instance)
 
-    expected_translation_calls = 2 * probe_instance.max_calls
+    expected_langprovision_calls = 2 * probe_instance.max_calls
     if hasattr(probe_instance, "triggers"):
         # increase prompt calls by 1 or if triggers are lists by the len of triggers
         if isinstance(probe_instance.triggers[0], list):
-            expected_translation_calls += len(probe_instance.triggers)
+            expected_langprovision_calls += len(probe_instance.triggers)
         else:
-            expected_translation_calls += 1
+            expected_langprovision_calls += 1
 
-    assert prompt_mock.call_count == expected_translation_calls
+    assert prompt_mock.call_count == expected_langprovision_calls
 
 
 @pytest.mark.parametrize("classname", PROBES)
@@ -114,49 +114,49 @@ def test_probe_prompt_translation(classname, mocker):
     # should have a unique validation that translation is called in the correct runtime stage
 
     import garak.langservice
-    import garak.translators.base
-    from garak.translators.local import NullTranslator
+    import garak.langproviders.base
+    from garak.langproviders.local import Passthru
 
-    null_translator = NullTranslator(
+    null_provider = Passthru(
         {
-            "translators": {
+            "langproviders": {
                 "local": {
                     "language": "en,ja",
-                    # Note: differing source and target language pair here forces translator calls
+                    # Note: differing source and target language pair here forces langprovider calls
                 }
             }
         }
     )
 
     mocker.patch.object(
-        garak.langservice, "get_translator", return_value=null_translator
+        garak.langservice, "get_langprovider", return_value=null_provider
     )
 
     prompt_mock = mocker.patch.object(
-        null_translator,
-        "translate",
-        wraps=null_translator.translate,
+        null_provider,
+        "get_text",
+        wraps=null_provider.get_text,
     )
 
     probe_instance = _plugins.load_plugin(classname)
 
     if probe_instance.lang != "en" or classname == "probes.tap.PAIR":
-        pytest.skip("Probe does not engage with translation")
+        pytest.skip("Probe does not engage with language provision")
 
     generator_instance = _plugins.load_plugin("generators.test.Repeat")
 
     probe_instance.probe(generator_instance)
 
-    expected_translation_calls = len(probe_instance.prompts) + 1
+    expected_provision_calls = len(probe_instance.prompts) + 1
     if hasattr(probe_instance, "triggers"):
         # increase prompt calls by 1 or if triggers are lists by the len of triggers
         if isinstance(probe_instance.triggers[0], list):
-            expected_translation_calls += len(probe_instance.triggers)
+            expected_provision_calls += len(probe_instance.triggers)
         else:
-            expected_translation_calls += 1
+            expected_provision_calls += 1
 
     if hasattr(probe_instance, "attempt_descrs"):
         # this only exists in goodside should it be standardized in some way?
-        expected_translation_calls += len(probe_instance.attempt_descrs) * 2
+        expected_provision_calls += len(probe_instance.attempt_descrs) * 2
 
-    assert prompt_mock.call_count == expected_translation_calls
+    assert prompt_mock.call_count == expected_provision_calls
