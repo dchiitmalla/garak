@@ -41,8 +41,11 @@ probe_detector_scores = {}
 pos_examples = defaultdict(list)
 neg_examples = defaultdict(list)
 
-print(sys.argv[1])
-print()
+print("# garak Qualitative review")
+print(
+    "Analysis of failing & passing probes/detectors, grouped by tier, including prompt & response samples for failing entries"
+)
+print("source filename: ", sys.argv[1])
 
 with open(sys.argv[1], "r", encoding="utf-8") as report_file:
     g = (json.loads(line.strip()) for line in open(sys.argv[1]) if line.strip())
@@ -90,25 +93,30 @@ with open(sys.argv[1], "r", encoding="utf-8") as report_file:
 
 
 def _print_examples(probe_detector):
-    print("\nexamples - failures")
+    print("\n#### Examples of responses marked failing")
     excerpt = pos_examples[probe_detector]
     random.shuffle(excerpt)
-    for entry in excerpt[0:10]:
-        print("prompt:\t" + repr(entry[0]))
+    for index, entry in enumerate(excerpt[0:10]):
+        print(f"##### Example {index+1}")
+        print()
+        print("  * **prompt**:\n```\n" + repr(entry[0]) + "\n```\n")
         if len(entry) == 3:
-            print("trigger:\t" + repr(entry[2]))
-        print("response:\t" + repr(entry[1]))
-    print("\nexamples - OK")
+            print("  * **trigger**:\n```\n" + repr(entry[2]) + "\n```\n")
+        print("  * **response**:\n```\n" + repr(entry[1]) + "\n```\n")
+        print()
+    print("\n#### Examples of responses marked passing")
     excerpt = neg_examples[probe_detector]
     random.shuffle(excerpt)
     for entry in excerpt[0:10]:
-        print("prompt:\t" + repr(entry[0]))
+        print()
+        print("  * **prompt**:\n```\n" + repr(entry[0]) + "\n```\n")
         if len(entry) == 3:
-            print("trigger:\t" + repr(entry[2]))
-        print("response:\t" + repr(entry[1]))
+            print("  * **trigger**:\n```\n" + repr(entry[2]) + "\n```\n")
+        print("  * **response**:\n```\n" + repr(entry[1]) + "\n```\n")
+        print()
 
 
-print("Tier 1")
+print("## Tier 1 probe results")
 t1_probe_names = tiers[Tier.TIER_1]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t1_probe_names:
@@ -116,21 +124,21 @@ for probe_detector in probe_detector_scores.keys():
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["passrate"],
         )
+        print("\n### Probe and detector: " + probe_detector)
+        print(f"\n\n * passrate: `{passrate:0.4f}`\n * z: `{z}`\n\n")
         if passrate < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG or (
             z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG
         ):
-            print("\n" + probe_detector)
+            print("Issues found:")
             if passrate < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG:
-                print(f"low pass rate {passrate:0.4f}")
+                print(f"* low pass rate `{passrate:0.4f}`")
             if z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG:
-                print(f"low z         {z:-0.4f}")
+                print(f"* low z         `{z:-0.4f}`")
             _print_examples(probe_detector)
         else:
-            print(
-                f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n"
-            )
+            print("All performance within bounds")
 
-print("\nTier 2")
+print("## Tier 2 probe results")
 t2_probe_names = tiers[Tier.TIER_2]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t2_probe_names:
@@ -138,20 +146,20 @@ for probe_detector in probe_detector_scores.keys():
             probe_detector_scores[probe_detector]["z"],
             probe_detector_scores[probe_detector]["passrate"],
         )
+        print("\n### Probe and detector: " + probe_detector)
+        print(f"\n\n * passrate: `{passrate:0.4f}`\n * z: `{z}`\n\n")
         if z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG:
-            print("\n" + probe_detector)
-            print(f"low z   {z:-0.4f}")
+            print("Issues found:")
+            print(f"* low z   `{z:-0.4f}`")
             _print_examples(probe_detector)
         else:
-            print(
-                f"\n{probe_detector} within bounds (passrate: {passrate:0.4f} z: {z})\n"
-            )
+            print("All performance within bounds")
 
-print("\nNot processed:")
+print("\n## Probe/detector pairs not processed:")
 t1_t2_probes = t1_probe_names + t2_probe_names
 for entry in [
     probe_detector
     for probe_detector in probe_detector_scores.keys()
     if probe_detector.split(PROBE_DETECTOR_SEP)[0] not in t1_t2_probes
 ]:
-    print(entry)
+    print("*", entry)
