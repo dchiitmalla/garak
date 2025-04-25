@@ -80,7 +80,7 @@ class Report:
         self.evaluations = pd.DataFrame.from_dict(evals)
         self.evaluations["score"] = np.where(
             self.evaluations["total"] != 0,
-            self.evaluations["passed"] / self.evaluations["total"],
+            100 * self.evaluations["passed"] / self.evaluations["total"],
             0)
         self.scores = self.evaluations[["probe", "score"]].groupby("probe").mean()
         return self
