@@ -20,8 +20,8 @@ from garak.exception import (
     RateLimitHit,
     BadGeneratorException,
 )
+from garak.generators import Generator
 from garak.generators.openai import OpenAICompatible
-from garak.generators.rest import RestGenerator
 
 
 class NVOpenAIChat(OpenAICompatible):
@@ -184,7 +184,7 @@ class Vision(NVOpenAIChat):
         return text
 
 
-class NVMultimodal(RestGenerator):
+class NVMultimodal(Generator):
     """Wrapper for text + image / audio to text NIMs. Expects NIM_API_KEY environment variable.
 
     Expects keys to be a dict with keys 'text' (required), and 'image' or 'audio' (optional).
@@ -192,7 +192,15 @@ class NVMultimodal(RestGenerator):
     followed by <img> and/or <audio> tags ala https://build.nvidia.com/microsoft/phi-4-multimodal-instruct
     """
 
-    DEFAULT_PARAMS = RestGenerator.DEFAULT_PARAMS
+    DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
+        "suppressed_params": {"n", "frequency_penalty", "presence_penalty", "stop"},
+        "max_image_len": 180_000,
+        "ratelimit_codes": [429],
+        "skip_codes": [],
+        "request_timeout": 20,
+        "proxies": None,
+        "verify_ssl": True,
+    }
 
     ENV_VAR = "NIM_API_KEY"
     generator_family_name = "NVMultimodal"
@@ -200,9 +208,11 @@ class NVMultimodal(RestGenerator):
     uri = "https://integrate.api.nvidia.com/v1/chat/completions"
 
     def __init__(self, name="", config_root=_config):
-        super().__init__(self.uri, config_root=config_root)
         self.name = name
         self.headers = self._get_headers()
+        self.retry_5xx = True
+
+        super().__init__(self.name, config_root=config_root)
 
     def _get_headers(self):
         headers = {
@@ -211,7 +221,7 @@ class NVMultimodal(RestGenerator):
         }
         return headers
 
-    def prepare_payload(self, text: str) -> str:
+    def prepare_payload(self, text: str) -> dict:
         output = {"model": self.name}
 
         if isinstance(text, str):
@@ -261,12 +271,8 @@ class NVMultimodal(RestGenerator):
         request_data = self.prepare_payload(prompt)
         request_headers = self.headers
 
-        # the prompt should not be sent via data when using a GET request. Prompt should be
-        # serialized as parameters, in general a method could be created to add
-        # the prompt data to a request via params or data based on the action verb
-        data_kw = "params" if self.http_function == requests.get else "data"
         req_kArgs = {
-            data_kw: request_data,
+            "json": request_data,
             "headers": request_headers,
             "timeout": self.request_timeout,
             "proxies": self.proxies,
