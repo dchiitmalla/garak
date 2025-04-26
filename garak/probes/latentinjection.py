@@ -112,6 +112,8 @@ class TranslationMixin:
     target_lang_name_en = None
 
     def __init__(self):
+        if self.target_lang_name_en is None:
+            raise ValueError("Probe cannot operate with target_lang_name_en being set")
         self.top_instructions = [
             instruction.replace("{LANG_EN_NAME}", self.target_lang_name_en)
             for instruction in self.base_instructions
