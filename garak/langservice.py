@@ -6,14 +6,20 @@
 
 
 import logging
-from garak import _config, _plugins
+from typing import List
 
+from garak import _config, _plugins
 from garak.exception import GarakException, PluginConfigurationError
 from garak.translators.base import Translator
 from garak.translators.local import NullTranslator
 
 translators = {}
 native_translator = None
+
+def tasks() -> List[str]:
+   """number of translators to deal with, minus the no-op one"""
+   models_to_init = [f"{t['model_name']}:{t['language']}" for t in _config.run.translators]
+   return models_to_init
 
 
 def _load_translator(translation_service: dict = {}) -> Translator:
