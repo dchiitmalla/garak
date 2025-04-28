@@ -39,7 +39,7 @@ def _load_langprovider(language_service: dict = {}) -> LangProvider:
     return langprovider_instance
 
 
-def load_langproviders():
+def load():
     """Loads all language providers defined in configuration and validate bi-directional support"""
     global langproviders, native_langprovider
     if len(langproviders) > 0:
@@ -82,7 +82,7 @@ def get_langprovider(source: str, *, reverse: bool = False):
 
     returns a single direction langprovider for the `_config.run.target_lang` to encapsulate target language outside plugins
     """
-    load_langproviders()
+    load()
     dest = _config.run.target_lang if hasattr(_config.run, "target_lang") else "en"
     key = f"{source},{dest}" if not reverse else f"{dest},{source}"
     return langproviders.get(key, native_langprovider)
