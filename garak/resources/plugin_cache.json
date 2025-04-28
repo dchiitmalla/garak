@@ -1965,7 +1965,7 @@
       "mod_time": "2025-04-18 16:19:02 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetEiffel": {
-      "description": "String-based latent prompt injections in fact snippets",
+      "description": "String-based latent prompt injections in fact snippets on the Eiffel Tower",
       "DEFAULT_PARAMS": {},
       "active": true,
       "doc_uri": "https://kai-greshake.de/posts/inject-my-pdf/",
@@ -1987,11 +1987,11 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetEiffelFull": {
-      "description": "String-based latent prompt injections in fact snippets",
+      "description": "String-based latent prompt injections in fact snippets on the Eiffel Tower",
       "DEFAULT_PARAMS": {},
       "active": false,
       "doc_uri": "https://kai-greshake.de/posts/inject-my-pdf/",
@@ -2013,8 +2013,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetLegal": {
       "description": "String-based latent prompt injections in legal snippets",
@@ -2039,8 +2039,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetLegalFull": {
       "description": "String-based latent prompt injections in legal snippets",
@@ -2065,8 +2065,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionReport": {
       "description": "String-based latent prompt injections via a report",
@@ -2093,8 +2093,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionReportFull": {
       "description": "String-based latent prompt injections via a report",
@@ -2121,8 +2121,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionResume": {
       "description": "String-based latent prompt injections via a resume",
@@ -2147,8 +2147,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionResumeFull": {
       "description": "String-based latent prompt injections via a resume",
@@ -2173,8 +2173,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnFr": {
       "description": "String-based latent prompt injections via translation",
@@ -2201,8 +2201,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnFrFull": {
       "description": "String-based latent prompt injections via translation",
@@ -2229,8 +2229,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnZh": {
       "description": "Latent prompt injection in Chinese context (\u7b80\u4f53\u5b57)",
@@ -2257,8 +2257,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnZhFull": {
       "description": "Latent prompt injection in Chinese context (\u7b80\u4f53\u5b57)",
@@ -2285,8 +2285,8 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentJailbreak": {
       "description": "Implementation of Latent Jailbreak, using latent prompt injection-",
@@ -2314,7 +2314,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentJailbreakFull": {
       "description": "Implementation of Latent Jailbreak, using latent prompt injection-",
@@ -2342,10 +2342,36 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.latentinjection.LatentWhois": {
       "description": "Latent prompt injections in whois probe reports",
+      "DEFAULT_PARAMS": {},
+      "active": true,
+      "doc_uri": "https://twitter.com/jaimeblascob/status/1648688583035715585",
+      "extended_detectors": [],
+      "goal": "subvert a whois report with instructions",
+      "lang": "en",
+      "modality": {
+        "in": [
+          "text"
+        ]
+      },
+      "parallelisable_attempts": true,
+      "primary_detector": "base.TriggerListDetector",
+      "recommended_detector": [
+        "always.Fail"
+      ],
+      "tags": [
+        "avid-effect:security:S0403",
+        "owasp:llm01",
+        "quality:Security:PromptStability"
+      ],
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
+    },
+    "probes.latentinjection.LatentWhoisSnippet": {
+      "description": "String-based latent prompt injections in whois reports",
       "DEFAULT_PARAMS": {},
       "active": true,
       "doc_uri": "https://twitter.com/jaimeblascob/status/1648688583035715585",
@@ -2367,16 +2393,13 @@
         "owasp:llm01",
         "quality:Security:PromptStability"
       ],
-      "tier": 9,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "tier": 1,
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
-    "probes.latentinjection.LatentWhoisSnippet": {
+    "probes.latentinjection.LatentWhoisSnippetFull": {
       "description": "String-based latent prompt injections in whois reports",
-      "DEFAULT_PARAMS": {
-        "shuffle": true,
-        "contexts_per_generation": 8
-      },
-      "active": true,
+      "DEFAULT_PARAMS": {},
+      "active": false,
       "doc_uri": "https://twitter.com/jaimeblascob/status/1648688583035715585",
       "extended_detectors": [],
       "goal": "subvert a snippet with instructions",
@@ -2397,7 +2420,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-18 16:19:02 +0000"
+      "mod_time": "2025-04-26 05:58:40 +0000"
     },
     "probes.leakreplay.GuardianCloze": {
       "description": "Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -6805,7 +6828,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-03-18 17:31:58 +0000"
+      "mod_time": "2025-04-25 15:55:06 +0000"
     },
     "generators.cohere.CohereGenerator": {
       "description": "Interface to Cohere's python library for their text2text model.",

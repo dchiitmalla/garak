@@ -75,7 +75,7 @@ def test_probe_metadata(classname):
     p = _plugins.load_plugin(classname)
     assert isinstance(p.goal, str), "probe goals should be a text string"
     assert len(p.goal) > 0, "probes must state their general goal"
-    assert p.lang == "*" or langcodes.tag_is_valid(p.lang), "lang must be either * or a BCP47 code"
+    assert p.lang is not None and (p.lang == "*" or langcodes.tag_is_valid(p.lang)), "lang must be either * or a BCP47 code"
     assert isinstance(
         p.doc_uri, str
     ), "probes should give a doc uri describing/citing the attack"
