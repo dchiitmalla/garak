@@ -8,12 +8,12 @@
 import logging
 
 from garak.exception import BadGeneratorException
-from garak.translators.base import Translator
+from garak.langproviders.base import LangProvider
 
 VALIDATION_STRING = "A"  # just send a single ASCII character for a sanity check
 
 
-class RivaTranslator(Translator):
+class RivaTranslator(LangProvider):
     """Remote translation using NVIDIA Riva translation API
 
     https://developer.nvidia.com/riva
@@ -47,18 +47,18 @@ class RivaTranslator(Translator):
 
     # avoid attempt to pickle the client attribute
     def __getstate__(self) -> object:
-        self._clear_translator()
+        self._clear_langprovider()
         return dict(self.__dict__)
 
     # restore the client attribute
     def __setstate__(self, d) -> object:
         self.__dict__.update(d)
-        self._load_translator()
+        self._load_langprovider()
 
-    def _clear_translator(self):
+    def _clear_langprovider(self):
         self.client = None
 
-    def _load_translator(self):
+    def _load_langprovider(self):
         if not (
             self.source_lang in self.lang_support
             and self.target_lang in self.lang_support
@@ -91,7 +91,7 @@ class RivaTranslator(Translator):
     def _translate(self, text: str) -> str:
         try:
             if self.client is None:
-                self._load_translator()
+                self._load_langprovider()
             response = self.client.translate(
                 [text], "", self._source_lang, self._target_lang
             )
@@ -101,7 +101,7 @@ class RivaTranslator(Translator):
             return text
 
 
-class DeeplTranslator(Translator):
+class DeeplTranslator(LangProvider):
     """Remote translation using DeepL translation API
 
     https://www.deepl.com/en/translator
@@ -127,7 +127,7 @@ class DeeplTranslator(Translator):
         "en": "en-US",
     }
 
-    def _load_translator(self):
+    def _load_langprovider(self):
         from deepl import Translator
 
         if not (
