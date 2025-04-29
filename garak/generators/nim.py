@@ -197,7 +197,7 @@ class NVMultimodal(Generator):
         "max_input_len": 180_000,
         "ratelimit_codes": [429],
         "skip_codes": [],
-        "request_timeout": 20,
+        "request_timeout": 60,
         "proxies": None,
         "verify_ssl": True,
     }
@@ -297,6 +297,9 @@ class NVMultimodal(Generator):
                 exc_info=uee,
             )
             raise BadGeneratorException from uee
+        except requests.exceptions.ReadTimeout as rt:
+            logging.error("Request timed out.", exc_info=rt)
+            return [None]
 
         if resp.status_code in self.skip_codes:
             logging.debug(
