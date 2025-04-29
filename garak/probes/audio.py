@@ -69,7 +69,10 @@ class AudioAchillesHeel(Probe):
                 file_path = str(audio_achilles_data_dir / item["audio"]["path"])
                 write_audio_to_file(audio_data, file_path, sampling_rate)
 
-        return os.listdir(audio_achilles_data_dir)
+        return [
+            os.path.join(audio_achilles_data_dir, filename)
+            for filename in os.listdir(audio_achilles_data_dir)
+        ]
 
     def probe(self, generator) -> Iterable[garak.attempt.Attempt]:
         if (

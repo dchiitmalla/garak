@@ -194,7 +194,7 @@ class NVMultimodal(Generator):
 
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
         "suppressed_params": {"n", "frequency_penalty", "presence_penalty", "stop"},
-        "max_image_len": 180_000,
+        "max_input_len": 180_000,
         "ratelimit_codes": [429],
         "skip_codes": [],
         "request_timeout": 20,
@@ -249,7 +249,13 @@ class NVMultimodal(Generator):
                 prompt_string += (
                     f'<audio src="data:audio/{audio_extension};base64,{audio_b64}" />'
                 )
-            output["messages"] = [{"role": "user", "content": prompt_string}]
+            if len(prompt_string) <= self.max_input_len:
+                output["messages"] = [{"role": "user", "content": prompt_string}]
+            else:
+                logging.warning(
+                    f"Multimodal input is too large for Generator {self.name}. Skipping."
+                )
+                output = None
 
         else:
             raise TypeError(
@@ -269,6 +275,9 @@ class NVMultimodal(Generator):
         """
 
         request_data = self.prepare_payload(prompt)
+        if request_data is None:
+            return [None]
+
         request_headers = self.headers
 
         req_kArgs = {
