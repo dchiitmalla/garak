@@ -369,12 +369,12 @@ def test_outputs_for():
         "pre_translation_prompt": og_prompt,
     }
     all_output_a.outputs = tlh_outputs
-    all_output_a.reverse_translator_outputs = reverse_outputs
+    all_output_a.reverse_translation_outputs = reverse_outputs
 
     all_output_b = garak.attempt.Attempt(lang="*")
     all_output_b.prompt = tlh_prompt
     all_output_b.outputs = tlh_outputs
-    all_output_b.reverse_translator_outputs = reverse_outputs
+    all_output_b.reverse_translation_outputs = reverse_outputs
 
     assert all_output_a.all_outputs == tlh_outputs
     assert all_output_a.outputs_for("tlh") == tlh_outputs

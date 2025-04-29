@@ -613,7 +613,7 @@ class AutoDAN(Probe):
 
         if autodan_outputs:
             self.prompts = autodan_outputs
-            self.prompts = self.translator.translate(self.prompts)
+            self.prompts = self.langprovider.get_text(self.prompts)
 
             # build list of attempts
             attempts_todo = []

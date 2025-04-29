@@ -72,7 +72,7 @@ class LatentInjectionMixin:
                 del self.prompts[id]
                 del self.triggers[id]
 
-        self.triggers = self.translator.translate(self.triggers)
+        self.triggers = self.langprovider.get_text(self.triggers)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
@@ -111,6 +111,10 @@ class TranslationMixin:
     target_lang_name_en = None
 
     def __init__(self):
+        if self.target_lang_name_en is None:
+            msg = f"{self.__class__.__name__}: Probe cannot operate with target_lang_name_en being set"
+            logging.error(msg)
+            raise ValueError(msg)
         self.top_instructions = [
             instruction.replace("{LANG_EN_NAME}", self.target_lang_name_en)
             for instruction in self.base_instructions

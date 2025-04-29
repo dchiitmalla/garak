@@ -40,8 +40,8 @@ class Attempt:
     :type messages: List(dict)
     :param lang: Language code for prompt as sent to the target
     :type lang: str, valid BCP47
-    :param reverse_translator_outputs: The reverse translation of output based on the original language of the probe
-    :param reverse_translator_outputs: List(str)
+    :param reverse_translation_outputs: The reverse translation of output based on the original language of the probe
+    :param reverse_translation_outputs: List(str)
 
     Expected use
     * an attempt tracks a seed prompt and responses to it
@@ -77,7 +77,7 @@ class Attempt:
         goal=None,
         seq=-1,
         lang=None,  # language code for prompt as sent to the target
-        reverse_translator_outputs=None,
+        reverse_translation_outputs=None,
     ) -> None:
         self.uuid = uuid.uuid4()
         self.messages = []
@@ -93,8 +93,8 @@ class Attempt:
         if prompt is not None:
             self.prompt = prompt
         self.lang = lang
-        self.reverse_translator_outputs = (
-            {} if reverse_translator_outputs is None else reverse_translator_outputs
+        self.reverse_translation_outputs = (
+            {} if reverse_translation_outputs is None else reverse_translation_outputs
         )
 
     def as_dict(self) -> dict:
@@ -114,7 +114,7 @@ class Attempt:
             "goal": self.goal,
             "messages": self.messages,
             "lang": self.lang,
-            "reverse_translator_outputs": list(self.reverse_translator_outputs),
+            "reverse_translation_outputs": list(self.reverse_translation_outputs),
         }
 
     @property
@@ -206,12 +206,7 @@ class Attempt:
 
         When "*" or None are passed returns the prompt passed to the model
         """
-        if (
-            lang is not None
-            and self.lang != "*"
-            and lang != "*"
-            and self.lang != lang
-        ):
+        if lang is not None and self.lang != "*" and lang != "*" and self.lang != lang:
             return self.notes.get(
                 "pre_translation_prompt", self.prompt
             )  # update if found in notes
@@ -223,13 +218,8 @@ class Attempt:
 
         When "*" or None are passed returns the original model output
         """
-        if (
-            lang is not None
-            and self.lang != "*"
-            and lang != "*"
-            and self.lang != lang
-        ):
-            return self.reverse_translator_outputs
+        if lang is not None and self.lang != "*" and lang != "*" and self.lang != lang:
+            return self.reverse_translation_outputs
         return self.all_outputs
 
     def _expand_prompt_to_histories(self, breadth):

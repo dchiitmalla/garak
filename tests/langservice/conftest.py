@@ -5,22 +5,22 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def clear_translator_state(request):
-    """Reset translator for each test"""
+def clear_langprovider_state(request):
+    """Reset langprovider for each test"""
 
-    def clear_translator_state():
+    def clear_langprovider_state():
         import gc
         import importlib
         from garak import langservice, _config
 
-        for _, v in langservice.translators.items():
+        for _, v in langservice.langproviders.items():
             del v
-        langservice.translators = {}
-        # reset defaults for translator _config
+        langservice.langproviders = {}
+        # reset defaults for langprovider _config
         importlib.reload(_config)
         gc.collect()
 
-    request.addfinalizer(clear_translator_state)
+    request.addfinalizer(clear_langprovider_state)
 
 
 def enable_gpu_testing():
@@ -40,7 +40,7 @@ def enable_gpu_testing():
         if psutil.virtual_memory().total < (16 * 1024**3):
             device = "cpu"  # fallback when less than 16GB of unified memory
 
-    from garak.translators.local import LocalHFTranslator
+    from garak.langproviders.local import LocalHFTranslator
 
     LocalHFTranslator.DEFAULT_PARAMS["hf_args"]["device"] = device
 
