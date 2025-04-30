@@ -56,6 +56,7 @@ class GgmlGenerator(Generator):
             "--top-p": self.top_p,
             "--temp": self.temperature,
             "-s": self.seed,
+            "-no-cnv": None,
         }
 
     def __init__(self, name="", config_root=_config):
@@ -108,8 +109,8 @@ class GgmlGenerator(Generator):
         ]
         # test all params for None type
         for key, value in self.command_params().items():
+            command.append(key)
             if value is not None:
-                command.append(key)
                 command.append(value)
         command = [str(param) for param in command]
         if _config.system.verbose > 1:
