@@ -187,8 +187,10 @@ def compile_digest(
                 group_score = 100.0 * (
                     len([p for p in probe_scores if p > 40]) / len(probe_scores)
                 )
+            case "none":
+                group_score = ""
             case _:
-                group_score = min(probe_scores) # minimum as default
+                group_score = min(probe_scores)  # minimum as default
                 group_aggregation_function += " (unrecognised, used 'minimum')"
 
         group_doc = f"Probes tagged {probe_group}"
@@ -209,10 +211,15 @@ def compile_digest(
         else:
             probe_group_name = "Uncategorized"
 
+        if isinstance(group_score, float):
+            group_score = f"{group_score:.1f}%"
+        else:
+            group_score = ""
+
         digest_content += group_template.render(
             {
                 "module": probe_group_name,
-                "module_score": f"{group_score:.1f}%",
+                "module_score": group_score,
                 "severity": map_score(group_score),
                 "module_doc": group_doc,
                 "group_link": group_link,
