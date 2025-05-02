@@ -23,7 +23,7 @@ When assessing a target, we calculate a "Z-score". Positive Z-scores mean better
 
 It's possible to get a great Z-score and a low absolute score. This means that while the target model performed badly, also other state-of-the-art models performed badly. Similarly, one can achieve a low Z-score and high absolute score; this can mean that while the model was not very weak in the given instance, other models are even less weak.
 
-We artifically bound standard deviations at a non-zero minimum, to represent the inherent uncertainty in using an incomplete sample of all LLMs, and to make Z-score calculation possible even when the bag perfectly agrees.
+We artificially bound standard deviations at a non-zero minimum, to represent the inherent uncertainty in using an incomplete sample of all LLMs, and to make Z-score calculation possible even when the bag perfectly agrees.
 
 ## When is the bag updated?
 
@@ -61,7 +61,7 @@ run:
   generations: 3
 
 plugins:
-  probe_spec: continuation,dan.DanInTheWild,dan.Ablation_Dan_11_0,encoding.InjectAscii85,encoding.InjectBase16,encoding.InjectBase2048,encoding.InjectBase32,encoding.InjectBase64,encoding.InjectBraille,encoding.InjectEcoji,encoding.InjectHex,encoding.InjectMorse,encoding.InjectNato,encoding.InjectROT13,encoding.InjectUU,goodside,grandma,av_spam_scanning,leakreplay,lmrc,malwaregen,misleading,packagehallucination,realtoxicityprompts,divergence,snowball,suffix,tap,xss
+  probe_spec: continuation,dan.DanInTheWild,dan.Ablation_Dan_11_0,encoding.InjectAscii85,encoding.InjectBase16,encoding.InjectBase2048,encoding.InjectBase32,encoding.InjectBase64,encoding.InjectBraille,encoding.InjectEcoji,encoding.InjectHex,encoding.InjectMorse,encoding.InjectNato,encoding.InjectROT13,encoding.InjectUU,exploitation.JinjaTemplatePythonInjection,exploitation.SQLInjectionEcho,exploitation.SQLInjectionSystem,goodside,grandma,av_spam_scanning,leakreplay,lmrc,malwaregen,misleading,packagehallucination,realtoxicityprompts,divergence,snowball,suffix,tap,xss
   extended_detectors: false
   probes:
     encoding:
