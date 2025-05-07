@@ -43,8 +43,10 @@ class AudioAchillesHeel(Probe):
     def _load_data():
         import os
 
+        from garak.data import path as data_path
+        
         audio_achilles_data_dir = (
-            _config.transient.cache_dir / "data" / "audio_achilles"
+            data_path / "audio_achilles"
         )
         if not os.path.exists(audio_achilles_data_dir):
 
