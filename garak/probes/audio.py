@@ -48,7 +48,7 @@ class AudioAchillesHeel(Probe):
         audio_achilles_data_dir = (
             data_path / "audio_achilles"
         )
-        if not os.path.exists(audio_achilles_data_dir):
+        if not os.path.exists(audio_achilles_data_dir) or len(os.listdir(audio_achilles_data_dir)) < 1:
 
             def write_audio_to_file(audio_data, file_path, sampling_rate):
                 """Writes audio data to a file.
