@@ -116,7 +116,8 @@ calibration = [
   "scipy>=1.14.0",
 ]
 audio = [
-  "soundfile>=0.13.1"
+  "soundfile>=0.13.1",
+  "librosa>=0.10.2"
 ]
 
 [project.urls]
