@@ -74,6 +74,7 @@ jobs:
         run: |
           rm -rf .cache/huggingface/hub/*facebook*
           rm -rf .cache/huggingface/hub/*Helsinki*
+          rm -rf .cache/huggingface/hub/*roberta*
 
       - name: Save test cache
         if: inputs.store-cache
