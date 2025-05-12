@@ -28,7 +28,7 @@ Context sensitive; low scores may affect suitable use cases
 If you know a probe fits your a particular use case, treat as Tier 2
 
 
-Tier 9	Unlisted
+Tier 9: Unlisted
 
 Duplicated, deprecated, fluctuating, or non-adversarial probe. 	
 
