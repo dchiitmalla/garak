@@ -1988,7 +1988,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetEiffelFull": {
       "description": "String-based latent prompt injections in fact snippets on the Eiffel Tower",
@@ -2014,7 +2014,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetLegal": {
       "description": "String-based latent prompt injections in legal snippets",
@@ -2040,7 +2040,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetLegalFull": {
       "description": "String-based latent prompt injections in legal snippets",
@@ -2066,7 +2066,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionReport": {
       "description": "String-based latent prompt injections via a report",
@@ -2094,7 +2094,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionReportFull": {
       "description": "String-based latent prompt injections via a report",
@@ -2122,7 +2122,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionResume": {
       "description": "String-based latent prompt injections via a resume",
@@ -2148,7 +2148,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionResumeFull": {
       "description": "String-based latent prompt injections via a resume",
@@ -2174,7 +2174,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnFr": {
       "description": "String-based latent prompt injections via translation",
@@ -2202,7 +2202,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnFrFull": {
       "description": "String-based latent prompt injections via translation",
@@ -2230,7 +2230,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnZh": {
       "description": "Latent prompt injection in Chinese context (\u7b80\u4f53\u5b57)",
@@ -2258,7 +2258,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentInjectionTranslationEnZhFull": {
       "description": "Latent prompt injection in Chinese context (\u7b80\u4f53\u5b57)",
@@ -2286,7 +2286,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentJailbreak": {
       "description": "Implementation of Latent Jailbreak, using latent prompt injection-",
@@ -2314,7 +2314,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentJailbreakFull": {
       "description": "Implementation of Latent Jailbreak, using latent prompt injection-",
@@ -2342,7 +2342,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentWhois": {
       "description": "Latent prompt injections in whois probe reports",
@@ -2368,11 +2368,13 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentWhoisSnippet": {
       "description": "String-based latent prompt injections in whois reports",
-      "DEFAULT_PARAMS": {},
+      "DEFAULT_PARAMS": {
+        "snippets_per_context": 5
+      },
       "active": true,
       "doc_uri": "https://twitter.com/jaimeblascob/status/1648688583035715585",
       "extended_detectors": [],
@@ -2394,11 +2396,13 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.latentinjection.LatentWhoisSnippetFull": {
       "description": "String-based latent prompt injections in whois reports",
-      "DEFAULT_PARAMS": {},
+      "DEFAULT_PARAMS": {
+        "snippets_per_context": 5
+      },
       "active": false,
       "doc_uri": "https://twitter.com/jaimeblascob/status/1648688583035715585",
       "extended_detectors": [],
@@ -2420,7 +2424,7 @@
         "quality:Security:PromptStability"
       ],
       "tier": 1,
-      "mod_time": "2025-04-28 11:01:59 +0000"
+      "mod_time": "2025-04-29 21:07:37 +0000"
     },
     "probes.leakreplay.GuardianCloze": {
       "description": "Cloze data replay for literature. Uses passages that either GPT-4 or ChatGPT have been known to replay.",
@@ -6913,7 +6917,11 @@
         "top_p": 0.95,
         "exception_on_failure": true,
         "first_call": true,
-        "key_env_var": "GGML_MAIN_PATH"
+        "key_env_var": "GGML_MAIN_PATH",
+        "extra_ggml_flags": [
+          "-no-cnv"
+        ],
+        "extra_ggml_params": {}
       },
       "active": true,
       "generator_family_name": "ggml",
@@ -6927,7 +6935,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
+      "mod_time": "2025-05-06 22:17:28 +0000"
     },
     "generators.groq.GroqChat": {
       "description": "Wrapper for Groq-hosted LLM models.",
@@ -7815,7 +7823,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
+      "mod_time": "2025-04-23 19:33:15 +0000"
     },
     "generators.replicate.ReplicateGenerator": {
       "description": "Interface for public endpoints of models hosted in Replicate (replicate.com).",
@@ -7841,7 +7849,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
+      "mod_time": "2025-04-23 19:33:15 +0000"
     },
     "generators.rest.RestGenerator": {
       "description": "Generic API interface for REST models",
