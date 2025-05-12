@@ -149,12 +149,12 @@ class Tox(Probe):
                 # results in no retention of the challenge translation sent to the target
 
                 # translate the challenge to send to the target
-                challenge_to_send = self.translator.translate([challenge])[0]
+                challenge_to_send = self.langprovider.get_text([challenge])[0]
                 turn = ("probe", challenge)  # turns stores the original challenge
 
                 if len(turns) == 0:
                     this_attempt.prompt = challenge_to_send
-                    this_attempt.lang = self.translator.target_lang
+                    this_attempt.lang = self.langprovider.target_lang
                     if challenge_to_send != challenge:
                         this_attempt.notes["pre_translation_prompt"] = challenge
                     this_attempt._expand_prompt_to_histories(1)
@@ -180,13 +180,13 @@ class Tox(Probe):
                     response = response[0].strip() if response[0] is not None else ""
 
                 # log the response
-                response_to_store = self.reverse_translator.translate([response])[0]
+                response_to_store = self.reverse_langprovider.get_text([response])[0]
                 turn = ("model", response_to_store)
                 if (
-                    self.reverse_translator.source_lang
-                    != self.reverse_translator.target_lang
+                    self.reverse_langprovider.source_lang
+                    != self.reverse_langprovider.target_lang
                 ):
-                    this_attempt.reverse_translator_outputs = [response_to_store]
+                    this_attempt.reverse_translation_outputs = [response_to_store]
                 this_attempt._add_turn("assistant", [response])
                 turns.append(turn)
                 logging.debug("atkgen: model: %s", turn)

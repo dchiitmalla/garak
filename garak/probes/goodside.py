@@ -155,21 +155,22 @@ class Tag(Probe):
         return json_string
 
     def _translate_descr(self, attempt_descrs: List[str]) -> List[str]:
+        """language provision attempt descriptions"""
         import json
 
         translated_attempt_descrs = []
         for descr in attempt_descrs:
             descr = json.loads(self._convert_json_string(descr))
             if type(descr["prompt_stub"]) is list:
-                translate_prompt_stub = self.translator.translate(descr["prompt_stub"])
+                translate_prompt_stub = self.langprovider.get_text(descr["prompt_stub"])
             else:
-                translate_prompt_stub = self.translator.translate(
+                translate_prompt_stub = self.langprovider.get_text(
                     [descr["prompt_stub"]]
                 )
             if type(descr["payload"]) is list:
-                translate_payload = self.translator.translate(descr["payload"])
+                translate_payload = self.langprovider.get_text(descr["payload"])
             else:
-                translate_payload = self.translator.translate([descr["payload"]])
+                translate_payload = self.langprovider.get_text([descr["payload"]])
             translated_attempt_descrs.append(
                 str(
                     {
@@ -236,7 +237,7 @@ class Tag(Probe):
                                     )
                                 )
 
-        self.triggers = self.translator.translate(self.triggers)
+        self.triggers = self.langprovider.get_text(self.triggers)  # triggers is a list?
         self.attempt_descrs = self._translate_descr(self.attempt_descrs)
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
