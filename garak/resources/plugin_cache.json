@@ -6917,7 +6917,11 @@
         "top_p": 0.95,
         "exception_on_failure": true,
         "first_call": true,
-        "key_env_var": "GGML_MAIN_PATH"
+        "key_env_var": "GGML_MAIN_PATH",
+        "extra_ggml_flags": [
+          "-no-cnv"
+        ],
+        "extra_ggml_params": {}
       },
       "active": true,
       "generator_family_name": "ggml",
@@ -6931,7 +6935,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
+      "mod_time": "2025-05-06 22:17:28 +0000"
     },
     "generators.groq.GroqChat": {
       "description": "Wrapper for Groq-hosted LLM models.",
@@ -7819,7 +7823,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
+      "mod_time": "2025-04-23 19:33:15 +0000"
     },
     "generators.replicate.ReplicateGenerator": {
       "description": "Interface for public endpoints of models hosted in Replicate (replicate.com).",
@@ -7845,7 +7849,7 @@
       },
       "parallel_capable": true,
       "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
+      "mod_time": "2025-04-23 19:33:15 +0000"
     },
     "generators.rest.RestGenerator": {
       "description": "Generic API interface for REST models",
