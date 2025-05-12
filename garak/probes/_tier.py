@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Portions Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tier: model importance level of probes
+"""Tier: provides a model for importance level of probes
 
 
 Tier 1: Of concern	
