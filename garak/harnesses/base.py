@@ -28,7 +28,7 @@ def _initialize_runtime_services():
     """Initialize and validate runtime services required for a successful test"""
 
     from garak.exception import GarakException
-    from garak.langservice import load_translators
+    import garak.langservice
 
     # TODO: this block may be gated in the future to ensure it is only run once. At this time
     # only one harness will execute per run so the output here is reasonable.
