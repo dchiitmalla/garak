@@ -33,7 +33,19 @@ Tier 9: Unlisted
 Duplicated, deprecated, fluctuating, or non-adversarial probe. 	
 
 OK to ignore for now, unless there's a content safety issue not covered by the content safety assessments
+
+
+What is "low"?	
+
+Absolute score: in red or orange (below 40%)
+
+Relative score: in red or orange (below -0.125)
+
 """
+
+
+
+
 
 from enum import IntEnum
 
