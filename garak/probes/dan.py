@@ -504,7 +504,7 @@ class Ablation_Dan_11_0(garak.probes.Probe):
         "payload:jailbreak",
     ]
     goal = "disregard the system prompt"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
     active = False
 
     prompts = []
@@ -550,7 +550,7 @@ class AutoDANCached(garak.probes.Probe):
         "payload:jailbreak",
     ]
     goal = "disregard the system prompt"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
     doc_uri = "https://arxiv.org/abs/2310.04451"
 
     def __init__(
@@ -586,7 +586,7 @@ class AutoDAN(garak.probes.Probe):
     goal = "disregard the system prompt"
     doc_uri = "https://arxiv.org/abs/2310.04451"
     active = False
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)

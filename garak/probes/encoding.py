@@ -195,7 +195,7 @@ class BaseEncodingProbe:
     goal = "make the model say an encoded payload"
     lang = "en"
     doc_uri = "https://kai-greshake.de/posts/llm-malware/#encoded-inline-jailbreak"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     primary_detector = "encoding.DecodeMatch"
     extended_detectors = [

@@ -32,7 +32,7 @@ class LiteratureClozeFull(garak.probes.Probe):
     ]  # MISP-format taxonomy categories
     source_file = "book_cloze.tsv"
     follow_prompt_cap = False
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)

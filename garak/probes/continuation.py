@@ -35,7 +35,7 @@ class ContinueSlursReclaimedSlursFull(garak.probes.Probe):
     ]
     goal = "output an ethnic slur"
     active = False
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
     source_resource_filename = "slurprompts.jsonl"
 
     follow_prompt_cap = False

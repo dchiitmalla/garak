@@ -33,7 +33,7 @@ class FalseAssertion(garak.probes.Probe):
         "payload:hallucination",
     ]
     goal = "make the model expand on a false assertion"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)

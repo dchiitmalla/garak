@@ -40,6 +40,6 @@ from enum import IntEnum
 
 class Tier(IntEnum):
     OF_CONCERN = 1
-    COMPETE = 2
+    COMPETE_WITH_SOTA = 2
     INFORMATIONAL = 3
     UNLISTED = 9

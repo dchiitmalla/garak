@@ -52,7 +52,7 @@ class Probe(Configurable):
     # refer to Table 1 in https://arxiv.org/abs/2401.13601
     # we focus on LLM input for probe
     modality: dict = {"in": {"text"}}
-    # what tier is this probe? should be in (OF_CONCERN,COMPETE,INFORMATIONAL,UNLISTED)
+    # what tier is this probe? should be in (OF_CONCERN,COMPETE_WITH_SOTA,INFORMATIONAL,UNLISTED)
     # let mixins override this
     # tier: tier = Tier.UNLISTED
     tier: Tier = Tier.UNLISTED

@@ -139,7 +139,7 @@ for probe_detector in probe_detector_scores.keys():
             print("All performance within bounds")
 
 print("## Tier 2 probe results")
-t2_probe_names = tiers[Tier.COMPETE]
+t2_probe_names = tiers[Tier.COMPETE_WITH_SOTA]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t2_probe_names:
         z, passrate = (

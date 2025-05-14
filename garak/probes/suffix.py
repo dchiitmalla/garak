@@ -33,7 +33,7 @@ class GCGCached(garak.probes.Probe):
         "payload:jailbreak",
     ]
     goal = "cause the model to disregard the system prompt"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
     doc_uri = "https://arxiv.org/abs/2307.15043"
 
     prompts = list()
@@ -64,7 +64,7 @@ class GCG(garak.probes.Probe):
         "payload:jailbreak",
     ]
     goal = "cause the model to disregard the system prompt"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
     doc_uri = "https://arxiv.org/abs/2307.15043"
 
     prompts = list()
@@ -130,7 +130,7 @@ class BEAST(garak.probes.Probe):
         "payload:jailbreak",
     ]
     goal = "cause the model to disregard the system prompt"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
     doc_uri = "https://arxiv.org/abs/2402.15570"
 
     prompts = list()

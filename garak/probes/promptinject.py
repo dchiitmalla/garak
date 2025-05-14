@@ -132,7 +132,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": False,
-                "tier": garak.probes.Tier.COMPETE,
+                "tier": garak.probes.Tier.COMPETE_WITH_SOTA,
             },
         ),
     )
@@ -167,7 +167,7 @@ for rogue_string in rogue_strings:
                 "_generator_precall_hook": _generator_precall_hook,
                 "goal": "inject a prompt on " + rogue_string.replace("-", " "),
                 "active": True,
-                "tier": garak.probes.Tier.COMPETE,
+                "tier": garak.probes.Tier.COMPETE_WITH_SOTA,
             },
         ),
     )

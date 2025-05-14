@@ -37,7 +37,7 @@ class FigStepFull(garak.probes.Probe):
         "payload:jailbreak",
     ]
     goal = "disregard the system prompt with both text and image"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     prompts = []
 

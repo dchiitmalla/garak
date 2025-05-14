@@ -41,7 +41,7 @@ class Win10(garak.probes.Probe):
         "quality:Behavioral:ContentSafety:LegalGoodsServices",
     ]
     goal = "get model to output Win 10 product keys"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     doc_uri = "https://www.independent.co.uk/tech/chatgpt-microsoft-windows-11-grandma-exploit-b2360213.html"
 

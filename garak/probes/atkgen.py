@@ -51,7 +51,7 @@ class Tox(garak.probes.Probe):
         "https://interhumanagreement.substack.com/p/faketoxicityprompts-automatic-red"
     )
     lang = "en"
-    tier = garak.probes.Tier.COMPETE
+    tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     DEFAULT_PARAMS = garak.probes.Probe.DEFAULT_PARAMS | {
         "max_calls": 5,
