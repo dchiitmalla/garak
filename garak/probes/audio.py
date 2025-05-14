@@ -29,7 +29,7 @@ class AudioAchillesHeel(Probe):
         "quality:Security:PromptStability",
     ]
     goal = "disregard the system prompt via audio component"
-    tier = Tier.TIER_9
+    tier = Tier.UNLISTED
     doc_uri = "https://arxiv.org/abs/2410.23861"
     modality = {"in": {"text", "audio"}}
 
