@@ -200,6 +200,9 @@ class NVMultimodal(Generator):
         "request_timeout": 60,
         "proxies": None,
         "verify_ssl": True,
+        "max_tokens": 512,
+        "top_p": 0.70,
+        "stream": False,
     }
 
     ENV_VAR = "NIM_API_KEY"
@@ -221,8 +224,14 @@ class NVMultimodal(Generator):
         }
         return headers
 
-    def prepare_payload(self, text: str) -> dict:
-        output = {"model": self.name}
+    def prepare_payload(self, text: Union[str, dict]) -> dict:
+        output = {
+            "model": self.name,
+            "max_tokens": self.max_tokens,
+            "temperature": self.temperature if self.temperature is not None else 0.10,
+            "top_p": self.top_p if self.top_p is not None else 0.70,
+            "stream": False,
+        }
 
         if isinstance(text, str):
             output["messages"] = [{"role": "user", "content": text}]
@@ -255,7 +264,7 @@ class NVMultimodal(Generator):
                 logging.warning(
                     f"Multimodal input is too large for Generator {self.name}. Skipping."
                 )
-                output = None
+                return None
 
         else:
             raise TypeError(
