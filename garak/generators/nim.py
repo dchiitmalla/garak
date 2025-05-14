@@ -245,14 +245,14 @@ class NVMultimodal(Generator):
                 )
             prompt_string = text["text"]
             if "image" in text.keys():
-                img_extension = Path(text["image"]).suffix
+                img_extension = Path(text["image"]).suffix.replace(".", "")
                 with open(text["image"], "rb") as f:
                     image_b64 = base64.b64encode(f.read()).decode()
                 prompt_string += (
                     f'<img src="data:image/{img_extension};base64,{image_b64}" />'
                 )
             if "audio" in text.keys():
-                audio_extension = Path(text["audio"]).suffix
+                audio_extension = Path(text["audio"]).suffix.replace(".", "")
                 with open(text["audio"], "rb") as f:
                     audio_b64 = base64.b64encode(f.read()).decode()
                 prompt_string += (
