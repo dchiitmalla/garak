@@ -5,7 +5,6 @@
 
 import logging
 import random
-import json
 import os
 import requests
 import backoff
