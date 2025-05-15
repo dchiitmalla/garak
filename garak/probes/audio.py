@@ -11,7 +11,7 @@ from typing import Iterable
 
 import garak.attempt
 from garak import _config
-from garak.probes.base import Probe, Tier
+import garak.probes
 from garak.exception import GarakException
 
 
