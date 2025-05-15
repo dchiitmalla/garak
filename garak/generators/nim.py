@@ -219,7 +219,7 @@ class NVMultimodal(Generator):
 
     def _get_headers(self):
         headers = {
-            "Authorization": f"Bearer {os.getenv(self.ENV_VAR)}",
+            "Authorization": f"Bearer {self.api_key}",
             "Accept": "application/json",
         }
         return headers
