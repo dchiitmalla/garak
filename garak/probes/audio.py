@@ -15,7 +15,7 @@ import garak.probes
 from garak.exception import GarakException
 
 
-class AudioAchillesHeel(Probe):
+class AudioAchillesHeel(garak.probes.Probe):
     """Audio is the Achilles Heel
 
     Use audio component to jailbreak models.
