@@ -193,6 +193,8 @@ class NVMultimodal(Generator):
     """
 
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
+        "uri": "https://integrate.api.nvidia.com/v1/chat/completions"
+        "retry_5xx": True
         "suppressed_params": {"n", "frequency_penalty", "presence_penalty", "stop"},
         "max_input_len": 180_000,
         "ratelimit_codes": [429],
