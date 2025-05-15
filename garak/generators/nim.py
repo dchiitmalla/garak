@@ -211,11 +211,13 @@ class NVMultimodal(Generator):
     uri = "https://integrate.api.nvidia.com/v1/chat/completions"
 
     def __init__(self, name="", config_root=_config):
+        self._load_config()
         self.name = name
-        self.headers = self._get_headers()
-        self.retry_5xx = True
+        if not hasattr(self, "headers"):
+            self.headers = {}
+        self.headers = self.headers | self._get_headers()
+        super().__init__(self.name. config_root=config_root)
 
-        super().__init__(self.name, config_root=config_root)
 
     def _get_headers(self):
         headers = {
