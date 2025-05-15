@@ -191,8 +191,8 @@ class NVMultimodal(Generator):
     """
 
     DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
-        "uri": "https://integrate.api.nvidia.com/v1/chat/completions"
-        "retry_5xx": True
+        "uri": "https://integrate.api.nvidia.com/v1/chat/completions",
+        "retry_5xx": True,
         "suppressed_params": {"n", "frequency_penalty", "presence_penalty", "stop"},
         "max_input_len": 180_000,
         "ratelimit_codes": [429],
@@ -216,7 +216,7 @@ class NVMultimodal(Generator):
         if not hasattr(self, "headers"):
             self.headers = {}
         self.headers = self.headers | self._get_headers()
-        super().__init__(self.name. config_root=config_root)
+        super().__init__(self.name, config_root=config_root)
 
 
     def _get_headers(self):
