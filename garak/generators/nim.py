@@ -16,7 +16,6 @@ import openai
 from garak import _config
 from garak.exception import (
     GarakException,
-    APIKeyMissingError,
     RateLimitHit,
     BadGeneratorException,
 )
