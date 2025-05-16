@@ -90,6 +90,7 @@ The translator configuration can be written to a file and the path passed, with 
 An example template is provided below.
 
 .. code-block:: yaml 
+
 run:
   target_lang: {target language code}
   translators:
@@ -114,6 +115,7 @@ To use DeepL translation in garak, run the following command:
 You use the following yaml config.
 
 .. code-block:: yaml 
+
 run:
   target_lang: {target language code}
   translators:
@@ -159,6 +161,7 @@ For local translation, use the following command:
 You use the following yaml config.
 
 .. code-block:: yaml 
+
 run:
   target_lang: jap
   translators:
@@ -177,6 +180,7 @@ Additional support for Huggingface ``M2M100Model`` type only is enabled by provi
 contain ``m2m100`` to be loaded by garak.
 
 .. code-block:: yaml 
+  
 run:
   target_lang: ja
   translators:
