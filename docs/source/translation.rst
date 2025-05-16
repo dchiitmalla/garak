@@ -1,7 +1,7 @@
 Translation support
 ===================
 
-This module provides translation support for probe and detector keywords and triggers.
+Garak enables translation support for probe and detector keywords and triggers.
 Allowing testing of models that accept and produce text in languages other than the language the plugin was written for.
 
 * limitations:
