@@ -497,7 +497,7 @@ class LatentInjectionFactSnippetEiffelFull(
     ]
 
     def __init__(self, config_root=_config):
-        Probe.__init__(self, config_root)
+        garak.probes.Probe.__init__(self, config_root)
         FactSnippetMixin.__init__(self)
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
@@ -530,7 +530,7 @@ class LatentInjectionFactSnippetLegalFull(
     ]
 
     def __init__(self, config_root=_config):
-        Probe.__init__(self, config_root)
+        garak.probes.Probe.__init__(self, config_root)
         FactSnippetMixin.__init__(self)
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
@@ -670,7 +670,7 @@ class LatentWhoisSnippetFull(FactSnippetMixin, LatentWhois):
     snippet_raw_marker = False
 
     def __init__(self, config_root=_config):
-        Probe.__init__(self, config_root)
+        garak.probes.Probe.__init__(self, config_root)
         FactSnippetMixin.__init__(self)
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
