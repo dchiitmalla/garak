@@ -47,7 +47,7 @@ DeepL
     export DEEPL_API_KEY=xxxx
 
 RIVA
-~~~
+~~~~
 
 .. code-block:: bash
 
@@ -83,7 +83,7 @@ An example template is provided below.
 
 run:
   target_lang: {target language code}
-  translators:
+  langproviders:
     - language: {source language code},{target language code}
       api_key: {your API key}
       model_type: {translator module or module.classname}
@@ -108,7 +108,7 @@ You use the following yaml config.
 
 run:
   target_lang: {target language code}
-  translators:
+  langproviders:
     - language: {source language code},{target language code}
       model_type: remote.DeeplTranslator
     - language: {target language code},{source language code}
@@ -131,7 +131,7 @@ You use the following yaml config.
 
 run:
   target_lang: {target language code}
-  translators:
+  langproviders:
     - language: {source language code},{target language code}
       model_type: remote
     - language: {target language code},{source language code}
@@ -154,7 +154,7 @@ You use the following yaml config.
 
 run:
   target_lang: jap
-  translators:
+  langproviders:
     - language: en,jap
       model_type: local
     - language: jap,en
@@ -173,7 +173,7 @@ contain ``m2m100`` to be loaded by garak.
   
 run:
   target_lang: ja
-  translators:
+  langproviders:
     - language: en,ja
       model_type: local
       model_name: facebook/m2m100_418M
