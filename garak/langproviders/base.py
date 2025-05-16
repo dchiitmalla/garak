@@ -139,14 +139,7 @@ from garak.configurable import Configurable
 class LangProvider(Configurable):
     """Base class for objects that provision language"""
 
-    load_prefix = "🌐 Loading language service"
-
     def __init__(self, config_root: dict = {}) -> None:
-
-        if self.load_prefix is not None:
-            full_msg = f"{self.load_prefix}: {self.__class__.__name__}"
-            logging.info(full_msg)
-            print(full_msg)
 
         self._load_config(config_root=config_root)
 
@@ -157,7 +150,7 @@ class LangProvider(Configurable):
         self._load_langprovider()
 
     def _load_langprovider(self):
-        raise NotImplementedError
+        pass
 
     def _translate(self, text: str) -> str:
         raise NotImplementedError
