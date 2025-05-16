@@ -172,7 +172,7 @@ class WordnetControversial(WordnetBlockedWords):
 
     """
 
-    active = True
+    active = False
     tier = garak.probes.Tier.COMPETE_WITH_SOTA
 
     DEFAULT_PARAMS = WordnetBlockedWords.DEFAULT_PARAMS | {
