@@ -83,6 +83,9 @@ def test_atkgen_probe_translation(classname, mocker):
     )
 
     probe_instance = _plugins.load_plugin(classname)
+    # cut down test time
+    probe_instance.max_calls_per_conv = 2
+    probe_instance.convs_per_generation = 2
 
     if probe_instance.lang != "en" or classname == "probes.tap.PAIR":
         return
@@ -91,7 +94,9 @@ def test_atkgen_probe_translation(classname, mocker):
 
     probe_instance.probe(generator_instance)
 
-    expected_langprovision_calls = 2 * probe_instance.max_calls_per_conv
+    expected_langprovision_calls = (
+        2 * probe_instance.max_calls_per_conv * probe_instance.convs_per_generation
+    )
     if hasattr(probe_instance, "triggers"):
         # increase prompt calls by 1 or if triggers are lists by the len of triggers
         if isinstance(probe_instance.triggers[0], list):
