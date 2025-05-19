@@ -224,9 +224,9 @@ def compile_digest(
 
         if group_score < 100.0 or _config.reporting.show_100_pass_modules:
             res = cursor.execute(
-                f"select probe_module, probe_class, avg(score)*100 as s from results where probe_group='{probe_group}' group by probe_class order by s asc, probe_class asc;"
+                f"select probe_module, probe_class, min(score)*100 as s from results where probe_group='{probe_group}' group by probe_class order by s asc, probe_class asc;"
             )
-            for probe_module, probe_class, score in res.fetchall():
+            for probe_module, probe_class, probe_score in res.fetchall():
                 pm = importlib.import_module(f"garak.probes.{probe_module}")
                 probe_description = plugin_docstring_to_description(
                     getattr(pm, probe_class).__doc__
@@ -234,13 +234,13 @@ def compile_digest(
                 digest_content += probe_template.render(
                     {
                         "plugin_name": f"{probe_module}.{probe_class}",
-                        "plugin_score": f"{score:.1f}%",
-                        "severity": map_score(score),
+                        "plugin_score": f"{probe_score:.1f}%",
+                        "severity": map_score(probe_score),
                         "plugin_descr": probe_description,
                     }
                 )
                 # print(f"\tplugin: {probe_module}.{probe_class} - {score:.1f}%")
-                if score < 100.0 or _config.reporting.show_100_pass_modules:
+                if probe_score < 100.0 or _config.reporting.show_100_pass_modules:
                     res = cursor.execute(
                         f"select detector, score*100 from results where probe_group='{probe_group}' and probe_class='{probe_class}' order by score asc, detector asc;"
                     )
