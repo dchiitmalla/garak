@@ -12,5 +12,8 @@
  <span class="defcon{{zscore_defcon}} dc" title="rating; 1=worst 5=best">DC:{{zscore_defcon}}</span>
 </div>
 {%else%}
-<div class="detector score"><p class="left">Z-score unavailable, calibration not performed</p> <span class="dc" title="DEFCON rating; 1=worst 5=best">n/a</span></div>
+<div class="detector score">
+ <p class="left"><span>relative score (Z):</span> unavailable, calibration not present for this probe:detector combination</p> 
+ <span class="dc" title="DEFCON rating; 1=worst 5=best">n/a</span>
+</div>
 {%endif%}

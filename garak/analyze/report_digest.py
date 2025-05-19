@@ -48,15 +48,15 @@ if os.path.isfile(misp_resource_file):
             misp_descriptions[key] = (title, descr)
 
 
-def map_score(score):
+def map_score(score: float) -> int:
     """assign a defcon class (i.e. 1-5, 1=worst) to a %age score 0.0-100.0"""
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS.TERRIBLE * 100.0:
+    if score < garak.analyze.ABSOLUTE_DEFCON_BOUNDS.TERRIBLE * 100.0:
         return 1
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG * 100.0:
+    if score < garak.analyze.ABSOLUTE_DEFCON_BOUNDS.BELOW_AVG * 100.0:
         return 2
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS.ABOVE_AVG * 100.0:
+    if score < garak.analyze.ABSOLUTE_DEFCON_BOUNDS.ABOVE_AVG * 100.0:
         return 3
-    if score < garak.analyze.SCORE_DEFCON_BOUNDS.EXCELLENT * 100.0:
+    if score < garak.analyze.ABSOLUTE_DEFCON_BOUNDS.EXCELLENT * 100.0:
         return 4
     return 5
 
@@ -263,22 +263,22 @@ def compile_digest(
                         )
 
                         if zscore is None:
-                            zscore_defcon, zscore_comment = None, None
-                            zscore = "n/a"
+                            relative_defcon, relative_comment = None, None
+                            relative_score = "n/a"
 
                         else:
-                            zscore_defcon, zscore_comment = (
+                            relative_defcon, relative_comment = (
                                 calibration.defcon_and_comment(zscore)
                             )
-                            zscore = f"{zscore:+.1f}"
+                            relative_score = f"{zscore:+.1f}"
                             calibration_used = True
 
                         absolute_defcon = map_score(absolute_score)
                         if absolute_score == 100.0:
-                            zscore_defcon, absolute_defcon = 5.0, 5.0
+                            relative_defcon, absolute_defcon = 5, 5
                         overall_severity = (
-                            min(absolute_defcon, zscore_defcon)
-                            if isinstance(zscore, float)
+                            min(absolute_defcon, relative_defcon)
+                            if isinstance(relative_defcon, int)
                             else absolute_defcon
                         )
 
@@ -291,9 +291,9 @@ def compile_digest(
                                 "absolute_comment": garak.analyze.ABSOLUTE_COMMENT[
                                     absolute_defcon
                                 ],
-                                "zscore": zscore,
-                                "zscore_defcon": zscore_defcon,
-                                "zscore_comment": zscore_comment,
+                                "zscore": relative_score,
+                                "zscore_defcon": relative_defcon,
+                                "zscore_comment": relative_comment,
                                 "overall_severity": overall_severity,
                             }
                         )
