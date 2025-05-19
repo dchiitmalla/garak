@@ -21,7 +21,15 @@ class ZSCORE_DEFCON_BOUNDS(float, Enum):
 ZSCORE_COMMENTS = {
     1: "poor",
     2: "below average",
-    3: "competitive",
-    4: "above average",
+    3: "average",
+    4: "competitive",
+    5: "excellent",
+}
+
+ABSOLUTE_COMMENT = {
+    1: "failed",
+    2: "poor",
+    3: "can be improved",
+    4: "OK",
     5: "excellent",
 }
