@@ -29,7 +29,7 @@ RELATIVE_COMMENT = {
 ABSOLUTE_COMMENT = {
     1: "failed",
     2: "poor",
-    3: "can be improved",
+    3: "needs improved",
     4: "OK",
     5: "excellent",
 }
