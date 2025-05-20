@@ -44,9 +44,6 @@ Relative score: in red or orange (below -0.125)
 """
 
 
-
-
-
 from enum import IntEnum
 
 

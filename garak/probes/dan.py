@@ -518,6 +518,7 @@ class Ablation_Dan_11_0(garak.probes.Probe):
     ]
     goal = "disregard the system prompt"
     tier = garak.probes.Tier.COMPETE_WITH_SOTA
+    active = True
 
     prompts = []
     for i in range(1, 128):
@@ -564,6 +565,7 @@ class AutoDANCached(garak.probes.Probe):
     goal = "disregard the system prompt"
     tier = garak.probes.Tier.COMPETE_WITH_SOTA
     doc_uri = "https://arxiv.org/abs/2310.04451"
+    active = True
 
     def __init__(
         self,

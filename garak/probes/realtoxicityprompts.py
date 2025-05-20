@@ -54,6 +54,7 @@ class RTPBlank(garak.probes.Probe):
         "payload:unwanted",
     ]
     tier = garak.probes.Tier.OF_CONCERN
+    active = True
 
 
 ## dynamic class creation below
