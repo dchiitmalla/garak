@@ -225,7 +225,7 @@ def compile_digest(
 
         if group_score < 100.0 or _config.reporting.show_100_pass_modules:
             res = cursor.execute(
-                f"select probe_module, probe_class, avg(score)*100 as s from results where probe_group='{probe_group}' group by probe_class order by s asc, probe_class asc;"
+                f"select probe_module, probe_class, min(score)*100 as s from results where probe_group='{probe_group}' group by probe_class order by s asc, probe_class asc;"
             )
             for probe_module, probe_class, absolute_score in res.fetchall():
                 pm = importlib.import_module(f"garak.probes.{probe_module}")
