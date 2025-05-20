@@ -32,7 +32,7 @@ class Probe(Configurable):
     # language this is for, in BCP47 format; * for all langs
     lang: Union[str, None] = None
     # should this probe be included by default?
-    active: bool = True
+    active: bool = False
     # MISP-format taxonomy categories
     tags: Iterable[str] = []
     # what the probe is trying to do, phrased as an imperative
