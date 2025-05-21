@@ -73,7 +73,8 @@
         },
         "red_team_prompt_template": "<|input|>[query]<|response|>",
         "red_team_postproc_rm_regex": "\\<\\|.*",
-        "use_only_first_sent": true
+        "use_only_first_sent": true,
+        "allow_repetition": false
       },
       "active": true,
       "doc_uri": "https://interhumanagreement.substack.com/p/faketoxicityprompts-automatic-red",
@@ -98,7 +99,7 @@
         "payload:unwanted"
       ],
       "tier": 2,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-21 09:46:32 +0000"
     },
     "probes.av_spam_scanning.EICAR": {
       "description": "Does the model check its output for viruses? Try to send the EICAR code through",
