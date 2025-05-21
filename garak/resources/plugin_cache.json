@@ -1875,7 +1875,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "specialwords.SlursReclaimedSlurs",
+      "primary_detector": "unsafe_content.SlursReclaimedSlurs",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -1883,7 +1883,7 @@
         "avid-effect:security:S0300"
       ],
       "tier": 1,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.grandma.Substances": {
       "description": "Use the grandma attack to get instructios for harmful items.",
@@ -1916,7 +1916,7 @@
         "quality:Behavioral:ContentSafety:LegalGoodsServices"
       ],
       "tier": 1,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.grandma.Win10": {
       "description": "Will the model yield a Windows 10 product key if we beg it to?",
@@ -1945,7 +1945,7 @@
         "quality:Behavioral:ContentSafety:LegalGoodsServices"
       ],
       "tier": 2,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.grandma.Win11": {
       "description": "Will the model yield a Windows 11 product key if we beg it to?",
@@ -1974,7 +1974,7 @@
         "quality:Behavioral:ContentSafety:LegalGoodsServices"
       ],
       "tier": 2,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.latentinjection.LatentInjectionFactSnippetEiffel": {
       "description": "String-based latent prompt injections in fact snippets on the Eiffel Tower",
@@ -3235,7 +3235,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "specialwords.Prefixes",
+      "primary_detector": "mitigation.Prefixes",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3245,7 +3245,7 @@
         "payload:jailbreak"
       ],
       "tier": 2,
-      "mod_time": "2025-05-14 07:50:53 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.phrasing.FutureTenseFull": {
       "description": "Will the system give unsafe responses when asked to write about weapon creation or dangerous behavior?",
@@ -3261,7 +3261,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "specialwords.Prefixes",
+      "primary_detector": "mitigation.Prefixes",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3271,7 +3271,7 @@
         "payload:jailbreak"
       ],
       "tier": 2,
-      "mod_time": "2025-05-14 07:50:53 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.phrasing.PastTense": {
       "description": "Attempt to evade safeguards by setting requests in the past tense",
@@ -3287,7 +3287,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "specialwords.Prefixes",
+      "primary_detector": "mitigation.Prefixes",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3297,7 +3297,7 @@
         "payload:jailbreak"
       ],
       "tier": 2,
-      "mod_time": "2025-05-14 07:50:53 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.phrasing.PastTenseFull": {
       "description": "Will the system give unsafe responses when asked to write about weapon creation or dangerous behavior?",
@@ -3313,7 +3313,7 @@
         ]
       },
       "parallelisable_attempts": true,
-      "primary_detector": "specialwords.Prefixes",
+      "primary_detector": "mitigation.Prefixes",
       "recommended_detector": [
         "always.Fail"
       ],
@@ -3323,7 +3323,7 @@
         "payload:jailbreak"
       ],
       "tier": 2,
-      "mod_time": "2025-05-14 07:50:53 +0000"
+      "mod_time": "2025-05-21 06:27:50 +0000"
     },
     "probes.promptinject.HijackHateHumans": {
       "description": "PromptInject is a framework that assembles prompts in a modular fashion to provide a quantitative analysis of the robustness of LLMs to adversarial prompt attacks. trophy Best Paper Awards @ NeurIPS ML Safety Workshop 2022",
@@ -5433,7 +5433,27 @@
         "avid-effect:security:S0403",
         "avid-effect:performance:P0204"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
+    },
+    "detectors.mitigation.Prefixes": {
+      "description": "Detect failure prefixes",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "str"
+      },
+      "accuracy": null,
+      "active": true,
+      "doc_uri": null,
+      "lang_spec": "en",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [],
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.packagehallucination.JavaScriptNpm": {
       "description": "Check if the output tries to import or require an npm package not listed in the npm registry",
@@ -6161,51 +6181,6 @@
       ],
       "mod_time": "2025-04-17 08:44:10 +0000"
     },
-    "detectors.specialwords.Prefixes": {
-      "description": "Detect failure prefixes",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "str"
-      },
-      "accuracy": null,
-      "active": true,
-      "doc_uri": null,
-      "lang_spec": "en",
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [],
-      "mod_time": "2025-04-17 08:31:20 +0000"
-    },
-    "detectors.specialwords.SlursReclaimedSlurs": {
-      "description": "Slurs and reclaimed slurs. Detects presence of any of the items from an ethnic slur list, regardless of context.",
-      "DEFAULT_PARAMS": {
-        "skip": false,
-        "matchtype": "str"
-      },
-      "accuracy": null,
-      "active": true,
-      "doc_uri": "https://en.wikipedia.org/wiki/List_of_ethnic_slurs",
-      "lang_spec": "en",
-      "modality": {
-        "out": [
-          "text"
-        ]
-      },
-      "precision": 0.0,
-      "recall": 0.0,
-      "tags": [
-        "avid-effect:ethics:E0101",
-        "avid-effect:ethics:E0301",
-        "avid-effect:ethics:E0302",
-        "avid-effect:performance:P0401"
-      ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
-    },
     "detectors.unsafe_content.LDNOOBW": {
       "description": "List of Dirty, Naughty, Obscene, and Otherwise Bad Words (English)",
       "DEFAULT_PARAMS": {
@@ -6228,7 +6203,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.Martin_haDistilbert": {
       "description": "Using backup of martin-ha/toxic-comment-model DistilBERT to detect toxic content",
@@ -6259,7 +6234,7 @@
       "tags": [
         "avid-effect:ethics:E0301"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.OfcomOffensiveDiscriminatory": {
       "description": "UK OFCOM potentially offensive list: discriminatory",
@@ -6283,7 +6258,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.OfcomOffensiveGeneral": {
       "description": "UK OFCOM potentially offensive list: general",
@@ -6306,7 +6281,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.OfcomOffensiveMentalHealth": {
       "description": "UK OFCOM potentially offensive list: mental health",
@@ -6330,7 +6305,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.OfcomOffensiveRaceEthnic": {
       "description": "UK OFCOM potentially offensive list: race / ethnic",
@@ -6354,7 +6329,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.OfcomOffensiveSexGender": {
       "description": "UK OFCOM potentially offensive list: sex & gender",
@@ -6378,7 +6353,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.OfcomOffensiveSexual": {
       "description": "UK OFCOM potentially offensive list: sexual",
@@ -6400,7 +6375,7 @@
       "tags": [
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.S_nlpDetox": {
       "description": "Using s-nlp Roberta model to detect toxic content",
@@ -6431,7 +6406,32 @@
       "tags": [
         "avid-effect:ethics:E0301"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
+    },
+    "detectors.unsafe_content.SlursReclaimedSlurs": {
+      "description": "Slurs and reclaimed slurs. Detects presence of any of the items from an ethnic slur list, regardless of context.",
+      "DEFAULT_PARAMS": {
+        "skip": false,
+        "matchtype": "str"
+      },
+      "accuracy": null,
+      "active": true,
+      "doc_uri": "https://en.wikipedia.org/wiki/List_of_ethnic_slurs",
+      "lang_spec": "en",
+      "modality": {
+        "out": [
+          "text"
+        ]
+      },
+      "precision": 0.0,
+      "recall": 0.0,
+      "tags": [
+        "avid-effect:ethics:E0101",
+        "avid-effect:ethics:E0301",
+        "avid-effect:ethics:E0302",
+        "avid-effect:performance:P0401"
+      ],
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityAnimalReferences": {
       "description": "Surge AI list: animal references",
@@ -6454,7 +6454,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityBodilyFluids": {
       "description": "Surge AI list: bodily fluids / excrement",
@@ -6476,7 +6476,7 @@
       "tags": [
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityMentalDisability": {
       "description": "Surge AI list: mental disability",
@@ -6500,7 +6500,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityPhysicalAttributes": {
       "description": "Surge AI list: physical attributes",
@@ -6523,7 +6523,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityPhysicalDisability": {
       "description": "Surge AI list: physical disability",
@@ -6547,7 +6547,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityPolitical": {
       "description": "Surge AI list: political",
@@ -6572,7 +6572,7 @@
         "avid-effect:ethics:E0302",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityRacialEthnic": {
       "description": "Surge AI list: racial / ethnic",
@@ -6596,7 +6596,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanityReligious": {
       "description": "Surge AI list: religious offense",
@@ -6619,7 +6619,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanitySexual": {
       "description": "Surge AI list: sexual anatomy / sexual acts",
@@ -6641,7 +6641,7 @@
       "tags": [
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.SurgeProfanitySexualOrientationGender": {
       "description": "Surge AI list: sexual orientation / gender",
@@ -6665,7 +6665,7 @@
         "avid-effect:ethics:E0301",
         "avid-effect:performance:P0401"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.unsafe_content.ToxicCommentModel": {
       "description": "Garak's default toxicity detector",
@@ -6696,7 +6696,7 @@
       "tags": [
         "avid-effect:ethics:E0301"
       ],
-      "mod_time": "2025-04-17 08:31:20 +0000"
+      "mod_time": "2025-04-23 07:10:52 +0000"
     },
     "detectors.visual_jailbreak.FigStep": {
       "description": "Looks for specific strings in the output - these should be strings inserted by image",
