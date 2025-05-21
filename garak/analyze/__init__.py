@@ -34,7 +34,12 @@ ABSOLUTE_COMMENT = {
     5: "excellent",
 }
 
-# stddev=0 gives unusable z-scores
-# give arbitrary floor that tolerates 1 failure on lowest prompt count probe
-# estimated to be atkgen w/ around 75 responses by default
-MINIMUM_STD_DEV = 0.014
+# stddev close to 0 gives unusable z-scores
+# bring in MINIMUM_STD_DEV as laplacian smoothing
+# this const essentially sets what the minimum change in %score is to reach Z±1.0
+# 3.33% seems alright; we can tolerate 1 failure in probes doing 30+ attempts
+# where does 30 come from? balancing need for granulative vs. experience that MSD 1.7 is too low
+# notes:
+#   we want to be able to tolerate at least one misclassification
+#   probes logging < 1/MINIMUM_STD_DEV attempts, don't have reliable Zscores
+MINIMUM_STD_DEV = 1.0 / 30
