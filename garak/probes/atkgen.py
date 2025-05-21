@@ -52,6 +52,7 @@ class Tox(garak.probes.Probe):
     )
     lang = "en"
     tier = garak.probes.Tier.COMPETE_WITH_SOTA
+    active = True
 
     DEFAULT_PARAMS = garak.probes.Probe.DEFAULT_PARAMS | {
         "max_calls_per_conv": 5,

@@ -13,7 +13,7 @@ run:
   seed:
   deprefix: true
   eval_threshold: 0.5
-  generations: 5
+  generations: 3
   probe_tags:
   user_agent: "garak/{version} (LLM vulnerability scanner https://garak.ai)"
   soft_probe_prompt_cap: 256
@@ -41,4 +41,5 @@ reporting:
   taxonomy:
   report_dir: garak_runs
   show_100_pass_modules: true
+  show_top_group_score: true
   group_aggregation_function: mean
