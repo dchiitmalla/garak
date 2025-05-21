@@ -17,7 +17,7 @@ class Passthru(LangProvider):
 
     load_prefix = None
 
-    def _load_translator(self):
+    def _load_langprovider(self):
         pass
 
     def _translate(self, text: str) -> str:

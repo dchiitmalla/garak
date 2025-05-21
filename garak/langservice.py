@@ -20,15 +20,15 @@ native_langprovider = None
 def tasks() -> List[str]:
     """number of translators to deal with, minus the no-op one"""
     models_to_init = [
-        f"{t['model_name']}:{t['language']}" for t in _config.run.translators
+        f"{t['model_name']}:{t['language']}" for t in _config.run.langproviders
     ]
     return models_to_init
 
 
 def enabled() -> bool:
     """are all requirements met for language service to be enabled"""
-    if hasattr(_config.run, "translators"):
-        return len(_config.run.translators) > 1
+    if hasattr(_config.run, "langproviders"):
+        return len(_config.run.langproviders) > 1
     return False
 
 

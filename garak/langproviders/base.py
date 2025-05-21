@@ -150,7 +150,7 @@ class LangProvider(Configurable):
         self._load_langprovider()
 
     def _load_langprovider(self):
-        pass
+        raise NotImplementedError
 
     def _translate(self, text: str) -> str:
         raise NotImplementedError
