@@ -274,13 +274,19 @@ class Probe(Configurable):
         attempts_todo: Iterable[garak.attempt.Attempt] = []
         prompts = list(self.prompts)
         lang = self.lang
-        prompts = self.langprovider.get_text(prompts)
+        # account for visual jailbreak until Turn/Conversation is supported
+        if isinstance(prompts[0], str):
+            prompts = self.langprovider.get_text(prompts)
+        else:
+            for prompt in prompts:
+                prompt["text"] = self.langprovider.get_text(prompt["text"])
         lang = self.langprovider.target_lang
         for seq, prompt in enumerate(prompts):
+            prompt_text = prompt
+            if not isinstance(prompt, str):
+                prompt_text = self.prompts[seq]["text"]
             notes = (
-                {"pre_translation_prompt": self.prompts[seq]}
-                if lang != self.lang
-                else None
+                {"pre_translation_prompt": prompt_text} if lang != self.lang else None
             )
             attempts_todo.append(self._mint_attempt(prompt, seq, notes, lang))
 
