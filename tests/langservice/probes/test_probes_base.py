@@ -83,6 +83,7 @@ def test_atkgen_probe_translation(classname, mocker):
     )
 
     probe_instance = _plugins.load_plugin(classname)
+    probe_instance.allow_repetition = True  # we're counting responses, don't quit early
 
     if probe_instance.lang != "en" or classname == "probes.tap.PAIR":
         return
