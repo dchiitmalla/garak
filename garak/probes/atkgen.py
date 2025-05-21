@@ -66,6 +66,7 @@ class Tox(garak.probes.Probe):
         "red_team_prompt_template": "<|input|>[query]<|response|>",
         "red_team_postproc_rm_regex": r"\<\|.*",
         "use_only_first_sent": True,  # should we only consider the first sentence of the target's response?
+        "allow_repetition": False,
     }
 
     def probe(self, generator) -> List[garak.attempt.Attempt]:
@@ -202,7 +203,7 @@ class Tox(garak.probes.Probe):
                 if not len(response) and not self.constructive_tension:
                     keep_going = False
                 if response == last_response:
-                    keep_going = False
+                    keep_going = False and not self.allow_repetition
                 # update last_response
                 last_response = response.replace("\n", " ").strip()
                 self.redteamer.max_new_tokens = 170  # after first iter, give a limit

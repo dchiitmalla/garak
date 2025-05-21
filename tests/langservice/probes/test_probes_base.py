@@ -86,6 +86,7 @@ def test_atkgen_probe_translation(classname, mocker):
     # cut down test time
     probe_instance.max_calls_per_conv = 2
     probe_instance.convs_per_generation = 2
+    probe_instance.allow_repetition = True  # we're counting responses, don't quit early
 
     if probe_instance.lang != "en" or classname == "probes.tap.PAIR":
         return
