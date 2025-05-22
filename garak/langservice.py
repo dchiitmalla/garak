@@ -19,9 +19,14 @@ native_langprovider = None
 
 def tasks() -> List[str]:
     """number of translators to deal with, minus the no-op one"""
-    models_to_init = [
-        f"{t['model_name']}:{t['language']}" for t in _config.run.langproviders
-    ]
+    models_to_init = []
+    for t in _config.run.langproviders:
+        if t["model_type"] == "local.Passthru":  # extra guard
+            continue
+        model_descr = f"{t['language']}->{t['model_type']}"
+        if "model_name" in t:
+            model_descr += f"[{t['model_name']}]"
+        models_to_init.append(model_descr)
     return models_to_init
 
 
@@ -34,7 +39,7 @@ def enabled() -> bool:
 
 def start_msg() -> str:
     """return a start message, assumes enabled"""
-    return "🌐", "loading language services:" + " ".join(tasks())
+    return "🌐", "loading language services: " + " ".join(tasks())
 
 
 def _load_langprovider(language_service: dict = {}) -> LangProvider:

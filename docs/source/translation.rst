@@ -59,17 +59,17 @@ Configuration file
 Translation function is configured in the ``run`` section of a configuration with the following keys:
 
 ``target_lang``   - A single ``BCP47`` entry designating the language of the target under test. "ja", "fr", "jap" etc.
-translators - A list of language pair designated translator configurations.
+``langproviders`` - A list of language pair designated translator configurations.
 
 * Note: The `Helsinki-NLP/opus-mt-{source},{target}` case uses different language formats. The language codes used to name models are inconsistent. 
 Two-letter codes can usually be found `here <https://developers.google.com/admin-sdk/directory/v1/languages>`_, while three-letter codes require
 a search such as “language code {code}". More details can be found `here <https://github.com/Helsinki-NLP/OPUS-MT-train/tree/master/models>`_.
 
-A translator configuration is provided using the project's configurable pattern with the following required keys:
+A language provider configuration is provided using the project's configurable pattern with the following keys:
 
-* ``language``   - A ``,`` separated pair of ``BCP47`` entires describing translation format provided by the configuration
-* ``model_type`` - the module and optional instance class to be instantiated. local, remote, remote.DeeplTranslator etc.
-* ``model_name`` - (optional) the model name loaded for translation, required for ``local`` translator model_type
+* ``language``   - (required) A ``,`` separated pair of ``BCP47`` entires describing translation format provided by the configuration
+* ``model_type`` - (required) the ``langproviders`` module and optional instance class to be instantiated; ``local``, ``remote``, ``remote.DeeplTranslator`` etc.
+* ``model_name`` - (conditional) the model name loaded for translation. This field is required for ``local`` translator ``model_type``
 
 (Optional) Model specific parameters defined by the translator model type may exist.
 
