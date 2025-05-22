@@ -15,8 +15,6 @@ from garak.resources.api.huggingface import HFCompatible
 class Passthru(LangProvider):
     """Stand-in language provision for pass through / noop"""
 
-    load_prefix = None
-
     def _load_langprovider(self):
         pass
 
