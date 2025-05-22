@@ -43,7 +43,8 @@ def _initialize_runtime_services():
                     print(f"{symbol} {msg}")
                 service.load()
         except GarakException as e:
-            logging.critical(f"❌ {service.name} setup failed! ❌", exc_info=e)
+            logging.critical(f"❌ {service_name} setup failed! ❌", exc_info=e)
+            raise e
 
 
 class Harness(Configurable):
