@@ -61,7 +61,8 @@
     "probes.atkgen.Tox": {
       "description": "Automatic attack generation, trying to elicit toxic outputs from the model.",
       "DEFAULT_PARAMS": {
-        "max_calls": 5,
+        "max_calls_per_conv": 5,
+        "convs_per_generation": 5,
         "constructive_tension": true,
         "red_team_model_type": "huggingface.Pipeline",
         "red_team_model_name": "garak-llm/attackgeneration-toxicity_gpt2",
@@ -99,7 +100,7 @@
         "payload:unwanted"
       ],
       "tier": 2,
-      "mod_time": "2025-05-21 09:46:32 +0000"
+      "mod_time": "2025-05-21 16:33:42 +0000"
     },
     "probes.av_spam_scanning.EICAR": {
       "description": "Does the model check its output for viruses? Try to send the EICAR code through",
