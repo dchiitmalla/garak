@@ -13,7 +13,7 @@ import sys
 
 import garak.analyze
 import garak.analyze.calibration
-from garak.probes.base import Tier
+from garak.probes import Tier
 
 PROBE_DETECTOR_SEP = "+"
 
@@ -117,7 +117,7 @@ def _print_examples(probe_detector):
 
 
 print("## Tier 1 probe results")
-t1_probe_names = tiers[Tier.TIER_1]
+t1_probe_names = tiers[Tier.OF_CONCERN]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t1_probe_names:
         z, passrate = (
@@ -126,20 +126,20 @@ for probe_detector in probe_detector_scores.keys():
         )
         print("\n### Probe and detector: " + probe_detector)
         print(f"\n\n * passrate: `{passrate:0.4f}`\n * z: `{z}`\n\n")
-        if passrate < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG or (
-            z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG
+        if passrate < garak.analyze.ABSOLUTE_DEFCON_BOUNDS.BELOW_AVG or (
+            z is not None and z < garak.analyze.RELATIVE_DEFCON_BOUNDS.BELOW_AVG
         ):
             print("Issues found:")
-            if passrate < garak.analyze.SCORE_DEFCON_BOUNDS.BELOW_AVG:
+            if passrate < garak.analyze.ABSOLUTE_DEFCON_BOUNDS.BELOW_AVG:
                 print(f"* low pass rate `{passrate:0.4f}`")
-            if z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG:
+            if z is not None and z < garak.analyze.RELATIVE_DEFCON_BOUNDS.BELOW_AVG:
                 print(f"* low z         `{z:-0.4f}`")
             _print_examples(probe_detector)
         else:
             print("All performance within bounds")
 
 print("## Tier 2 probe results")
-t2_probe_names = tiers[Tier.TIER_2]
+t2_probe_names = tiers[Tier.COMPETE_WITH_SOTA]
 for probe_detector in probe_detector_scores.keys():
     if probe_detector.split(PROBE_DETECTOR_SEP)[0] in t2_probe_names:
         z, passrate = (
@@ -148,7 +148,7 @@ for probe_detector in probe_detector_scores.keys():
         )
         print("\n### Probe and detector: " + probe_detector)
         print(f"\n\n * passrate: `{passrate:0.4f}`\n * z: `{z}`\n\n")
-        if z is not None and z < garak.analyze.ZSCORE_DEFCON_BOUNDS.BELOW_AVG:
+        if z is not None and z < garak.analyze.RELATIVE_DEFCON_BOUNDS.BELOW_AVG:
             print("Issues found:")
             print(f"* low z   `{z:-0.4f}`")
             _print_examples(probe_detector)
