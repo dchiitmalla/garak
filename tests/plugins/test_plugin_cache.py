@@ -82,7 +82,7 @@ def test_unknown_type():
     assert "plugin type" in str(exc_info.value)
 
 
-def test_unknown_plugin():
+def test_unknown_class():
     with pytest.raises(ValueError) as exc_info:
         info = PluginCache.plugin_info("probes.test.missing")
     assert "plugin from " in str(exc_info.value)
