@@ -37,12 +37,12 @@ The first benchmark is in summer 2024. We think something between twice-yearly a
 |:-------------:|:------------:|:-----------:|:------------------------------------:|:----------:|
 |       1       |       6      | abacusai    | dracarys-llama-3.1-70b-instruct      |     70     |
 |       1       |       5      | ai21labs    | jamba-1.5-mini-instruct              |     52     |
-|       2       |       9      | deepseek-ai | deepseek-r1-distill-qwen-7b          |     671    |
-|       0       |       2      | deepseek-ai | deepseek-r1                          |     7.62   |
+|       2       |       9      | deepseek    | deepseek-r1-distill-qwen-7b          |     671    |
+|       0       |       2      | deepseek    | deepseek-r1                          |     7.62   |
 |       1       |       4      | google      | gemma-3-1b-it                        |     27     |
 |       0       |       0      | google      | gemma-3-27b-it                       |     1      |
-|       0       |       3      | ibm-granite | granite-3.0-3b-a800m-instruct        |     8      |
-|       0       |       1      | ibm-granite | granite-3.0-8b-instruct              |     3      |
+|       0       |       3      | ibm         | granite-3.0-3b-a800m-instruct        |     8      |
+|       0       |       1      | ibm         | granite-3.0-8b-instruct              |     3      |
 |       1       |       6      | meta        | llama-3.1-405b-instruct              |     70     |
 |       2       |       8      | meta        | llama-3.3-70b-instruct               |     405    |
 |       2       |       7      | meta        | llama-4-maverick-17b-128e-instruct   |     109    |
