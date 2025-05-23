@@ -29,7 +29,7 @@ We artificially bound standard deviations at a non-zero minimum, to represent th
 
 The first benchmark is in summer 2024. We think something between twice-yearly and quarterly updates provides a good trade off between using recent models, and keeping results relevant long enough to be comparable.
 
-## Summer 2025
+## Spring 2025
 
 ### Bag contents
 
