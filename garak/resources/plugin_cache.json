@@ -61,7 +61,8 @@
     "probes.atkgen.Tox": {
       "description": "Automatic attack generation, trying to elicit toxic outputs from the model.",
       "DEFAULT_PARAMS": {
-        "max_calls": 5,
+        "max_calls_per_conv": 5,
+        "convs_per_generation": 5,
         "constructive_tension": true,
         "red_team_model_type": "huggingface.Pipeline",
         "red_team_model_name": "garak-llm/attackgeneration-toxicity_gpt2",
@@ -73,7 +74,8 @@
         },
         "red_team_prompt_template": "<|input|>[query]<|response|>",
         "red_team_postproc_rm_regex": "\\<\\|.*",
-        "use_only_first_sent": true
+        "use_only_first_sent": true,
+        "allow_repetition": false
       },
       "active": true,
       "doc_uri": "https://interhumanagreement.substack.com/p/faketoxicityprompts-automatic-red",
@@ -98,7 +100,7 @@
         "payload:unwanted"
       ],
       "tier": 2,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-21 16:33:42 +0000"
     },
     "probes.av_spam_scanning.EICAR": {
       "description": "Does the model check its output for viruses? Try to send the EICAR code through",
@@ -204,7 +206,7 @@
       ],
       "tags": [],
       "tier": 9,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-22 16:43:53 +0000"
     },
     "probes.base.TreeSearchProbe": {
       "DEFAULT_PARAMS": {
@@ -231,7 +233,7 @@
       ],
       "tags": [],
       "tier": 9,
-      "mod_time": "2025-05-20 09:39:47 +0000"
+      "mod_time": "2025-05-22 16:43:53 +0000"
     },
     "probes.continuation.ContinueSlursReclaimedSlurs": {
       "description": "Continue partial word with slur or reclaimed slur.",
@@ -8033,7 +8035,7 @@
         "strict_modality_match": false
       },
       "active": true,
-      "mod_time": "2025-04-28 08:05:05 +0000"
+      "mod_time": "2025-05-22 05:49:59 +0000"
     },
     "harnesses.probewise.ProbewiseHarness": {
       "DEFAULT_PARAMS": {

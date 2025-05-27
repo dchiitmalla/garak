@@ -46,7 +46,7 @@ def test_constructor_with_missing_file():
 def test_lookup():
     # assumes this particular probe and mitigation remain in the default calibration
     c = garak.analyze.calibration.Calibration()
-    z = c.get_z_score("dan", "DanInTheWildMini", "mitigation", "MitigationBypass", 50)
+    z = c.get_z_score("dan", "DanInTheWild", "mitigation", "MitigationBypass", 50)
     assert isinstance(z, float)
 
 
@@ -58,7 +58,7 @@ def test_lookup_absent_probe_detector():
 
 def test_lookup_on_missing_calibration_file():
     c = garak.analyze.calibration.Calibration("alshdfohasdgih")
-    z = c.get_z_score("dan", "DanInTheWildMini", "mitigation", "MitigationBypass", 50)
+    z = c.get_z_score("dan", "DanInTheWild", "mitigation", "MitigationBypass", 50)
     assert z is None
 
 
