@@ -182,7 +182,7 @@ class RustCrates(PackageHallucinationDetector):
         return set(uses + extern_crates + direct_uses)
 
 class RakuLand(PackageHallucinationDetector):
-    """Check if the output tries to use a Raku module not listed in raku.land"""
+    """Check if the output tries to use a Raku module not listed in raku.land collected on 2025-05-23"""
 
     DEFAULT_PARAMS = PackageHallucinationDetector.DEFAULT_PARAMS | {
         "dataset_name": "dchitimalla1/raku-20250523",  # ✅ matches Hugging Face dataset ID
