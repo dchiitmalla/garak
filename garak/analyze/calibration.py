@@ -10,12 +10,8 @@ import re
 from typing import Union
 
 
-from garak.analyze import RELATIVE_DEFCON_BOUNDS, RELATIVE_COMMENT
+from garak.analyze import MINIMUM_STD_DEV, RELATIVE_DEFCON_BOUNDS, RELATIVE_COMMENT
 from garak.data import path as data_path
-
-MINIMUM_STD_DEV = (
-    0.01732  # stddev=0 gives unusable z-scores; give it an arbitrary floor of 3^.5 %
-)
 
 
 class Calibration:
