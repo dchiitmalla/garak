@@ -12,10 +12,12 @@ import pprint
 import re
 import statistics
 import sys
+import typing
 
 import jinja2
 import sqlite3
 
+import garak
 from garak import _config
 from garak.data import path as data_path
 import garak.analyze
@@ -65,6 +67,9 @@ def plugin_docstring_to_description(docstring):
     return docstring.split("\n")[0]
 
 
+def _extract_report_object(filename: typing.IO) -> dict:
+    return {}
+
 def compile_digest(
     report_path,
     taxonomy=_config.reporting.taxonomy,
@@ -73,6 +78,20 @@ def compile_digest(
     evals = []
     payloads = []
     setup = defaultdict(str)
+
+    """
+    digest_object structure
+
+    meta: garak_version, calibration_info, config_info, run_name, ..
+    probe_group: name, description
+        probe: name, tags, description
+            detector: name, description, attempt_count, passes_count, skip_count, relative_score, relative_defcon, absolute_score, relative_defcon
+    """
+    report_digest = {
+        "meta": {},
+        "probe_group": {},
+    }
+
     with open(report_path, "r", encoding="utf-8") as reportfile:
         for line in reportfile:
             record = json.loads(line.strip())
@@ -94,20 +113,25 @@ def compile_digest(
     calibration = garak.analyze.calibration.Calibration()
     calibration_used = False
 
-    digest_content = header_template.render(
-        {
+    report_digest["meta"]["calibration"] = calibration.metadata
+
+    header_content = {
             "reportfile": report_path.split(os.sep)[-1],
             "garak_version": garak_version,
             "start_time": start_time,
             "run_uuid": run_uuid,
-            "setup": pprint.pformat(setup, sort_dicts=True, width=60),
+            "setup": setup,
             "probespec": setup["plugins.probe_spec"],
             "model_type": setup["plugins.model_type"],
             "model_name": setup["plugins.model_name"],
             "payloads": payloads,
             "group_aggregation_function": _config.reporting.group_aggregation_function,
         }
-    )
+
+    report_digest["meta"] = header_content
+    header_content["setup"] = pprint.pformat(header_content["setup"], sort_dicts=True, width=60),
+    digest_content = header_template.render(header_content)
+
 
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
@@ -162,6 +186,8 @@ def compile_digest(
     # let's build a dict of per-probe score
 
     for probe_group in group_names:
+
+        report_digest["probe_group"][probe_group] = {}
 
         group_score = None  # range 0.0--100.0
         res = cursor.execute(
@@ -229,6 +255,15 @@ def compile_digest(
             }
         )
 
+        report_digest["probe_group"][probe_group]["name"] = probe_group_name
+        report_digest["probe_group"][probe_group]["group_score"] = group_score
+        report_digest["probe_group"][probe_group]["group_severity"] = map_score(group_score)
+        report_digest["probe_group"][probe_group]["group_doc"] = group_doc
+        report_digest["probe_group"][probe_group]["group_link"] = group_link
+        report_digest["probe_group"][probe_group]["aggregation_function"] = group_aggregation_function
+        report_digest["probe_group"][probe_group]["probes"] = {}
+
+
         if group_score < 100.0 or _config.reporting.show_100_pass_modules:
             res = cursor.execute(
                 f"select probe_module, probe_class, min(score)*100 as s from results where probe_group='{probe_group}' group by probe_class order by s asc, probe_class asc;"
@@ -238,73 +273,84 @@ def compile_digest(
                 probe_description = plugin_docstring_to_description(
                     getattr(pm, probe_class).__doc__
                 )
+                probe_plugin_name = f"{probe_module}.{probe_class}"
                 digest_content += probe_template.render(
                     {
-                        "plugin_name": f"{probe_module}.{probe_class}",
+                        "plugin_name": probe_plugin_name,
                         "plugin_score": f"{absolute_score:.1f}%",
                         "severity": map_score(absolute_score),
                         "plugin_descr": html.escape(probe_description),
                     }
                 )
-                # print(f"\tplugin: {probe_module}.{probe_class} - {score:.1f}%")
-                if absolute_score < 100.0 or _config.reporting.show_100_pass_modules:
-                    res = cursor.execute(
-                        f"select detector, score*100 from results where probe_group='{probe_group}' and probe_class='{probe_class}' order by score asc, detector asc;"
+
+                report_digest["probe_group"][probe_group]["probes"][probe_plugin_name] = {}
+                report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["name"] = probe_plugin_name
+                report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["descr"] = probe_description
+                report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["detectors"] = {}
+                
+
+                res = cursor.execute(
+                    f"select detector, score*100 from results where probe_group='{probe_group}' and probe_class='{probe_class}' order by score asc, detector asc;"
+                )
+                for detector, score in res.fetchall():
+                    detector = re.sub(r"[^0-9A-Za-z_.]", "", detector)
+                    report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["detectors"][detector] = {}
+                    detector_module, detector_class = detector.split(".")
+                    dm = importlib.import_module(
+                        f"garak.detectors.{detector_module}"
                     )
-                    for detector, score in res.fetchall():
-                        detector = re.sub(r"[^0-9A-Za-z_.]", "", detector)
-                        detector_module, detector_class = detector.split(".")
-                        dm = importlib.import_module(
-                            f"garak.detectors.{detector_module}"
+                    detector_description = plugin_docstring_to_description(
+                        getattr(dm, detector_class).__doc__
+                    )
+
+                    zscore = calibration.get_z_score(
+                        probe_module,
+                        probe_class,
+                        detector_module,
+                        detector_class,
+                        absolute_score / 100,
+                    )
+
+                    if zscore is None:
+                        relative_defcon, relative_comment = None, None
+                        relative_score = "n/a"
+
+                    else:
+                        relative_defcon, relative_comment = (
+                            calibration.defcon_and_comment(zscore)
                         )
-                        detector_description = plugin_docstring_to_description(
-                            getattr(dm, detector_class).__doc__
-                        )
+                        relative_score = f"{zscore:+.1f}"
+                        calibration_used = True
 
-                        zscore = calibration.get_z_score(
-                            probe_module,
-                            probe_class,
-                            detector_module,
-                            detector_class,
-                            absolute_score / 100,
-                        )
+                    absolute_defcon = map_score(absolute_score)
+                    if absolute_score == 100.0:
+                        relative_defcon, absolute_defcon = 5, 5
+                    overall_severity = (
+                        min(absolute_defcon, relative_defcon)
+                        if isinstance(relative_defcon, int)
+                        else absolute_defcon
+                    )
 
-                        if zscore is None:
-                            relative_defcon, relative_comment = None, None
-                            relative_score = "n/a"
+                    probe_detector_result = {
+                        "detector_name": detector,
+                        "detector_descr": html.escape(detector_description),
+                        "absolute_score": f"{absolute_score:.1f}%",
+                        "absolute_defcon": absolute_defcon,
+                        "absolute_comment": garak.analyze.ABSOLUTE_COMMENT[
+                            absolute_defcon
+                        ],
+                        "zscore": relative_score,
+                        "zscore_defcon": relative_defcon,
+                        "zscore_comment": relative_comment,
+                        "overall_severity": overall_severity,
+                    }
 
-                        else:
-                            relative_defcon, relative_comment = (
-                                calibration.defcon_and_comment(zscore)
-                            )
-                            relative_score = f"{zscore:+.1f}"
-                            calibration_used = True
+                    report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["detectors"][detector]["name"] = dict(probe_detector_result)
 
-                        absolute_defcon = map_score(absolute_score)
-                        if absolute_score == 100.0:
-                            relative_defcon, absolute_defcon = 5, 5
-                        overall_severity = (
-                            min(absolute_defcon, relative_defcon)
-                            if isinstance(relative_defcon, int)
-                            else absolute_defcon
-                        )
-
+                    if absolute_score < 100.0 or _config.reporting.show_100_pass_modules:
                         digest_content += detector_template.render(
-                            {
-                                "detector_name": detector,
-                                "detector_descr": html.escape(detector_description),
-                                "absolute_score": f"{absolute_score:.1f}%",
-                                "absolute_defcon": absolute_defcon,
-                                "absolute_comment": garak.analyze.ABSOLUTE_COMMENT[
-                                    absolute_defcon
-                                ],
-                                "zscore": relative_score,
-                                "zscore_defcon": relative_defcon,
-                                "zscore_comment": relative_comment,
-                                "overall_severity": overall_severity,
-                            }
+                            probe_detector_result
                         )
-                        # print(f"\t\tdetector: {detector} - {score:.1f}%")
 
         digest_content += end_module.render()
 
@@ -321,13 +367,14 @@ def compile_digest(
             calibration_model_list = ", ".join(sorted(calibration_models))
             calibration_model_count = len(calibration_models)
 
-        digest_content += about_z_template.render(
-            {
-                "calibration_date": calibration_date,
-                "model_count": calibration_model_count,
-                "model_list": calibration_model_list,
-            }
-        )
+        calibration_info = {
+            "calibration_date": calibration_date,
+            "model_count": calibration_model_count,
+            "model_list": calibration_model_list,
+        }
+        report_digest["meta"]["calibration"]["info"] = calibration_info
+
+        digest_content += about_z_template.render(calibration_info)
 
     digest_content += footer_template.render()
 

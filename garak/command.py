@@ -6,6 +6,7 @@
 import logging
 import json
 import random
+import typing
 
 HINT_CHANCE = 0.25
 
@@ -110,6 +111,13 @@ def start_run():
     logging.info("reporting to %s", _config.transient.report_filename)
 
 
+def _add_summary_stats(reportfile: typing.IO):
+    # rewind a report json file
+    # extract reporting info from it by calling report_digest
+    # add a json object summary
+    reportfile.seek(0)
+    
+
 def end_run():
     import datetime
     import logging
@@ -123,7 +131,9 @@ def end_run():
         "run": _config.transient.run_id,
     }
     _config.transient.reportfile.write(json.dumps(end_object))
+    _add_summary_stats(_config.transient.reportfile)
     _config.transient.reportfile.close()
+
     print(f"📜 report closed :) {_config.transient.report_filename}")
     if _config.transient.hitlogfile:
         _config.transient.hitlogfile.close()
