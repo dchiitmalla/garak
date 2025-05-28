@@ -17,7 +17,7 @@ from garak.exception import (
     GarakException,
     RateLimitHit,
     BadGeneratorException,
-    GarakBackoffTrigger
+    GarakBackoffTrigger,
 )
 from garak.generators import Generator
 from garak.generators.openai import OpenAICompatible
@@ -275,7 +275,7 @@ class NVMultimodal(Generator):
 
         return output
 
-    @backoff.on_exception(backoff.fibo, RateLimitHit, max_value=70)
+    @backoff.on_exception(backoff.fibo, (GarakBackoffTrigger, RateLimitHit), max_value=70)
     def _call_model(
         self, prompt: str, generations_this_call: int = 1
     ) -> List[Union[str, None]]:

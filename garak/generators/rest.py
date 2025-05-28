@@ -185,7 +185,7 @@ class RestGenerator(Generator):
                 output = output.replace("$KEY", self.api_key)
         return output.replace("$INPUT", self.escape_function(text))
 
-    @backoff.on_exception(backoff.fibo, RateLimitHit, max_value=70)
+    @backoff.on_exception(backoff.fibo, (RateLimitHit, GarakBackoffTrigger), max_value=70)
     def _call_model(
         self, prompt: str, generations_this_call: int = 1
     ) -> List[Union[str, None]]:
