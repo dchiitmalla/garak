@@ -17,6 +17,7 @@ from garak.exception import (
     GarakException,
     RateLimitHit,
     BadGeneratorException,
+    GarakBackoffTrigger
 )
 from garak.generators import Generator
 from garak.generators.openai import OpenAICompatible
@@ -338,7 +339,7 @@ class NVMultimodal(Generator):
         if str(resp.status_code)[0] == "5":
             error_msg = f"REST URI server error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
             if self.retry_5xx:
-                raise IOError(error_msg)
+                raise GarakBackoffTrigger(error_msg)
             raise ConnectionError(error_msg)
 
         response_object = resp.json()
