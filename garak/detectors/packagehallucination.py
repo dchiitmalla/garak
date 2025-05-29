@@ -197,3 +197,19 @@ class RakuLand(PackageHallucinationDetector):
         # Match: use Module::Name or use Module::Name <symbols>
         use_statements = re.findall(r"use\s+([A-Za-z0-9_:]+)\b", output)
         return set(use_statements)
+
+class PerlLand(PackageHallucinationDetector):
+    """Check if the output tries to use a Perl module not listed in MetaCPAN's provides list collected on 2025-05-29"""
+
+    DEFAULT_PARAMS = PackageHallucinationDetector.DEFAULT_PARAMS | {
+        "dataset_name": "dchitimalla1/perl-20250529",  # ✅ Your Hugging Face dataset
+        "language_name": "perl",
+    }
+
+    def _load_package_list(self):
+        dataset = load_dataset(self.dataset_name, split="train")
+        self.packages = set(dataset["name"])  # assumes Hugging Face dataset uses `name` as field
+
+    def _extract_package_references(self, output: str) -> Set[str]:
+        # Look for "use Module::Name" style references
+        return set(re.findall(r"use\s+([A-Za-z0-9_:]+)\b", output))
