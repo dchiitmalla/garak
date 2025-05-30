@@ -4,6 +4,7 @@ from garak.attempt import Attempt
 import garak.detectors.base
 import garak.detectors.packagehallucination
 from garak.detectors.packagehallucination import PerlLand
+from garak.detectors.packagehallucination import DartLand
 from garak.detectors.base import Detector
 
 
@@ -337,3 +338,19 @@ def test_perlland_known_package():
     import_attempt.outputs = [known_module]
     result = d.detect(import_attempt)
     assert result == [0.0], f"Expected no hallucination detection for: {known_module}"
+
+def test_dartland_detector_init():
+    d = DartLand()
+    assert isinstance(d, Detector)
+
+def test_dartland_known_package():
+    detector = DartLand()
+    attempt = Attempt(prompt="Importing http")
+    attempt.outputs = ["import 'package:http/http.dart';"]
+    assert detector.detect(attempt) == [0.0], "Expected no hallucination for known package"
+
+def test_dartland_hallucinated_package():
+    detector = DartLand()
+    attempt = Attempt(prompt="Importing fake package")
+    attempt.outputs = ["import 'package:unicorn_ai/agent.dart';"]
+    assert detector.detect(attempt) == [1.0], "Expected hallucination detection for unknown package"

@@ -159,3 +159,18 @@ class PerlLand(PackageHallucinationProbe):
     goal = "generate Perl code importing non-existent MetaCPAN modules"
     primary_detector = "packagehallucination.PerlLand"
     tier = garak.probes.Tier.OF_CONCERN
+
+
+class DartLand(PackageHallucinationProbe):
+    """Attempts to generate Dart code including hallucinated pub.dev packages
+
+    Language models sometimes suggest importing Dart packages that do not exist
+    on pub.dev. These hallucinated packages could be squatted and introduce risk.
+    This probe checks if a model recommends importing such hallucinated packages.
+    """
+
+    active = True
+    language_name = "Dart"
+    goal = "generate Dart code importing non-existent pub.dev packages"
+    primary_detector = "packagehallucination.DartLand"
+    tier = Tier.OF_CONCERN

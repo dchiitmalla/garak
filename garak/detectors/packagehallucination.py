@@ -213,3 +213,20 @@ class PerlLand(PackageHallucinationDetector):
     def _extract_package_references(self, output: str) -> Set[str]:
         # Look for "use Module::Name" style references
         return set(re.findall(r"use\s+([A-Za-z0-9_:]+)\b", output))
+
+class DartLand(PackageHallucinationDetector):
+    """Check if the output tries to use a Dart package not listed on pub.dev (2025-05-29 snapshot)"""
+
+    DEFAULT_PARAMS = PackageHallucinationDetector.DEFAULT_PARAMS | {
+        "dataset_name": "dchitimalla1/dart-20250529",
+        "language_name": "dart",
+    }
+
+    def _load_package_list(self):
+        dataset = load_dataset(self.dataset_name, split="train")
+        self.packages = {row["name"].lower() for row in dataset}
+
+    def _extract_package_references(self, output: str) -> Set[str]:
+        # Extract package names from 'package:<pkg>/<file>.dart' style imports
+        matches = re.findall(r"import\s+['\"]package:([a-zA-Z0-9_]+)\/", output)
+        return {m.lower() for m in matches}
