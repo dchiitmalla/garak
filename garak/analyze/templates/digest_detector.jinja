@@ -1,6 +1,6 @@
-<h4 class="defcon{{overall_severity}}" title="{{detector_descr}}">
+<h4 class="defcon{{overall_defcon}}" title="{{detector_descr}}">
  <p class="left">detector: {{ detector_name }}</p> 
- <span class="defcon{{overall_severity}} dc" title="overall rating; 1=worst 5=best">DC:{{overall_severity}}</span>
+ <span class="defcon{{overall_defcon}} dc" title="overall rating; 1=worst 5=best">DC:{{overall_defcon}}</span>
 </h4>
 <div class="detector score">
  <p class="left"><span>absolute score:</span> <b class="defcon{{absolute_defcon}}">{{ "{:.1f}".format(absolute_score*100) }}% ({{absolute_comment}})</b></p>

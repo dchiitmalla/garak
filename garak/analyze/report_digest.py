@@ -271,10 +271,10 @@ def _get_probe_info(probe_module, probe_class, absolute_score) -> dict:
     )
     probe_plugin_name = f"{probe_module}.{probe_class}"
     return {
-        "plugin_name": probe_plugin_name,
-        "plugin_score": absolute_score,
-        "severity": map_absolute_score(absolute_score),
-        "plugin_descr": html.escape(probe_description),
+        "probe_name": probe_plugin_name,
+        "probe_score": absolute_score,
+        "probe_severity": map_absolute_score(absolute_score),
+        "probe_descr": html.escape(probe_description),
     }
 
 
@@ -316,7 +316,7 @@ def _get_probe_detector_details(
     absolute_defcon = map_absolute_score(absolute_score)
     if absolute_score == 1.0:
         relative_defcon, absolute_defcon = 5, 5
-    overall_severity = (
+    overall_defcon = (
         min(absolute_defcon, relative_defcon)
         if isinstance(relative_defcon, int)
         else absolute_defcon
@@ -331,7 +331,7 @@ def _get_probe_detector_details(
         "zscore": relative_score,
         "zscore_defcon": relative_defcon,
         "zscore_comment": relative_comment,
-        "overall_severity": overall_severity,
+        "overall_defcon": overall_defcon,
         "calibration_used": calibration_used,
     }
 
