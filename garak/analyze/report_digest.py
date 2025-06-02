@@ -67,45 +67,6 @@ def plugin_docstring_to_description(docstring):
     return docstring.split("\n")[0]
 
 
-def _extract_report_object(reportfile: IO, config=_config) -> dict:
-    """
-    digest_object structure
-
-    meta: garak_version, calibration_info, config_info, run_name, ..
-    probe_group: name, description
-        probe: name, tags, description
-            detector: name, description, attempt_count, passes_count, skip_count, relative_score, relative_defcon, absolute_score, relative_defcon
-    """
-    report_digest = {
-        "meta": {},
-        "probe_group": {},
-    }
-
-    init, setup, payloads, evals = _parse_report(reportfile)
-
-    calibration = garak.analyze.calibration.Calibration()
-    calibration_used = False
-
-    report_digest["meta"]["calibration"] = calibration.metadata
-
-    header_content = {
-        "reportfile": report_path.split(os.sep)[-1],
-        "garak_version": garak_version,
-        "start_time": start_time,
-        "run_uuid": run_uuid,
-        "setup": setup,
-        "probespec": setup["plugins.probe_spec"],
-        "model_type": setup["plugins.model_type"],
-        "model_name": setup["plugins.model_name"],
-        "payloads": payloads,
-        "group_aggregation_function": config.reporting.group_aggregation_function,
-    }
-
-    report_digest["meta"] = header_content
-
-    return report_digest
-
-
 def _parse_report(reportfile: IO):
     reportfile.seek(0)
 
@@ -389,6 +350,7 @@ def _get_calibration_info(calibration):
     }
 
 
+
 def compile_digest(
     report_path,
     taxonomy=_config.reporting.taxonomy,
@@ -396,6 +358,10 @@ def compile_digest(
 ):
 
     html_digest_content = ""
+    report_digest = {
+        "meta": {},
+        "eval": [],
+    }
 
     with open(report_path, "r", encoding="utf-8") as reportfile:
         init, setup, payloads, evals = _parse_report(reportfile)
@@ -404,6 +370,7 @@ def compile_digest(
     calibration_used = False
 
     header_content = _report_header_content(report_path, init, setup, payloads, _config)
+    report_digest["meta"] = header_content
     header_content["setup"] = (
         pprint.pformat(header_content["setup"], sort_dicts=True, width=60),
     )
@@ -413,11 +380,13 @@ def compile_digest(
     group_names = _get_report_grouping(cursor)
 
     for probe_group in group_names:
-        # report_digest["probe_group"][probe_group] = {}
+        report_digest["eval"][probe_group] = {}
+
         group_score, aggregation_unknown = _get_group_aggregate_score(
             cursor, probe_group, group_aggregation_function
         )
         group_info = _get_group_info(probe_group, group_score, taxonomy)
+        report_digest["eval"][probe_group]["_summary"] = group_info
 
         if aggregation_unknown:
             group_info[
@@ -425,28 +394,29 @@ def compile_digest(
             ] += " (unrecognised, used 'minimum')"
         group_info["show_top_group_score"] = _config.reporting.show_top_group_score
         html_digest_content += group_template.render(group_info)
-        # report_digest["probe_group"][probe_group]["probes"] = {}
 
-        if group_score < 1.0 or _config.reporting.show_100_pass_modules:
-            probe_result_summaries = _get_probe_result_summaries(cursor, probe_group)
-            for probe_module, probe_class, absolute_score in probe_result_summaries:
+        probe_result_summaries = _get_probe_result_summaries(cursor, probe_group)
+        for probe_module, probe_class, absolute_score in probe_result_summaries:
+            report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"] = {}
 
-                probe_info = _get_probe_info(probe_module, probe_class, absolute_score)
+            probe_info = _get_probe_info(probe_module, probe_class, absolute_score)
+            report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"]["_summary"] = probe_info
+            if group_score < 1.0 or _config.reporting.show_100_pass_modules:
                 html_digest_content += probe_template.render(probe_info)
-                # report_digest["probe_group"][probe_group]["probes"][probe_plugin_name] = probe_info
 
-                detectors_info = _get_detectors_info(cursor, probe_group, probe_class)
-                for detector, absolute_score in detectors_info:
-                    # report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["detectors"][detector] = {}
+            detectors_info = _get_detectors_info(cursor, probe_group, probe_class)
+            for detector, absolute_score in detectors_info:
 
-                    probe_detector_result = _get_probe_detector_details(
-                        probe_module, probe_class, detector, absolute_score, calibration
-                    )
-                    if probe_detector_result["calibration_used"]:
-                        calibration_used = True
+                probe_detector_result = _get_probe_detector_details(
+                    probe_module, probe_class, detector, absolute_score, calibration
+                )
 
-                    # report_digest["probe_group"][probe_group]["probes"][probe_plugin_name]["detectors"][detector]["name"] = dict(probe_detector_result)
+                report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][detector] = probe_detector_result
 
+                if probe_detector_result["calibration_used"]:
+                    calibration_used = True
+
+                if group_score < 1.0 or _config.reporting.show_100_pass_modules:
                     if (
                         probe_detector_result["absolute_score"] < 1.0
                         or _config.reporting.show_100_pass_modules
@@ -461,7 +431,7 @@ def compile_digest(
 
     if calibration_used:
         calibration_info = _get_calibration_info(calibration)
-        # report_digest["meta"]["calibration"]["info"] = calibration_info
+        report_digest["meta"]["calibration"] = calibration_info
 
         html_digest_content += about_z_template.render(calibration_info)
 
