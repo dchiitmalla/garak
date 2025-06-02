@@ -263,9 +263,12 @@ def list_config():
         _enumerate_obj_values(getattr(_config, section))
 
 
-def write_report_digest(report_filename, digest_filename):
+def write_report_digest(report_filename, html_report_filename):
     from garak.analyze import report_digest
 
-    digest = report_digest.compile_html_digest(report_filename)
-    with open(digest_filename, "w", encoding="utf-8") as f:
-        f.write(digest)
+    digest = report_digest.build_digest(report_filename)
+    with open(report_filename, "a+", encoding="utf-8") as report_file:
+        report_digest._append_report_object(report_file, digest)
+    html_report = report_digest.compile_html_digest(digest)
+    with open(html_report_filename, "w", encoding="utf-8") as f:
+        f.write(html_report)

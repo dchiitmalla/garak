@@ -1,5 +1,5 @@
 
-<button class="defcon{{severity}} accordion"><b>{{ group }}</b>{% if show_top_group_score %} <span title="{{group_aggregation_function}}">- {{ "{:.1f}".format(score*100) }}% </span>{%endif%}</button>
+<button class="defcon{{group_defcon}} accordion"><b>{{ group }}</b>{% if show_top_group_score %} <span title="{{group_aggregation_function}}">- {{ "{:.1f}".format(score*100) }}% </span>{%endif%}</button>
 <div class="panel">
 <!-- <p>{{doc}}</p> -->
 {%if group_score != "100.0%"%}

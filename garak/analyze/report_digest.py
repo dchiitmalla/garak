@@ -249,7 +249,7 @@ def _get_group_info(probe_group, group_score, taxonomy, config=_config) -> dict:
     group_info = {
         "group": probe_group_name,
         "score": group_score,
-        "severity": map_absolute_score(group_score),
+        "group_defcon": map_absolute_score(group_score),
         "doc": group_doc,
         "group_link": group_link,
         "group_aggregation_function": config.reporting.group_aggregation_function,
@@ -368,13 +368,12 @@ def _append_report_object(reportfile: IO, object: dict):
     reportfile.write(json.dumps(object))
 
 
-def compile_html_digest(
-    report_path,
-    taxonomy=_config.reporting.taxonomy,
-    group_aggregation_function=_config.reporting.group_aggregation_function,
-):
+def build_digest(report_path, config=_config):
 
-    html_digest_content = ""
+    # taxonomy = config.reporting.taxonomy
+    group_aggregation_function = config.reporting.group_aggregation_function
+    taxonomy = config.reporting.taxonomy
+
     report_digest = {
         "entry_type": "digest",
         "meta": {},
@@ -389,13 +388,11 @@ def compile_html_digest(
 
     header_content = _report_header_content(report_path, init, setup, payloads, _config)
     report_digest["meta"] = header_content
-    header_content["setup"] = pprint.pformat(
-        header_content["setup"], sort_dicts=True, width=60
-    )
-    html_digest_content += header_template.render(header_content)
 
-    conn, cursor = _init_populate_result_db(evals, taxonomy=taxonomy)
+    conn, cursor = _init_populate_result_db(evals, taxonomy)
     group_names = _get_report_grouping(cursor)
+
+    aggregation_unknown = False
 
     for probe_group in group_names:
         report_digest["eval"][probe_group] = {}
@@ -403,30 +400,24 @@ def compile_html_digest(
         group_score, aggregation_unknown = _get_group_aggregate_score(
             cursor, probe_group, group_aggregation_function
         )
+        if aggregation_unknown:
+            aggregation_unknown = True
         group_info = _get_group_info(probe_group, group_score, taxonomy)
         report_digest["eval"][probe_group]["_summary"] = group_info
 
-        if aggregation_unknown:
-            group_info[
-                "group_aggregation_function"
-            ] += " (unrecognised, used 'minimum')"
-        group_info["show_top_group_score"] = _config.reporting.show_top_group_score
-        html_digest_content += group_template.render(group_info)
-
         probe_result_summaries = _get_probe_result_summaries(cursor, probe_group)
-        for probe_module, probe_class, absolute_score in probe_result_summaries:
+        for probe_module, probe_class, group_absolute_score in probe_result_summaries:
             report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"] = {}
 
-            probe_info = _get_probe_info(probe_module, probe_class, absolute_score)
+            probe_info = _get_probe_info(
+                probe_module, probe_class, group_absolute_score
+            )
             report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][
                 "_summary"
             ] = probe_info
-            if group_score < 1.0 or _config.reporting.show_100_pass_modules:
-                html_digest_content += probe_template.render(probe_info)
 
             detectors_info = _get_detectors_info(cursor, probe_group, probe_class)
             for detector, absolute_score in detectors_info:
-
                 probe_detector_result = _get_probe_detector_details(
                     probe_module, probe_class, detector, absolute_score, calibration
                 )
@@ -438,10 +429,61 @@ def compile_html_digest(
                 if probe_detector_result["calibration_used"]:
                     calibration_used = True
 
-                if group_score < 1.0 or _config.reporting.show_100_pass_modules:
+    _close_result_db(conn)
+
+    report_digest["meta"]["calibration_used"] = calibration_used
+    report_digest["meta"]["aggregation_unknown"] = aggregation_unknown
+    if calibration_used:
+        calibration_info = _get_calibration_info(calibration)
+        report_digest["meta"]["calibration"] = calibration_info
+
+    return report_digest
+
+
+def compile_html_digest(report_digest, config=_config):
+    # taxonomy = config.reporting.taxonomy
+    # group_aggregation_function = config.reporting.group_aggregation_function
+
+    html_digest_content = ""
+
+    header_content = report_digest["meta"]
+    header_content["setup"] = pprint.pformat(
+        header_content["setup"], sort_dicts=True, width=60
+    )
+    html_digest_content += header_template.render(header_content)
+
+    group_names = report_digest["eval"].keys()
+    for probe_group in group_names:
+        group_info = report_digest["eval"][probe_group]["_summary"]
+
+        if report_digest["meta"]["aggregation_unknown"]:
+            group_info[
+                "group_aggregation_function"
+            ] += " (unrecognised, used 'minimum')"
+        group_info["show_top_group_score"] = config.reporting.show_top_group_score
+
+        html_digest_content += group_template.render(group_info)
+
+        probe_module = probe_group  # drop taxonomy support - move to presentation layer
+        if group_info["score"] < 1.0 or config.reporting.show_100_pass_modules:
+            for probe_name in report_digest["eval"][probe_group].keys():
+                if probe_name == "_summary":
+                    continue
+                probe_info = report_digest["eval"][probe_group][probe_name]["_summary"]
+                html_digest_content += probe_template.render(probe_info)
+
+                detector_names = report_digest["eval"][probe_group][probe_name].keys()
+                for detector_name in detector_names:
+                    if detector_name == "_summary":
+                        continue
+
+                    probe_detector_result = report_digest["eval"][probe_group][
+                        probe_name
+                    ][detector_name]
+
                     if (
                         probe_detector_result["absolute_score"] < 1.0
-                        or _config.reporting.show_100_pass_modules
+                        or config.reporting.show_100_pass_modules
                     ):
                         html_digest_content += detector_template.render(
                             probe_detector_result
@@ -449,21 +491,26 @@ def compile_html_digest(
 
         html_digest_content += end_module.render()
 
-    _close_result_db(conn)
-
-    if calibration_used:
-        calibration_info = _get_calibration_info(calibration)
-        report_digest["meta"]["calibration"] = calibration_info
-
-        html_digest_content += about_z_template.render(calibration_info)
+    if report_digest["meta"]["calibration_used"]:
+        html_digest_content += about_z_template.render(
+            report_digest["meta"]["calibration"]
+        )
 
     html_digest_content += footer_template.render()
 
-    if not digest_present:
-        with open(report_path, "a+", encoding="utf-8") as reportfile:
-            _append_report_object(reportfile, report_digest)
-
     return html_digest_content
+
+
+def _get_digest(report_path):
+    with open(report_path, "r", encoding="utf-8") as reportfile:
+        last_entry = reportfile.readlines()[-1]
+        try:
+            entry = json.loads(last_entry)
+        except:
+            return False
+        if entry["entry_type"] != "digest":
+            return False
+        return entry
 
 
 if __name__ == "__main__":
@@ -472,5 +519,12 @@ if __name__ == "__main__":
     taxonomy = None
     if len(sys.argv) == 3:
         taxonomy = sys.argv[2]
-    digest_content = compile_html_digest(report_path, taxonomy=taxonomy)
+
+    digest = _get_digest(report_path)
+    if not digest:
+        digest = build_digest(report_path)
+        with open(report_path, "a+", encoding="utf-8") as reportfile:
+            _append_report_object(reportfile, digest)
+
+    digest_content = compile_html_digest(digest)
     print(digest_content)
