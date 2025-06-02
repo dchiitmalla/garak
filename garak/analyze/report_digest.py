@@ -287,7 +287,7 @@ def _get_detectors_info(cursor, probe_group, probe_class) -> List[tuple]:
 
 
 def _get_probe_detector_details(
-    probe_module, probe_class, detector, absolute_score, calibration
+    probe_module, probe_class, detector, absolute_score, calibration, probe_tier
 ) -> dict:
     calibration_used = False
     detector = re.sub(r"[^0-9A-Za-z_.]", "", detector)
@@ -317,11 +317,14 @@ def _get_probe_detector_details(
     absolute_defcon = map_absolute_score(absolute_score)
     if absolute_score == 1.0:
         relative_defcon, absolute_defcon = 5, 5
-    overall_defcon = (
-        min(absolute_defcon, relative_defcon)
-        if isinstance(relative_defcon, int)
-        else absolute_defcon
-    )
+    if probe_tier == 1:
+        detector_defcon = (
+            min(absolute_defcon, relative_defcon)
+            if isinstance(relative_defcon, int)
+            else absolute_defcon
+        )
+    else:
+        detector_defcon = relative_defcon
 
     return {
         "detector_name": detector,
@@ -332,7 +335,7 @@ def _get_probe_detector_details(
         "zscore": relative_score,
         "zscore_defcon": relative_defcon,
         "zscore_comment": relative_comment,
-        "overall_defcon": overall_defcon,
+        "detector_defcon": detector_defcon,
         "calibration_used": calibration_used,
     }
 
@@ -419,7 +422,12 @@ def build_digest(report_path, config=_config):
             detectors_info = _get_detectors_info(cursor, probe_group, probe_class)
             for detector, absolute_score in detectors_info:
                 probe_detector_result = _get_probe_detector_details(
-                    probe_module, probe_class, detector, absolute_score, calibration
+                    probe_module,
+                    probe_class,
+                    detector,
+                    absolute_score,
+                    calibration,
+                    probe_info["probe_tier"],
                 )
 
                 report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][
@@ -434,8 +442,7 @@ def build_digest(report_path, config=_config):
     report_digest["meta"]["calibration_used"] = calibration_used
     report_digest["meta"]["aggregation_unknown"] = aggregation_unknown
     if calibration_used:
-        calibration_info = _get_calibration_info(calibration)
-        report_digest["meta"]["calibration"] = calibration_info
+        report_digest["meta"]["calibration"] = _get_calibration_info(calibration)
 
     return report_digest
 
@@ -528,3 +535,7 @@ if __name__ == "__main__":
 
     digest_content = compile_html_digest(digest)
     print(digest_content)
+
+    # overrides to consider:
+    # - use [env or digest-calculated] calibration
+    # - use [env or digest-calculated] bounds
