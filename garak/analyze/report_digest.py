@@ -275,6 +275,7 @@ def _get_probe_info(probe_module, probe_class, absolute_score) -> dict:
         "probe_score": absolute_score,
         "probe_severity": map_absolute_score(absolute_score),
         "probe_descr": html.escape(probe_description),
+        "probe_tier": getattr(pm, probe_class).tier,
     }
 
 
