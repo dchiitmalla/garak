@@ -3,6 +3,7 @@
 """Generate reports from garak report JSONL"""
 
 from collections import defaultdict
+import datetime
 import html
 import importlib
 import json
@@ -74,6 +75,7 @@ def _parse_report(reportfile: IO):
     payloads = []
     setup = defaultdict(str)
     init = {}
+    digest_present = False
 
     for line in reportfile:
         record = json.loads(line.strip())
@@ -93,8 +95,10 @@ def _parse_report(reportfile: IO):
                 + "  "
                 + pprint.pformat(record, sort_dicts=True, width=60)
             )
+        elif record["entry_type"] == "digest":
+            digest_present = True
 
-    return init, setup, payloads, evals
+    return init, setup, payloads, evals, digest_present
 
 
 def _report_header_content(report_path, init, setup, payloads, config=_config) -> dict:
@@ -109,12 +113,13 @@ def _report_header_content(report_path, init, setup, payloads, config=_config) -
         "model_name": setup["plugins.model_name"],
         "payloads": payloads,
         "group_aggregation_function": config.reporting.group_aggregation_function,
+        "report_digest_time": datetime.datetime.now().isoformat(),
     }
 
     return header_content
 
 
-def _init_populate_result_db(evals, taxonomy=None) -> sqlite3.Cursor:
+def _init_populate_result_db(evals, taxonomy=None):
 
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
@@ -175,7 +180,7 @@ def _get_report_grouping(cursor) -> List[str]:
 
 def _get_group_aggregate_score(
     cursor, probe_group, aggregation_function
-) -> (float, bool):
+) -> tuple[float, bool]:
 
     unknown_function = False
     group_score = None  # range 0.0--1.0
@@ -350,8 +355,19 @@ def _get_calibration_info(calibration):
     }
 
 
+def _append_report_object(reportfile: IO, object: dict):
+    reportfile.seek(0)
+    last_char = reportfile.read()[
+        -1
+    ]  # dissatisfied with this (speed), but seeking last char unsupported for text files
+    if last_char not in "\n\r":  # catch if we need to make a new line
+        reportfile.seek(0, os.SEEK_END)
+        reportfile.write("\n")
+    reportfile.seek(0, os.SEEK_END)
+    reportfile.write(json.dumps(object))
 
-def compile_digest(
+
+def compile_html_digest(
     report_path,
     taxonomy=_config.reporting.taxonomy,
     group_aggregation_function=_config.reporting.group_aggregation_function,
@@ -359,20 +375,21 @@ def compile_digest(
 
     html_digest_content = ""
     report_digest = {
+        "entry_type": "digest",
         "meta": {},
-        "eval": [],
+        "eval": {},
     }
 
     with open(report_path, "r", encoding="utf-8") as reportfile:
-        init, setup, payloads, evals = _parse_report(reportfile)
+        init, setup, payloads, evals, digest_present = _parse_report(reportfile)
 
     calibration = garak.analyze.calibration.Calibration()
     calibration_used = False
 
     header_content = _report_header_content(report_path, init, setup, payloads, _config)
     report_digest["meta"] = header_content
-    header_content["setup"] = (
-        pprint.pformat(header_content["setup"], sort_dicts=True, width=60),
+    header_content["setup"] = pprint.pformat(
+        header_content["setup"], sort_dicts=True, width=60
     )
     html_digest_content += header_template.render(header_content)
 
@@ -400,7 +417,9 @@ def compile_digest(
             report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"] = {}
 
             probe_info = _get_probe_info(probe_module, probe_class, absolute_score)
-            report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"]["_summary"] = probe_info
+            report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][
+                "_summary"
+            ] = probe_info
             if group_score < 1.0 or _config.reporting.show_100_pass_modules:
                 html_digest_content += probe_template.render(probe_info)
 
@@ -411,7 +430,9 @@ def compile_digest(
                     probe_module, probe_class, detector, absolute_score, calibration
                 )
 
-                report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][detector] = probe_detector_result
+                report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][
+                    detector
+                ] = probe_detector_result
 
                 if probe_detector_result["calibration_used"]:
                     calibration_used = True
@@ -437,6 +458,10 @@ def compile_digest(
 
     html_digest_content += footer_template.render()
 
+    if not digest_present:
+        with open(report_path, "a+", encoding="utf-8") as reportfile:
+            _append_report_object(reportfile, report_digest)
+
     return html_digest_content
 
 
@@ -446,5 +471,5 @@ if __name__ == "__main__":
     taxonomy = None
     if len(sys.argv) == 3:
         taxonomy = sys.argv[2]
-    digest_content = compile_digest(report_path, taxonomy=taxonomy)
+    digest_content = compile_html_digest(report_path, taxonomy=taxonomy)
     print(digest_content)

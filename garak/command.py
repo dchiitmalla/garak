@@ -117,8 +117,7 @@ def _add_summary_stats(reportfile: typing.IO):
     # add a json object summary
     reportfile.seek(0)
     import garak.analyze.report_digest as report_digest
-    
-    
+
 
 def end_run():
     import datetime
@@ -132,7 +131,7 @@ def end_run():
         "end_time": datetime.datetime.now().isoformat(),
         "run": _config.transient.run_id,
     }
-    _config.transient.reportfile.write(json.dumps(end_object))
+    _config.transient.reportfile.write(json.dumps(end_object) + "\n")
     _add_summary_stats(_config.transient.reportfile)
     _config.transient.reportfile.close()
 
@@ -267,6 +266,6 @@ def list_config():
 def write_report_digest(report_filename, digest_filename):
     from garak.analyze import report_digest
 
-    digest = report_digest.compile_digest(report_filename)
+    digest = report_digest.compile_html_digest(report_filename)
     with open(digest_filename, "w", encoding="utf-8") as f:
         f.write(digest)
