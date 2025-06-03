@@ -34,7 +34,7 @@ def build_score_dict(filenames):
                     value = float(r["passed"]) / r["total"]
                     eval_scores[key].append(value)
                 else:
-                    print(f"invalid result check {filename} for {key}")
+                    print(f"invalid result check {filename} for {key}: total tests was 0")
 
     distribution_dict = {}
     for key in eval_scores:
