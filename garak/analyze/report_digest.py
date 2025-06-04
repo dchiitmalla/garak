@@ -13,7 +13,7 @@ import pprint
 import re
 import statistics
 import sys
-from typing import IO, List
+from typing import IO, List, Union
 
 import jinja2
 import sqlite3
@@ -75,10 +75,8 @@ def _parse_report(reportfile: IO):
     payloads = []
     setup = defaultdict(str)
     init = {}
-    digest_present = False
 
-    for line in reportfile:
-        record = json.loads(line.strip())
+    for record in [json.loads(line.strip()) for line in reportfile if line.strip()]:
         if record["entry_type"] == "eval":
             evals.append(record)
         elif record["entry_type"] == "init":
@@ -95,10 +93,8 @@ def _parse_report(reportfile: IO):
                 + "  "
                 + pprint.pformat(record, sort_dicts=True, width=60)
             )
-        elif record["entry_type"] == "digest":
-            digest_present = True
 
-    return init, setup, payloads, evals, digest_present
+    return init, setup, payloads, evals
 
 
 def _report_header_content(report_path, init, setup, payloads, config=_config) -> dict:
@@ -359,16 +355,16 @@ def _get_calibration_info(calibration):
     }
 
 
-def _append_report_object(reportfile: IO, object: dict):
+def append_report_object(reportfile: IO, object: dict):
     end_val = reportfile.seek(0, os.SEEK_END)
-    reportfile.seek(end_val-1)
+    reportfile.seek(end_val - 1)
     last_char = reportfile.read()
     if last_char not in "\n\r":  # catch if we need to make a new line
         reportfile.write("\n")
     reportfile.write(json.dumps(object))
 
 
-def build_digest(report_path, config=_config):
+def build_digest(report_filename: str, config=_config):
 
     # taxonomy = config.reporting.taxonomy
     group_aggregation_function = config.reporting.group_aggregation_function
@@ -380,13 +376,15 @@ def build_digest(report_path, config=_config):
         "eval": {},
     }
 
-    with open(report_path, "r", encoding="utf-8") as reportfile:
-        init, setup, payloads, evals, digest_present = _parse_report(reportfile)
+    with open(report_filename, "r", encoding="utf-8") as reportfile:
+        init, setup, payloads, evals = _parse_report(reportfile)
 
     calibration = garak.analyze.calibration.Calibration()
     calibration_used = False
 
-    header_content = _report_header_content(report_path, init, setup, payloads, _config)
+    header_content = _report_header_content(
+        report_filename, init, setup, payloads, _config
+    )
     report_digest["meta"] = header_content
 
     conn, cursor = _init_populate_result_db(evals, taxonomy)
@@ -397,10 +395,10 @@ def build_digest(report_path, config=_config):
     for probe_group in group_names:
         report_digest["eval"][probe_group] = {}
 
-        group_score, aggregation_unknown = _get_group_aggregate_score(
+        group_score, group_aggregation_unknown = _get_group_aggregate_score(
             cursor, probe_group, group_aggregation_function
         )
-        if aggregation_unknown:
+        if group_aggregation_unknown:
             aggregation_unknown = True
         group_info = _get_group_info(probe_group, group_score, taxonomy)
         report_digest["eval"][probe_group]["_summary"] = group_info
@@ -444,77 +442,72 @@ def build_digest(report_path, config=_config):
     return report_digest
 
 
-def compile_html_digest(report_digest, config=_config):
+def build_html(digest: dict, config=_config):
     # taxonomy = config.reporting.taxonomy
     # group_aggregation_function = config.reporting.group_aggregation_function
 
-    html_digest_content = ""
+    html_report_content = ""
 
-    header_content = report_digest["meta"]
+    header_content = digest["meta"]
     header_content["setup"] = pprint.pformat(
         header_content["setup"], sort_dicts=True, width=60
     )
-    html_digest_content += header_template.render(header_content)
+    header_content["now"] = datetime.datetime.now().isoformat()
+    html_report_content += header_template.render(header_content)
 
-    group_names = report_digest["eval"].keys()
+    group_names = digest["eval"].keys()
     for probe_group in group_names:
-        group_info = report_digest["eval"][probe_group]["_summary"]
+        group_info = digest["eval"][probe_group]["_summary"]
 
-        if report_digest["meta"]["aggregation_unknown"]:
+        if digest["meta"]["aggregation_unknown"]:
             group_info[
                 "group_aggregation_function"
             ] += " (unrecognised, used 'minimum')"
         group_info["show_top_group_score"] = config.reporting.show_top_group_score
 
-        html_digest_content += group_template.render(group_info)
+        html_report_content += group_template.render(group_info)
 
         probe_module = probe_group  # drop taxonomy support - move to presentation layer
         if group_info["score"] < 1.0 or config.reporting.show_100_pass_modules:
-            for probe_name in report_digest["eval"][probe_group].keys():
+            for probe_name in digest["eval"][probe_group].keys():
                 if probe_name == "_summary":
                     continue
-                probe_info = report_digest["eval"][probe_group][probe_name]["_summary"]
-                html_digest_content += probe_template.render(probe_info)
+                probe_info = digest["eval"][probe_group][probe_name]["_summary"]
+                html_report_content += probe_template.render(probe_info)
 
-                detector_names = report_digest["eval"][probe_group][probe_name].keys()
+                detector_names = digest["eval"][probe_group][probe_name].keys()
                 for detector_name in detector_names:
                     if detector_name == "_summary":
                         continue
 
-                    probe_detector_result = report_digest["eval"][probe_group][
-                        probe_name
-                    ][detector_name]
+                    probe_detector_result = digest["eval"][probe_group][probe_name][
+                        detector_name
+                    ]
 
                     if (
                         probe_detector_result["absolute_score"] < 1.0
                         or config.reporting.show_100_pass_modules
                     ):
-                        html_digest_content += detector_template.render(
+                        html_report_content += detector_template.render(
                             probe_detector_result
                         )
 
-        html_digest_content += end_module.render()
+        html_report_content += end_module.render()
 
-    if report_digest["meta"]["calibration_used"]:
-        html_digest_content += about_z_template.render(
-            report_digest["meta"]["calibration"]
-        )
+    if digest["meta"]["calibration_used"]:
+        html_report_content += about_z_template.render(digest["meta"]["calibration"])
 
-    html_digest_content += footer_template.render()
+    html_report_content += footer_template.render()
 
-    return html_digest_content
+    return html_report_content
 
 
-def _get_digest(report_path):
+def _get_report_digest(report_path):
     with open(report_path, "r", encoding="utf-8") as reportfile:
-        last_entry = reportfile.readlines()[-1]
-        try:
-            entry = json.loads(last_entry)
-        except:
-            return False
-        if entry["entry_type"] != "digest":
-            return False
-        return entry
+        for entry in [json.loads(line.strip()) for line in reportfile if line.strip()]:
+            if entry["entry_type"] == "digest":
+                return entry
+    return False
 
 
 if __name__ == "__main__":
@@ -524,13 +517,14 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         taxonomy = sys.argv[2]
 
-    digest = _get_digest(report_path)
+    digest = _get_report_digest(report_path)
     if not digest:
         digest = build_digest(report_path)
-        with open(report_path, "a+", encoding="utf-8") as reportfile:
-            _append_report_object(reportfile, digest)
+        if _config.reporting.write_digests_to_existing_reports:
+            with open(report_path, "a+", encoding="utf-8") as reportfile:
+                append_report_object(reportfile, digest)
 
-    digest_content = compile_html_digest(digest)
+    digest_content = build_html(digest)
     print(digest_content)
 
     # overrides to consider:

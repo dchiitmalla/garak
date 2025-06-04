@@ -124,7 +124,6 @@ def end_run():
         "run": _config.transient.run_id,
     }
     _config.transient.reportfile.write(json.dumps(end_object) + "\n")
-    _add_summary_stats(_config.transient.reportfile)
     _config.transient.reportfile.close()
 
     print(f"📜 report closed :) {_config.transient.report_filename}")
@@ -260,7 +259,7 @@ def write_report_digest(report_filename, html_report_filename):
 
     digest = report_digest.build_digest(report_filename)
     with open(report_filename, "a+", encoding="utf-8") as report_file:
-        report_digest._append_report_object(report_file, digest)
-    html_report = report_digest.compile_html_digest(digest)
-    with open(html_report_filename, "w", encoding="utf-8") as f:
-        f.write(html_report)
+        report_digest.append_report_object(report_file, digest)
+    html_report = report_digest.build_html(digest)
+    with open(html_report_filename, "w", encoding="utf-8") as htmlfile:
+        htmlfile.write(html_report)
