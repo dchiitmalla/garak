@@ -459,15 +459,13 @@ def build_html(digest: dict, config=_config):
     for probe_group in group_names:
         group_info = digest["eval"][probe_group]["_summary"]
 
-        if digest["meta"]["aggregation_unknown"]:
-            group_info[
-                "group_aggregation_function"
-            ] += " (unrecognised, used 'minimum')"
+        group_info["unrecognised_aggregation_function"] = digest["meta"][
+            "aggregation_unknown"
+        ]
         group_info["show_top_group_score"] = config.reporting.show_top_group_score
 
         html_report_content += group_template.render(group_info)
 
-        probe_module = probe_group  # drop taxonomy support - move to presentation layer
         if group_info["score"] < 1.0 or config.reporting.show_100_pass_modules:
             for probe_name in digest["eval"][probe_group].keys():
                 if probe_name == "_summary":
