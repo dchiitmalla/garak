@@ -360,14 +360,11 @@ def _get_calibration_info(calibration):
 
 
 def _append_report_object(reportfile: IO, object: dict):
-    reportfile.seek(0)
-    last_char = reportfile.read()[
-        -1
-    ]  # dissatisfied with this (speed), but seeking last char unsupported for text files
+    end_val = reportfile.seek(0, os.SEEK_END)
+    reportfile.seek(end_val-1)
+    last_char = reportfile.read()
     if last_char not in "\n\r":  # catch if we need to make a new line
-        reportfile.seek(0, os.SEEK_END)
         reportfile.write("\n")
-    reportfile.seek(0, os.SEEK_END)
     reportfile.write(json.dumps(object))
 
 
