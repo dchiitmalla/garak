@@ -111,14 +111,6 @@ def start_run():
     logging.info("reporting to %s", _config.transient.report_filename)
 
 
-def _add_summary_stats(reportfile: typing.IO):
-    # rewind a report json file
-    # extract reporting info from it by calling report_digest
-    # add a json object summary
-    reportfile.seek(0)
-    import garak.analyze.report_digest as report_digest
-
-
 def end_run():
     import datetime
     import logging
