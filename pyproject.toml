@@ -101,6 +101,7 @@ dependencies = [
   "langdetect==1.0.9",
   "tiktoken>=0.7.0",
   "mistralai==1.5.2",
+  "pillow>=10.4.0",
 ]
 
 [project.optional-dependencies]
