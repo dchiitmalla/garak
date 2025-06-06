@@ -2,7 +2,6 @@
 
 """Generate reports from garak report JSONL"""
 
-import argparse
 from collections import defaultdict
 import datetime
 import html
@@ -510,6 +509,8 @@ def _get_report_digest(report_path):
 
 
 if __name__ == "__main__":
+    import argparse
+
     sys.stdout.reconfigure(encoding="utf-8")
 
     parser = argparse.ArgumentParser(
