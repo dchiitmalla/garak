@@ -39,4 +39,3 @@ reporting:
   show_100_pass_modules: true
   show_top_group_score: true
   group_aggregation_function: lower_quartile
-  write_digests_to_existing_reports: false

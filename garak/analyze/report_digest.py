@@ -2,6 +2,7 @@
 
 """Generate reports from garak report JSONL"""
 
+import argparse
 from collections import defaultdict
 import datetime
 import html
@@ -383,7 +384,7 @@ def build_digest(report_filename: str, config=_config):
     calibration_used = False
 
     header_content = _report_header_content(
-        report_filename, init, setup, payloads, _config
+        report_filename, init, setup, payloads, config
     )
     report_digest["meta"] = header_content
 
@@ -510,20 +511,56 @@ def _get_report_digest(report_path):
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
-    report_path = sys.argv[1]
-    taxonomy = None
-    if len(sys.argv) == 3:
-        taxonomy = sys.argv[2]
+
+    parser = argparse.ArgumentParser(
+        description="Generate reports from garak report JSONL.",
+        prog="python -m garak.analyze.report_digest",
+        epilog="See https://github.com/NVIDIA/garak",
+    )
+    parser.add_argument(
+        "--report_path",
+        "-r",
+        help="Path to the report JSONL file",
+        required=True,
+    )
+    parser.add_argument(
+        "--output_path",
+        "-o",
+        help="Optional output path for the HTML report",
+    )
+    parser.add_argument(
+        "--write_digest_suffix",
+        "-w",
+        action="store_true",
+        help="Write digest to the report if absent",
+    )
+    parser.add_argument(
+        "--taxonomy",
+        "-t",
+        help="Optional taxonomy to use for grouping probes",
+    )
+
+    args = parser.parse_args()
+
+    report_path = args.report_path
+    output_path = args.output_path
+    write_digest_suffix = args.write_digest_suffix
+    taxonomy = args.taxonomy
 
     digest = _get_report_digest(report_path)
     if not digest:
         digest = build_digest(report_path)
-        if _config.reporting.write_digests_to_existing_reports:
+        if write_digest_suffix:
             with open(report_path, "a+", encoding="utf-8") as reportfile:
                 append_report_object(reportfile, digest)
+                print(f"Report digest appended to {report_path}", file=sys.stderr)
 
     digest_content = build_html(digest)
-    print(digest_content)
+    if output_path:
+        with open(output_path, "w", encoding="utf-8") as output_file:
+            output_file.write(digest_content)
+    else:
+        print(digest_content)
 
     # overrides to consider:
     # - use [env or digest-calculated] calibration
