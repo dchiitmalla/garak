@@ -7559,58 +7559,6 @@
       "supports_multiple_generations": false,
       "mod_time": "2025-02-28 21:51:23 +0000"
     },
-    "generators.octo.InferenceEndpoint": {
-      "description": "Interface for OctoAI private endpoints",
-      "DEFAULT_PARAMS": {
-        "max_tokens": 128,
-        "temperature": 0.1,
-        "top_k": null,
-        "context_len": null,
-        "skip_seq_start": null,
-        "skip_seq_end": null,
-        "presence_penalty": 0,
-        "top_p": 1
-      },
-      "active": true,
-      "generator_family_name": "OctoAI",
-      "modality": {
-        "in": [
-          "text"
-        ],
-        "out": [
-          "text"
-        ]
-      },
-      "parallel_capable": true,
-      "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
-    },
-    "generators.octo.OctoGenerator": {
-      "description": "Interface for OctoAI public endpoints",
-      "DEFAULT_PARAMS": {
-        "max_tokens": 128,
-        "temperature": 0.1,
-        "top_k": null,
-        "context_len": null,
-        "skip_seq_start": null,
-        "skip_seq_end": null,
-        "presence_penalty": 0,
-        "top_p": 1
-      },
-      "active": true,
-      "generator_family_name": "OctoAI",
-      "modality": {
-        "in": [
-          "text"
-        ],
-        "out": [
-          "text"
-        ]
-      },
-      "parallel_capable": true,
-      "supports_multiple_generations": false,
-      "mod_time": "2025-02-28 21:51:23 +0000"
-    },
     "generators.ollama.OllamaGenerator": {
       "description": "Interface for Ollama endpoints",
       "DEFAULT_PARAMS": {
