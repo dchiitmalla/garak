@@ -183,7 +183,7 @@ class Vision(NVOpenAIChat):
         return text
 
 
-class NVMultimodal(Generator):
+class NVMultimodal(NVOpenAIChat):
     """Wrapper for text + image / audio to text NIMs. Expects NIM_API_KEY environment variable.
 
     Expects keys to be a dict with keys 'text' (required), and 'image' or 'audio' (optional).
@@ -191,172 +191,66 @@ class NVMultimodal(Generator):
     followed by <img> and/or <audio> tags ala https://build.nvidia.com/microsoft/phi-4-multimodal-instruct
     """
 
-    DEFAULT_PARAMS = Generator.DEFAULT_PARAMS | {
-        "uri": "https://integrate.api.nvidia.com/v1/chat/completions",
-        "retry_5xx": True,
+    DEFAULT_PARAMS = NVOpenAIChat.DEFAULT_PARAMS | {
         "suppressed_params": {"n", "frequency_penalty", "presence_penalty", "stop"},
         "max_input_len": 180_000,
-        "ratelimit_codes": [429],
-        "skip_codes": [],
-        "request_timeout": 60,
-        "proxies": None,
-        "verify_ssl": True,
-        "max_tokens": 512,
-        "top_p": 0.70,
-        "stream": False,
     }
 
-    ENV_VAR = "NIM_API_KEY"
-    generator_family_name = "NVMultimodal"
     modality = {"in": {"text", "image", "audio"}, "out": {"text"}}
-    uri = "https://integrate.api.nvidia.com/v1/chat/completions"
 
-    def __init__(self, name="", config_root=_config):
-        self._load_config(config_root)
-        self.name = name
-        if not hasattr(self, "headers"):
-            self.headers = {}
-        self.headers = self.headers | self._get_headers()
-        super().__init__(self.name, config_root=config_root)
+    def _prepare_prompt(self, prompt):
+        import base64
+        from pathlib import Path
 
-    def _get_headers(self):
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Accept": "application/json",
-        }
-        return headers
+        if isinstance(prompt, str):
+            prompt = {"text": prompt, "image": None, "audio": None}
+        elif isinstance(prompt, dict):
+            try:
+                prompt_string = prompt["text"]
+                data_len = 0
+            except KeyError as e:
+                logging.error("`prompt` input requires 'text' field for Generator %s" % self.name, exc_info=e)
+                raise KeyError("`prompt` input requires 'text' field for Generator %s" % self.name)
 
-    def prepare_payload(self, text: Union[str, dict]) -> dict:
-        output = {
-            "model": self.name,
-            "max_tokens": self.max_tokens,
-            "temperature": self.temperature if self.temperature is not None else 0.10,
-            "top_p": self.top_p if self.top_p is not None else 0.70,
-            "stream": False,
-        }
-
-        if isinstance(text, str):
-            output["messages"] = [{"role": "user", "content": text}]
-        elif isinstance(text, dict):
-            import base64
-            from pathlib import Path
-
-            if "text" not in text.keys():
-                raise ValueError(
-                    "NVMultiModal Generator input did not have key 'text'."
-                )
-            prompt_string = text["text"]
-            if "image" in text.keys():
-                img_extension = Path(text["image"]).suffix.replace(".", "")
-                with open(text["image"], "rb") as f:
+            if "image" in prompt.keys() and prompt["image"] is not None:
+                img_extension = Path(prompt["image"]).suffix.replace(".", "")
+                if img_extension == "jpg":  # image/jpg is not a valid mimetype
+                    image_extension = "jpeg"
+                with open(prompt["image"], "rb") as f:
                     image_b64 = base64.b64encode(f.read()).decode()
                 prompt_string += (
                     f'<img src="data:image/{img_extension};base64,{image_b64}" />'
                 )
-            if "audio" in text.keys():
-                audio_extension = Path(text["audio"]).suffix.replace(".", "")
-                with open(text["audio"], "rb") as f:
+                data_len += len(image_b64)
+            else:
+                prompt["image"] = None
+            if "audio" in prompt.keys() and prompt["audio"] is not None:
+                audio_extension = Path(prompt["audio"]).suffix.replace(".", "")
+                with open(prompt["audio"], "rb") as f:
                     audio_b64 = base64.b64encode(f.read()).decode()
                 prompt_string += (
                     f'<audio src="data:audio/{audio_extension};base64,{audio_b64}" />'
                 )
-            if len(prompt_string) <= self.max_input_len:
-                output["messages"] = [{"role": "user", "content": prompt_string}]
+                data_len += len(audio_b64)
             else:
-                logging.warning(
-                    f"Multimodal input is too large for Generator {self.name}. Skipping."
-                )
+                prompt["audio"] = None
+
+            if data_len > self.max_input_len:
+                msg = (f"Data exceeds length limit. `max_input_len` is {self.max_input_len}. "
+                       f"Current data size is {data_len}. "
+                       f"To upload larger images or audio files, use the assets API (not yet supported)")
+                if prompt["image"] is not None:
+                    msg += f" Image file: {prompt['image']}"
+                if prompt["audio"] is not None:
+                    msg += f" Audio file: {prompt['audio']}"
+                logging.error(msg)
                 return None
+            prompt["text"] = prompt_string
 
         else:
-            raise TypeError(
-                f"Expected `str` or `dict` type but got {type(text)} instead"
-            )
+            raise TypeError(f"{self.name} accepts `str` and `dict` type inputs but got {type(prompt)} instead.")
 
-        return output
-
-    @backoff.on_exception(backoff.fibo, (GarakBackoffTrigger, RateLimitHit), max_value=70)
-    def _call_model(
-        self, prompt: str, generations_this_call: int = 1
-    ) -> List[Union[str, None]]:
-        """Individual call to get a rest from the REST API
-
-        :param prompt: the input to be placed into the request template and sent to the endpoint
-        :type prompt: str
-        """
-
-        request_data = self.prepare_payload(prompt)
-        if request_data is None:
-            return [None]
-
-        request_headers = self.headers
-
-        req_kArgs = {
-            "json": request_data,
-            "headers": request_headers,
-            "timeout": self.request_timeout,
-            "proxies": self.proxies,
-            "verify": self.verify_ssl,
-        }
-        try:
-            resp = requests.post(self.uri, **req_kArgs)
-        except UnicodeEncodeError as uee:
-            # only RFC2616 (latin-1) is guaranteed
-            # don't print a repr, this might leak api keys
-            logging.error(
-                "Only latin-1 encoding supported by HTTP RFC 2616, check headers and values for unusual chars",
-                exc_info=uee,
-            )
-            raise BadGeneratorException from uee
-        except requests.exceptions.ReadTimeout as rt:
-            logging.error("Request timed out.", exc_info=rt)
-            return [None]
-
-        if resp.status_code in self.skip_codes:
-            logging.debug(
-                "REST skip prompt: %s - %s, uri: %s",
-                resp.status_code,
-                resp.reason,
-                self.uri,
-            )
-            return [None]
-
-        if resp.status_code in self.ratelimit_codes:
-            raise RateLimitHit(
-                f"Rate limited: {resp.status_code} - {resp.reason}, uri: {self.uri}"
-            )
-
-        if str(resp.status_code)[0] == "3":
-            raise NotImplementedError(
-                f"REST URI redirection: {resp.status_code} - {resp.reason}, uri: {self.uri}"
-            )
-
-        if str(resp.status_code)[0] == "4":
-            raise ConnectionError(
-                f"REST URI client error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
-            )
-
-        if str(resp.status_code)[0] == "5":
-            error_msg = f"REST URI server error: {resp.status_code} - {resp.reason}, uri: {self.uri}"
-            if self.retry_5xx:
-                raise GarakBackoffTrigger(error_msg)
-            raise ConnectionError(error_msg)
-
-        response_object = resp.json()
-        try:
-            response = [response_object["choices"][0]["message"]["content"]]
-        except KeyError as ke:
-            logging.error(
-                "Failed to find proper keys in JSON response object", exc_info=ke
-            )
-            response = [None]
-        except IndexError as ie:
-            logging.error(
-                "Failed to find properly structures JSON response object", exc_info=ie
-            )
-            response = [None]
-
-        return response
+        return [prompt]
 
 
 DEFAULT_CLASS = "NVOpenAIChat"
