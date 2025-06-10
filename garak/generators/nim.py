@@ -5,21 +5,12 @@
 
 import logging
 import random
-import os
-import requests
-import backoff
 from typing import List, Union
 
 import openai
 
 from garak import _config
-from garak.exception import (
-    GarakException,
-    RateLimitHit,
-    BadGeneratorException,
-    GarakBackoffTrigger,
-)
-from garak.generators import Generator
+from garak.exception import GarakException
 from garak.generators.openai import OpenAICompatible
 
 
@@ -142,47 +133,6 @@ class NVOpenAICompletion(NVOpenAIChat):
         self.generator = self.client.completions
 
 
-class Vision(NVOpenAIChat):
-    """Wrapper for text+image to text NIMs. Expects NIM_API_KEY environment variable.
-
-    Following generators.huggingface.LLaVa, expects prompts to be a dict with keys
-    "text" and "image"; text holds the text prompt, image holds a path to the image."""
-
-    DEFAULT_PARAMS = NVOpenAIChat.DEFAULT_PARAMS | {
-        "suppressed_params": {"n", "frequency_penalty", "presence_penalty", "stop"},
-        "max_image_len": 180_000,
-    }
-
-    modality = {"in": {"text", "image"}, "out": {"text"}}
-
-    def _prepare_prompt(self, prompt):
-        import base64
-
-        if isinstance(prompt, str):
-            prompt = {"text": prompt, "image": None}
-
-        text = prompt["text"]
-        image_filename = prompt["image"]
-        if image_filename is not None:
-            with open(image_filename, "rb") as f:
-                image_b64 = base64.b64encode(f.read()).decode()
-
-            if len(image_b64) > self.max_image_len:
-                logging.error(
-                    "Image %s exceeds length limit. To upload larger images, use the assets API (not yet supported)",
-                    image_filename,
-                )
-                return None
-
-            image_extension = prompt["image"].split(".")[-1].lower()
-            if image_extension == "jpg":  # image/jpg is not a valid mimetype
-                image_extension = "jpeg"
-            text = (
-                text + f' <img src="data:image/{image_extension};base64,{image_b64}" />'
-            )
-        return text
-
-
 class NVMultimodal(NVOpenAIChat):
     """Wrapper for text + image / audio to text NIMs. Expects NIM_API_KEY environment variable.
 
@@ -198,12 +148,12 @@ class NVMultimodal(NVOpenAIChat):
 
     modality = {"in": {"text", "image", "audio"}, "out": {"text"}}
 
-    def _prepare_prompt(self, prompt):
+    def _prepare_prompt(self, prompt: Union[str, dict]) -> str:
         import base64
         from pathlib import Path
 
         if isinstance(prompt, str):
-            prompt = {"text": prompt, "image": None, "audio": None}
+            text = prompt
         elif isinstance(prompt, dict):
             try:
                 prompt_string = prompt["text"]
@@ -245,12 +195,21 @@ class NVMultimodal(NVOpenAIChat):
                     msg += f" Audio file: {prompt['audio']}"
                 logging.error(msg)
                 return None
-            prompt["text"] = prompt_string
+            text = prompt_string
 
         else:
             raise TypeError(f"{self.name} accepts `str` and `dict` type inputs but got {type(prompt)} instead.")
 
-        return [prompt]
+        return text
+
+
+class Vision(NVMultimodal):
+    """Wrapper for text+image to text NIMs. Expects NIM_API_KEY environment variable.
+
+    Following generators.huggingface.LLaVa, expects prompts to be a dict with keys
+    "text" and "image"; text holds the text prompt, image holds a path to the image."""
+
+    modality = {"in": {"text", "image"}, "out": {"text"}}
 
 
 DEFAULT_CLASS = "NVOpenAIChat"
