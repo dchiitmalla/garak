@@ -4315,7 +4315,7 @@
         "payload:jailbreak"
       ],
       "tier": 2,
-      "mod_time": "2025-06-10 20:39:13 +0000"
+      "mod_time": "2025-06-11 16:42:59 +0000"
     },
     "probes.visual_jailbreak.FigStepFull": {
       "description": "Using another modal - image to assist jailbreak",
@@ -4342,7 +4342,7 @@
         "payload:jailbreak"
       ],
       "tier": 2,
-      "mod_time": "2025-06-10 20:39:13 +0000"
+      "mod_time": "2025-06-11 16:42:59 +0000"
     },
     "probes.xss.ColabAIDataLeakage": {
       "description": "",
