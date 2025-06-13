@@ -49,7 +49,7 @@ def llava_test_image(tmp_path):
 @pytest.fixture(autouse=True)
 def mock_hf_when_cpu(monkeypatch):
     """
-    If no CUDA or forced CPU, mock out all HF model/processor loads
+    If no CUDA, mock out all HF model/processor loads
     and device selection so tests run entirely on CPU.
     """
     if not torch.cuda.is_available():
