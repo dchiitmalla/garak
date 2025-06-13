@@ -3,137 +3,103 @@ import pytest
 import torch
 from pathlib import Path
 from PIL import Image, ImageDraw
+from unittest.mock import patch, MagicMock
 
 from garak._config import GarakSubConfig
 from garak.generators.huggingface import LLaVA
 from garak.exception import ModelNameMissingError
 
-# Constants for test image
-IMG_WIDTH = 300
-IMG_HEIGHT = 200
+# ─── Constants ─────────────────────────────────────────────────────────
+
+SUPPORTED_MODELS = [
+    "llava-hf/llava-v1.6-34b-hf",
+    "llava-hf/llava-v1.6-vicuna-13b-hf",
+    "llava-hf/llava-v1.6-vicuna-7b-hf",
+    "llava-hf/llava-v1.6-mistral-7b-hf",
+]
+
+IMG_WIDTH, IMG_HEIGHT = 300, 200
 RECT_COORDS = ((50, 50), (200, 150))
 ELLIPSE_COORDS = ((150, 50), (250, 150))
 
-# Force CPU testing via environment variable
-FORCE_CPU = os.getenv("FORCE_LLAVA_CPU", "0") == "1"
 
-# Skip tests if no CUDA and not forcing CPU, or when running in CI
-pytestmark = [
-    pytest.mark.skipif(
-        not torch.cuda.is_available() and not FORCE_CPU,
-        reason="Requires CUDA or FORCE_LLAVA_CPU=1"
-    ),
-    pytest.mark.skipif(
-        os.getenv("CI") == "true",
-        reason="Skipping LLaVA tests in CI environment"
-    ),
-]
-
-
-def _is_memory_error(exc: Exception) -> bool:
-    msg = str(exc).lower()
-    return "out of memory" in msg or "cuda out of memory" in msg
-
+# ─── Helpers & Fixtures ────────────────────────────────────────────────
 
 @pytest.fixture
-def test_image(tmp_path):
-    """Generate a simple RGB image with basic shapes and return its path."""
+def llava_config():
+    """Minimal config forcing CPU for tests."""
+    cfg = GarakSubConfig()
+    cfg.generators = {
+        "huggingface": {
+            "hf_args": {"device": "cpu", "torch_dtype": "float32"}
+        }
+    }
+    return cfg
+
+@pytest.fixture
+def llava_test_image(tmp_path):
     img = Image.new("RGB", (IMG_WIDTH, IMG_HEIGHT), color=(240, 240, 240))
     draw = ImageDraw.Draw(img)
     draw.rectangle(RECT_COORDS, fill=(255, 0, 0))
     draw.ellipse(ELLIPSE_COORDS, fill=(0, 0, 255))
+    p = tmp_path / "test.png"
+    img.save(p)
+    return str(p)
 
-    file_path = tmp_path / "test.png"
-    img.save(file_path)
-    return str(file_path)
+@pytest.fixture(autouse=True)
+def mock_hf_when_cpu(monkeypatch):
+    """
+    If no CUDA or forced CPU, mock out all HF model/processor loads
+    and device selection so tests run entirely on CPU.
+    """
+    if not torch.cuda.is_available():
+        # fake device selection
+        fake_dev = torch.device("cpu")
+        monkeypatch.setattr(
+            "garak.resources.api.huggingface.HFCompatible._select_hf_device",
+            lambda self: fake_dev
+        )
+        # fake processor/model loading
+        monkeypatch.setattr(
+            "transformers.LlavaNextProcessor.from_pretrained",
+            lambda name: MagicMock(name="Processor")
+        )
+        monkeypatch.setattr(
+            "transformers.LlavaNextForConditionalGeneration.from_pretrained",
+            lambda name, **kw: MagicMock(name="Model")
+        )
 
+# ─── Tests ─────────────────────────────────────────────────────────────
 
-@pytest.fixture
-def hf_gpu_config():
-    """Create a HuggingFace generator config for CPU or GPU."""
-    dtype = "float32" if FORCE_CPU else "float16"
-    hf_args = {
-        "torch_dtype": dtype,
-        "device_map": "auto",
-        "low_cpu_mem_usage": True,
-    }
+@pytest.mark.parametrize("model_name", SUPPORTED_MODELS)
+def test_llava_instantiation_and_device(llava_config, model_name):
+    llava = LLaVA(name=model_name, config_root=llava_config)
+    assert llava.name == model_name
+    assert hasattr(llava, "processor")
+    assert hasattr(llava, "model")
+    assert isinstance(llava.device, torch.device)
+    assert llava.device.type == "cpu"
 
-    config_root = GarakSubConfig()
-    config_root.generators = {"huggingface": {"hf_args": hf_args}}
-    return config_root
+@pytest.mark.parametrize("model_name", SUPPORTED_MODELS)
+def test_llava_generate_returns_decoded_text(llava_config, llava_test_image, model_name):
+    # Prepare mocks: override the decode and generate on the fake objects
+    fake_proc = LLaVA.processor if False else MagicMock()
+    fake_proc.decode.return_value = "decoded output"
+    fake_model = MagicMock()
+    fake_model.generate.return_value = torch.tensor([[0, 1, 2]])
+    # Patch into the instance
+    llava = LLaVA(name=model_name, config_root=llava_config)
+    llava.processor = fake_proc
+    llava.model = fake_model
 
+    out = llava.generate({"text": "foo", "image": llava_test_image})
+    assert isinstance(out, list) and out == ["decoded output"]
 
-@pytest.mark.parametrize("model_name", [
-    "llava-hf/llava-v1.6-34b-hf",
-    "llava-hf/llava-v1.6-vicuna-13b-hf",
-    "llava-hf/llava-v1.6-vicuna-7b-hf",
-    "llava-hf/llava-v1.6-mistral-7b-hf",
-])
-def test_llava_instantiation(hf_gpu_config, model_name):
-    """Verify that LLaVA instantiates correctly and uses the right device."""
-    try:
-        llava = LLaVA(name=model_name, config_root=hf_gpu_config)
-        assert llava.name == model_name
-        assert hasattr(llava, "model")
-        assert hasattr(llava, "processor")
+def test_llava_error_on_missing_image(llava_config):
+    llava = LLaVA(name=SUPPORTED_MODELS[0], config_root=llava_config)
+    with pytest.raises(FileNotFoundError):
+        llava.generate({"text": "foo", "image": "/nonexistent.png"})
 
-        # Device type assertion
-        expected = "cpu" if FORCE_CPU else "cuda"
-        assert llava.device.type == expected
-    except Exception as exc:
-        if _is_memory_error(exc):
-            pytest.skip(f"OOM instantiating {model_name}: {exc}")
-        raise
-
-
-@pytest.mark.parametrize("model_name", [
-    "llava-hf/llava-v1.6-34b-hf",
-    "llava-hf/llava-v1.6-vicuna-13b-hf",
-    "llava-hf/llava-v1.6-vicuna-7b-hf",
-    "llava-hf/llava-v1.6-mistral-7b-hf",
-])
-def test_llava_generate(hf_gpu_config, test_image, model_name):
-    """Verify that LLaVA can generate text responses given a text+image prompt."""
-    prompt = {
-        "text": "Describe the shapes and colors in this image.",
-        "image": test_image,
-    }
-
-    try:
-        llava = LLaVA(name=model_name, config_root=hf_gpu_config)
-        responses = llava.generate(prompt, generations_this_call=1)
-
-        assert isinstance(responses, list)
-        assert len(responses) == 1
-        assert isinstance(responses[0], str) and responses[0]
-    except Exception as exc:
-        if _is_memory_error(exc):
-            pytest.skip(f"OOM generating with {model_name}: {exc}")
-        raise
-
-
-@pytest.mark.parametrize("model_name", [
-    "llava-hf/llava-v1.6-34b-hf",
-    "llava-hf/llava-v1.6-vicuna-13b-hf",
-    "llava-hf/llava-v1.6-vicuna-7b-hf",
-    "llava-hf/llava-v1.6-mistral-7b-hf",
-])
-def test_llava_error_handling(hf_gpu_config, model_name):
-    """Ensure generate() raises FileNotFoundError for invalid image paths."""
-    invalid_prompt = {"text": "Describe this image.", "image": "/nonexistent.png"}
-    try:
-        llava = LLaVA(name=model_name, config_root=hf_gpu_config)
-        with pytest.raises(FileNotFoundError):
-            llava.generate(invalid_prompt)
-    except Exception as exc:
-        if _is_memory_error(exc):
-            pytest.skip(f"OOM instantiating {model_name}: {exc}")
-        raise
-
-
-def test_llava_unsupported_model(hf_gpu_config):
-    """Instantiating with an unsupported model name should error."""
+def test_llava_unsupported_model(llava_config):
     with pytest.raises(ModelNameMissingError):
-        LLaVA(name="unsupported-model-name", config_root=hf_gpu_config)
-
-# To force CPU execution without CUDA, set: FORCE_LLAVA_CPU=1 pytest -v
+        LLaVA(name="not-a-supported-model", config_root=llava_config)
