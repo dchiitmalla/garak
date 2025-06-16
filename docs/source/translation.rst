@@ -56,6 +56,13 @@ RIVA
 
     export RIVA_API_KEY=xxxx
 
+Google Cloud Translation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    export GOOGLE_APPLICATION_CREDENTIALS=<path to credential configuration json file>
+
 Configuration file
 ------------------
 
@@ -157,7 +164,7 @@ You use the following yaml config.
 
 run:
   target_lang: {target language code}
-  translators:
+  langproviders:
     - language: {source language code},{target language code}
       model_type: remote.GoogleTranslator
     - language: {target language code},{source language code}
