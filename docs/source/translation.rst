@@ -20,8 +20,8 @@ Supported translation services
     - `Helsinki-NLP/opus-mt-{<source_lang>-<target_lang>} <https://huggingface.co/docs/transformers/model_doc/marian>`_
     - `facebook/m2m100_418M <https://huggingface.co/facebook/m2m100_418M>`_
     - `facebook/m2m100_1.2B <https://huggingface.co/facebook/m2m100_1.2B>`_
-- `DeepL <https://www.deepl.com/docs-api>`__
-- `NVIDIA Riva <https://build.nvidia.com/nvidia/megatron-1b-nmt>`__
+- `DeepL <http://www.deepl.com>`_
+- `NVIDIA Riva for Developers <https://developer.nvidia.com/riva>`_
 
 API KEY Requirements
 --------------------
@@ -30,13 +30,13 @@ To use use DeepL API or Riva API to translate probe and detector keywords and tr
 
 API keys for the preferred service can be obtained in following locations:
 
-- `DeepL <https://www.deepl.com/en/pro-api>`__
-- `Riva <https://build.nvidia.com/nvidia/megatron-1b-nmt>`__
+- `DeepL Pro-API <https://www.deepl.com/en/pro-api>`_
+- `Riva on build.nvidia.com <https://build.nvidia.com/nvidia/megatron-1b-nmt>`_
 
 Supported languages for remote services:
 
-- `DeepL <https://developers.deepl.com/docs/resources/supported-languages>`__
-- `Riva <https://docs.nvidia.com/nim/riva/nmt/latest/getting-started.html#supported-languages>`__
+- `DeepL Languages Supported | DeepL API documentation <https://developers.deepl.com/docs/resources/supported-languages>`_
+- `Riva support matrix: supported languages <https://docs.nvidia.com/nim/riva/nmt/latest/getting-started.html#supported-languages>`_
 
 API keys can be stored in environment variables with the following commands:
 
@@ -63,7 +63,7 @@ Translation function is configured in the ``run`` section of a configuration wit
 ``langproviders`` - A list of language pair designated translator configurations.
 
 * Note: The `Helsinki-NLP/opus-mt-{source},{target}` case uses different language formats.
-  The language codes used to name models are inconsistent. 
+  The language codes used to name models are inconsistent.
   Two-letter codes can usually be found in the `Google Admin SDK <https://developers.google.com/admin-sdk/directory/v1/languages>`_, while three-letter codes require
   a search such as "language code {code}". More details can be found in the `OPUS-MT-train <https://github.com/Helsinki-NLP/OPUS-MT-train/tree/master/models>`_ repository.
 
@@ -81,7 +81,7 @@ The translator configuration can be written to a file and the path passed, with 
 
 An example template is provided below.
 
-.. code-block:: yaml 
+.. code-block:: yaml
 
    run:
      target_lang: <target-language-code>
@@ -89,11 +89,11 @@ An example template is provided below.
        - language: <source-language-code>,<target-language-code>
          api_key: <your-API-key>
          model_type: <translator-module-or-module.classname>
-         model_name: <huggingface-model-name> 
+         model_name: <huggingface-model-name>
        - language: <target-language-code>,<source-language-code>
          api_key: <your-API-key>
          model_type: <translator-module-or-module.classname>
-         model_name: <huggingface-model-name> 
+         model_name: <huggingface-model-name>
 
 * Note: each translator is configured for a single translation pair and specification is required in each direction for a run to proceed.
 
@@ -106,7 +106,7 @@ DeepL
 To use DeepL translation in garak, run the following command:
 You use the following yaml config.
 
-.. code-block:: yaml 
+.. code-block:: yaml
 
    run:
      target_lang: <target-language-code>
@@ -120,7 +120,7 @@ You use the following yaml config.
 .. code-block:: bash
 
    export DEEPL_API_KEY=xxxx
-   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file} 
+   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file}
 
 
 Riva
@@ -129,7 +129,7 @@ Riva
 For Riva, run the following command:
 You use the following yaml config.
 
-.. code-block:: yaml 
+.. code-block:: yaml
 
    run:
      target_lang: <target-language-code>
@@ -142,7 +142,7 @@ You use the following yaml config.
 .. code-block:: bash
 
    export RIVA_API_KEY=xxxx
-   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file} 
+   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file}
 
 
 Local
@@ -151,7 +151,7 @@ Local
 For local translation, use the following command:
 You use the following yaml config.
 
-.. code-block:: yaml 
+.. code-block:: yaml
 
    run:
      target_lang: jap
@@ -163,15 +163,15 @@ You use the following yaml config.
 
 .. code-block:: bash
 
-   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file} 
+   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file}
 
 The default configuration will load `Helsinki-NLP MarianMT <https://huggingface.co/docs/transformers/model_doc/marian>`_ models for local translation.
 
 Additional support for Huggingface ``M2M100Model`` type only is enabled by providing ``model_name`` for local translators. The model name provided must
 contain ``m2m100`` to be loaded by garak.
 
-.. code-block:: yaml 
-  
+.. code-block:: yaml
+
    run:
      target_lang: ja
      langproviders:
@@ -185,4 +185,4 @@ contain ``m2m100`` to be loaded by garak.
 
 .. code-block:: bash
 
-   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file} 
+   python3 -m garak --model_type nim --model_name meta/llama-3.1-8b-instruct --probes encoding --config {path to your yaml config file}
