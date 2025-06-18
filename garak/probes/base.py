@@ -93,7 +93,7 @@ class Probe(Configurable):
             )
             if len(self.triggers) > 0:
                 if isinstance(self.triggers[0], str):
-                    self.triggers = elf.langprovider.get_text(
+                    self.triggers = self.langprovider.get_text(
                         self.triggers, notify_callback=preparation_bar.update
                     )
                 elif isinstance(self.triggers[0], list):
