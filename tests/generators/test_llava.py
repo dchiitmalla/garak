@@ -11,12 +11,7 @@ from garak.exception import ModelNameMissingError
 
 # ─── Constants ─────────────────────────────────────────────────────────
 
-SUPPORTED_MODELS = [
-    "llava-hf/llava-v1.6-34b-hf",
-    "llava-hf/llava-v1.6-vicuna-13b-hf",
-    "llava-hf/llava-v1.6-vicuna-7b-hf",
-    "llava-hf/llava-v1.6-mistral-7b-hf",
-]
+SUPPORTED_MODELS = LLaVA.supported_models
 
 IMG_WIDTH, IMG_HEIGHT = 300, 200
 RECT_COORDS = ((50, 50), (200, 150))
