@@ -22,7 +22,7 @@ All probes will inherit from ``garak.probes.base.Probe``, exposed at package lev
 We require class docstrings in garak and enforce this requirement via a test required before merging.
 
 Probes must always inherit from ``garak.probes.base.Probe``.
-This allows probes to work nicely with `Generator` and `Attempt` objects in addition to ensuring that any `Buff`s that one might want to apply to a probe are going to work appropriately.
+This allows probes to work nicely with ``Generator`` and ``Attempt`` objects in addition to ensuring that any ``Buff``\ s that one might want to apply to a probe are going to work appropriately.
 
 The ``probe`` method of ``Probe`` objects is where the core logic of a probe lies.
 Ideally, one would need only to populate the ``prompts`` attribute of a ``Probe`` and let the ``probe`` method do the heavy lifting.
