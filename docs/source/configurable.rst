@@ -1,3 +1,4 @@
+# headings: = - ^ "
 Configuring ``garak``
 =====================
 
@@ -349,7 +350,7 @@ This function takes two parameters:
 ``load_plugin()`` returns a configured instance of the requested plugin.
 
 OpenAIGenerator config with dictionary
-""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 

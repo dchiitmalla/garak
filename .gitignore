@@ -169,3 +169,6 @@ garak_runs/
 runs/
 logs/
 .DS_Store
+
+docs/source/_build
+docs/source/html

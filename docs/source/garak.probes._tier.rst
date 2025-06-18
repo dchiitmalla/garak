@@ -1,7 +1,7 @@
 garak.probes._tier
 ==================
 
-Why are there ``Tier``s in garak? That's a good question -- why would there be tiers for anything? Implicit in this notion is the idea that an item of a higher tier is "better" for some metric. In gaming, tiers are often used to highlight characters/decks with higher win rates. 
+Why are there ``Tier``\ s in garak? That's a good question -- why would there be tiers for anything? Implicit in this notion is the idea that an item of a higher tier is "better" for some metric. In gaming, tiers are often used to highlight characters/decks with higher win rates. 
 
 So what is a tier in garak? The flippant answer is that it's a convenient way to deal with the question "What probes should I run?" -- something new users and those who don't like to spin their GPU for extended periods of time often ask. It effectively establishes a hierarchy to say "If you can only run a small number of probes, these are the most important ones". But what makes a probe important? Well, unfortunately, the best answer to that question is a classic: it depends.
 
