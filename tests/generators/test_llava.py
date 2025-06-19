@@ -96,5 +96,19 @@ def test_llava_error_on_missing_image(llava_config):
         llava.generate({"text": "foo", "image": "/nonexistent.png"})
 
 def test_llava_unsupported_model(llava_config):
-    with pytest.raises(ModelNameMissingError):
+    """Test that instantiating with an unsupported model name raises ModelNameMissingError."""
+    with pytest.raises(ModelNameMissingError) as excinfo:
         LLaVA(name="not-a-supported-model", config_root=llava_config)
+    # Verify the error message contains useful information
+    assert "not-a-supported-model" in str(excinfo.value)
+    
+def test_llava_missing_model_name(llava_config):
+    """Test that instantiating with an empty model name raises ModelNameMissingError."""
+    with pytest.raises(ModelNameMissingError):
+        LLaVA(name="", config_root=llava_config)
+        
+def test_llava_supported_models_list():
+    """Verify that all supported models are properly defined."""
+    assert len(SUPPORTED_MODELS) > 0
+    for model in SUPPORTED_MODELS:
+        assert model.startswith("llava-hf/")
