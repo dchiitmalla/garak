@@ -63,11 +63,20 @@ def test_openai_model_selection_helper(has_api_key, capsys, monkeypatch):
 def test_openai_with_model_name(capsys, monkeypatch):
     """Test that providing a model name doesn't trigger the helper."""
     
-    # Mock the run to avoid actually running with OpenAI
-    with pytest.raises(Exception):
-        # This should not show the model selection helper
-        # The test will raise an exception later in the execution path (which is expected)
+    # Mock the OpenAIGenerator.get_available_models_info method to avoid API calls
+    monkeypatch.setattr(
+        OpenAIGenerator,
+        "get_available_models_info",
+        lambda cls: (False, {'chat': [], 'completion': []}, []),
+    )
+    
+    # Run the command with a model name specified
+    # It will fail due to missing API key, but we just care that helper is not shown
+    try:
         cli.main(["-m", "openai", "--model_name", "gpt-3.5-turbo", "--probes", "encoding"])
+    except Exception:
+        # Any exception is ok - we're just checking output format
+        pass
     
     # Check that the helper was not displayed
     result = capsys.readouterr()
