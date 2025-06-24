@@ -72,6 +72,16 @@ class CompleteProbeMixin:
     active = False
     follow_prompt_cap = False
     tier = garak.probes.Tier.COMPETE_WITH_SOTA
+    goal = "replay training data by providing document completions that match training examples"
+    doc_uri = "https://arxiv.org/abs/2305.00118"
+    lang = "*"  # Works with any language
+    tags = [
+        "avid-effect:security:S0301",
+        "owasp:llm10", 
+        "owasp:llm06",
+        "quality:Security:ExtractionInversion",
+        "payload:leak:training"
+    ]
 
     def __init__(self, config_root=_config):
         super().__init__(config_root=config_root)
@@ -103,53 +113,139 @@ class NonFullMixin:
 
 # Literature
 class LiteratureClozeFull(ClozeProbeMixin, garak.probes.Probe):
+    """Test for data leakage on literature passages with masked entities in a cloze test format.
+    
+    Tests if models can fill in masked entities from literature excerpts, using the full dataset.
+    """
     source_file = "book_cloze.tsv"
 
 class LiteratureCloze(NonFullMixin, LiteratureClozeFull):
+    """Lightweight version of literature cloze test for data leakage.
+    
+    Uses a limited subset of the literature dataset to test for data leakage with masked entities.
+    """
     pass
 
 class LiteratureCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+    """Test for data leakage on literature passages through text completion.
+    
+    Tests if models can complete literature excerpts from their training data, using the full dataset.
+    """
     source_file = "book_cloze.tsv"
     tier = garak.probes.Tier.COMPETE_WITH_SOTA  # regraded to tier 2
 
 class LiteratureComplete(NonFullMixin, LiteratureCompleteFull):
-    pass
+    """Lightweight version of literature completion test for data leakage.
+    
+    Uses a limited subset of the literature dataset to test for data leakage through text completion.
+    """
+    tags = [
+        "avid-effect:security:S0301",
+        "owasp:llm10",
+        "owasp:llm06",
+        "quality:Security:ExtractionInversion",
+        "payload:leak:training"
+    ]
 
 # NYT
 class NYTClozeFull(ClozeProbeMixin, garak.probes.Probe):
+    """Test for data leakage on New York Times articles with masked entities in a cloze test format.
+    
+    Tests if models can fill in masked entities from NYT articles, using the full dataset.
+    """
     source_file = "nyt_cloze.tsv"
 
 class NYTCloze(NonFullMixin, NYTClozeFull):
+    """Lightweight version of NYT cloze test for data leakage.
+    
+    Uses a limited subset of the NYT dataset to test for data leakage with masked entities.
+    """
     pass
 
 class NYTCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+    """Test for data leakage on New York Times articles through text completion.
+    
+    Tests if models can complete NYT article excerpts from their training data, using the full dataset.
+    """
     source_file = "nyt_cloze.tsv"
 
 class NYTComplete(NonFullMixin, NYTCompleteFull):
-    pass
+    """Lightweight version of NYT completion test for data leakage.
+    
+    Uses a limited subset of the NYT dataset to test for data leakage through text completion.
+    """
+    tags = [
+        "avid-effect:security:S0301",
+        "owasp:llm10",
+        "owasp:llm06",
+        "quality:Security:ExtractionInversion",
+        "payload:leak:training"
+    ]
 
 # Guardian
 class GuardianClozeFull(ClozeProbeMixin, garak.probes.Probe):
+    """Test for data leakage on Guardian articles with masked entities in a cloze test format.
+    
+    Tests if models can fill in masked entities from Guardian articles, using the full dataset.
+    """
     source_file = "guardian_cloze.tsv"
 
 class GuardianCloze(NonFullMixin, GuardianClozeFull):
+    """Lightweight version of Guardian cloze test for data leakage.
+    
+    Uses a limited subset of the Guardian dataset to test for data leakage with masked entities.
+    """
     pass
 
 class GuardianCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+    """Test for data leakage on Guardian articles through text completion.
+    
+    Tests if models can complete Guardian article excerpts from their training data, using the full dataset.
+    """
     source_file = "guardian_cloze.tsv"
 
 class GuardianComplete(NonFullMixin, GuardianCompleteFull):
-    pass
+    """Lightweight version of Guardian completion test for data leakage.
+    
+    Uses a limited subset of the Guardian dataset to test for data leakage through text completion.
+    """
+    tags = [
+        "avid-effect:security:S0301",
+        "owasp:llm10",
+        "owasp:llm06",
+        "payload:leak:training"
+    ]
 
 # Potter
 class PotterClozeFull(ClozeProbeMixin, garak.probes.Probe):
+    """Test for data leakage on Harry Potter text with masked entities in a cloze test format.
+    
+    Tests if models can fill in masked entities from Harry Potter excerpts, using the full dataset.
+    """
     source_file = "potter_cloze.tsv"
 
 class PotterCloze(NonFullMixin, PotterClozeFull):
+    """Lightweight version of Harry Potter cloze test for data leakage.
+    
+    Uses a limited subset of the Harry Potter dataset to test for data leakage with masked entities.
+    """
     pass
 
 class PotterCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+    """Test for data leakage on Harry Potter text through completion.
+    
+    Tests if models can complete Harry Potter excerpts from their training data, using the full dataset.
+    """
     source_file = "potter_cloze.tsv"
 
 class PotterComplete(NonFullMixin, PotterCompleteFull):
-    pass
+    """Lightweight version of Harry Potter completion test for data leakage.
+    
+    Uses a limited subset of the Harry Potter dataset to test for data leakage through text completion.
+    """
+    tags = [
+        "avid-effect:security:S0301",
+        "owasp:llm10",
+        "owasp:llm06",
+        "payload:leak:training"
+    ]
