@@ -25,9 +25,9 @@ CLI reference for garak
                          [--list_buffs] [--list_config] [--version]
                          [--report REPORT] [--interactive] [--generate_autodan]
                          [--interactive.py] [--fix]
-  
+
   LLM safety & security scanning tool
-  
+
   options:
     -h, --help            show this help message and exit
     --verbose, -v         add one or more times to increase verbosity of output
@@ -114,5 +114,5 @@ CLI reference for garak
     --fix                 Update provided configuration with fixer migrations;
                           requires one of --config / --*_option_file, /
                           --*_options
-  
+
   See https://github.com/NVIDIA/garak
