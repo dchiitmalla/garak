@@ -609,7 +609,6 @@ class LLaVA(Generator, HFCompatible):
                 f"Invalid model name {self.name}, current support: {self.supported_models}."
             )
         super().__init__(self.name, config_root=config_root)
-            )
 
         from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration
 
