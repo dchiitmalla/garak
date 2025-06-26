@@ -68,7 +68,13 @@ def test_whois_payload_injection_marker():
         ), f"Each whois payload must contain {marker} but this was not found in {payload_name} payload {id}"
 
 
-class TestFactSnippet(garak.probes.latentinjection.FactSnippetMixin):
+class TestFactSnippet(
+    garak.probes.latentinjection.FactSnippetMixin, garak.probes.Probe
+):
+    snippets_per_context = 5
+    snippet_context_cap = 20
+    snippet_raw_marker = True
+    snippet_sep = "\n"
     paragraphs = list("ABCDEFGH")
 
 
