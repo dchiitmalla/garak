@@ -22,13 +22,14 @@ All probes will inherit from ``garak.probes.base.Probe``, exposed at package lev
 We require class docstrings in garak and enforce this requirement via a test required before merging.
 
 Probes must always inherit from ``garak.probes.base.Probe``.
-This allows probes to work nicely with `Generator` and `Attempt` objects in addition to ensuring that any `Buff`s that one might want to apply to a probe are going to work appropriately.
+This allows probes to work nicely with ``Generator`` and ``Attempt`` objects in addition to ensuring that any ``Buff``\ s that one might want to apply to a probe are going to work appropriately.
 
 The ``probe`` method of ``Probe`` objects is where the core logic of a probe lies.
 Ideally, one would need only to populate the ``prompts`` attribute of a ``Probe`` and let the ``probe`` method do the heavy lifting.
 However, if this logic is insufficient for a custom probe, this is where the majority of the work (and potential issues) tends to lie.
 
 .. code-block:: python
+
     def probe(self, generator) -> Iterable[garak.attempt.Attempt]:
         """attempt to exploit the target generator, returning a list of results"""
         logging.debug("probe execute: %s", self)
@@ -64,6 +65,7 @@ More often, we'll be looking at descriptive attributes of the probe.
 From the base class:
 
 .. code-block:: python
+
     # docs uri for a description of the probe (perhaps a paper)
     doc_uri: str = ""
     # language this is for, in BCP47 format; * for all langs
@@ -100,6 +102,7 @@ Many of these are decent defaults, though there are a few that we absolutely wan
 * ``primary_detector``: What ``Detector`` should your probe use?
 
 .. code-block:: python
+
     class MyNewProbe(garak.probes.Probe):
         """
         Probe to do something naughty to a language model
@@ -124,6 +127,7 @@ Once the logic for our probe is written, you'll want to test it before opening a
 Typically, a good place to start is by seeing if your probe can be imported!
 
 .. code-block:: bash
+
     $ conda activate garak
     $ python
     $ python
@@ -138,6 +142,7 @@ Otherwise, try to address the encountered errors.
 Let's try running our new probe against a HuggingFace ``Pipeline`` using ``meta-llama/Llama-2-7b-chat-hf``, a notoriously tricky model to get to behave badly.
 
 .. code-block:: bash
+
   $ garak -m huggingface -n meta-llama/Llama-2-7b-chat-hf -p mynewprobe.MyNewProbe
 
 If it all runs well, you'll get a log and a hitlog file, which tell you how successful your new probe was!
