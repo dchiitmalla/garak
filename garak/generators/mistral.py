@@ -1,10 +1,7 @@
-DEFAULT_CLASS = "MistralGenerator"
-import os
 import backoff
 from garak.generators.base import Generator
 import garak._config as _config
 from mistralai import Mistral, models
-from garak import exception
 
 
 class MistralGenerator(Generator):
@@ -54,3 +51,6 @@ class MistralGenerator(Generator):
             ],
         )
         return [chat_response.choices[0].message.content]
+
+
+DEFAULT_CLASS = "MistralGenerator"

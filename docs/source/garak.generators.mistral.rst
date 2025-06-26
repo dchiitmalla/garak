@@ -1,4 +1,5 @@
 garak.generators.mistral
+========================
 
 .. automodule:: garak.generators.mistral
    :members:
