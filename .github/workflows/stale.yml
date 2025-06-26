@@ -6,10 +6,20 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
-  contents: write # only for delete-branch option
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  # This action can update/close issues
   issues: write
-  pull-requests: write
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
 
 jobs:
   stale:
