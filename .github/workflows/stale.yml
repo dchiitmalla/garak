@@ -16,6 +16,7 @@ permissions:
   discussions: none
   packages: none
   pages: none
+  # disable updating PRs for now
   pull-requests: none
   repository-projects: none
   security-events: none
@@ -25,13 +26,13 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - name: Close Stale Issues
+      - name: Handle stale issues
         uses: actions/stale@v9.1.0
         with:
           days-before-stale: 90
           days-before-close: 14
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
           stale-issue-label: "stale"
-          stale-pr-label: "stale"
           close-issue-label: "closed"
-          close-pr-label: "closed"
-          days-before-pr-close: 30
+          stale-issue-message: "This issue has been automatically marked as stale because it has not had recent activity. If you are still interested in this issue, please respond to keep it open. Thank you!"
