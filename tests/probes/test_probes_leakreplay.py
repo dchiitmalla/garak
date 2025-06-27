@@ -111,4 +111,9 @@ def test_all_leakreplay_classes():
             processed = probe._postprocess_hook(test_attempt)
             # Check that name tags are properly removed (part of postprocessing)
             assert "<name>" not in processed.messages[0][-1]["content"]
+            for prompt in probe.prompts:
+                assert "%s" not in prompt, f"{probe_class.__name__} still has passage replacement marker %s in prompt"
+                assert "[MASK]" in prompt, f"{probe_class.__name__} missing [MASK] in prompt, '{prompt}'"
+                
+
 
