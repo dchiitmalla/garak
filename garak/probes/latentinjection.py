@@ -5,7 +5,9 @@
 
 import logging
 import random
+import tqdm
 
+import garak.resources.theme
 from garak import _config
 from garak.attempt import Attempt
 import garak.payloads
@@ -72,7 +74,16 @@ class LatentInjectionMixin:
                 del self.prompts[id]
                 del self.triggers[id]
 
-        self.triggers = self.langprovider.get_text(self.triggers)
+        preparation_bar = tqdm.tqdm(
+            total=len(self.triggers),
+            leave=False,
+            colour=f"#{garak.resources.theme.LANGPROVIDER_RGB}",
+            desc="Preparing triggers",
+        )
+        self.triggers = self.langprovider.get_text(
+            self.triggers, notify_callback=preparation_bar.update
+        )
+        preparation_bar.close()
 
     def _attempt_prestore_hook(self, attempt: Attempt, seq: int) -> Attempt:
         attempt.notes["triggers"] = [self.triggers[seq]]
