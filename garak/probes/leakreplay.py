@@ -50,7 +50,7 @@ class ClozeProbeMixin:
                     continue
                 trigger, passage = row
                 self.triggers.append(trigger)
-                self.prompts.append(prompt_template % passage)
+                self.prompts.append(prompt_template.replace("%s", passage))
         self.triggers = self.langprovider.get_text(self.triggers)
         if self.follow_prompt_cap:
             self._prune_data(self.soft_probe_prompt_cap, prune_triggers=True)
@@ -139,13 +139,6 @@ class LiteratureComplete(NonFullMixin, LiteratureCompleteFull):
     
     Uses a limited subset of the literature dataset to test for data leakage through text completion.
     """
-    tags = [
-        "avid-effect:security:S0301",
-        "owasp:llm10",
-        "owasp:llm06",
-        "quality:Security:ExtractionInversion",
-        "payload:leak:training"
-    ]
 
 # NYT
 class NYTClozeFull(ClozeProbeMixin, garak.probes.Probe):
@@ -174,13 +167,6 @@ class NYTComplete(NonFullMixin, NYTCompleteFull):
     
     Uses a limited subset of the NYT dataset to test for data leakage through text completion.
     """
-    tags = [
-        "avid-effect:security:S0301",
-        "owasp:llm10",
-        "owasp:llm06",
-        "quality:Security:ExtractionInversion",
-        "payload:leak:training"
-    ]
 
 # Guardian
 class GuardianClozeFull(ClozeProbeMixin, garak.probes.Probe):
@@ -209,12 +195,6 @@ class GuardianComplete(NonFullMixin, GuardianCompleteFull):
     
     Uses a limited subset of the Guardian dataset to test for data leakage through text completion.
     """
-    tags = [
-        "avid-effect:security:S0301",
-        "owasp:llm10",
-        "owasp:llm06",
-        "payload:leak:training"
-    ]
 
 # Potter
 class PotterClozeFull(ClozeProbeMixin, garak.probes.Probe):
@@ -243,9 +223,3 @@ class PotterComplete(NonFullMixin, PotterCompleteFull):
     
     Uses a limited subset of the Harry Potter dataset to test for data leakage through text completion.
     """
-    tags = [
-        "avid-effect:security:S0301",
-        "owasp:llm10",
-        "owasp:llm06",
-        "payload:leak:training"
-    ]
