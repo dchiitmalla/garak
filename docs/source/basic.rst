@@ -61,10 +61,8 @@ The :doc:`harnesses` manage orchestration of a ``garak`` run. They select probes
 detectors, and co-ordinate running probes, passing results to detectors, and
 doing the final evaluation
 
-
-
-
 .. automodule:: garak._plugins
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
