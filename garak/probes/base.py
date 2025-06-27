@@ -88,7 +88,7 @@ class Probe(Configurable):
             preparation_bar = tqdm.tqdm(
                 total=len(self.triggers),
                 leave=False,
-                colour=f"#{garak.resources.theme.PROBE_RGB}",
+                colour=f"#{garak.resources.theme.LANGPROVIDER_RGB}",
                 desc="Preparing triggers",
             )
             if len(self.triggers) > 0:
@@ -288,7 +288,7 @@ class Probe(Configurable):
         preparation_bar = tqdm.tqdm(
             total=len(prompts),
             leave=False,
-            colour=f"#{garak.resources.theme.PROBE_RGB}",
+            colour=f"#{garak.resources.theme.LANGPROVIDER_RGB}",
             desc="Preparing prompts",
         )
         if isinstance(prompts[0], str):

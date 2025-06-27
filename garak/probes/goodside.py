@@ -169,7 +169,7 @@ class Tag(garak.probes.Probe):
         preparation_bar = tqdm.tqdm(
             attempt_descrs,
             leave=False,
-            colour=f"#{garak.resources.theme.PROBE_RGB}",
+            colour=f"#{garak.resources.theme.LANGPROVIDER_RGB}",
             desc="Preparing descriptions",
         )
         for descr in preparation_bar:
@@ -254,7 +254,7 @@ class Tag(garak.probes.Probe):
         preparation_bar = tqdm.tqdm(
             total=len(self.triggers),
             leave=False,
-            colour=f"#{garak.resources.theme.PROBE_RGB}",
+            colour=f"#{garak.resources.theme.LANGPROVIDER_RGB}",
             desc="Preparing triggers",
         )
         self.triggers = self.langprovider.get_text(
