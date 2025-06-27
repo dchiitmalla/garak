@@ -1,10 +1,10 @@
 garak.probes
 ============
 
-garak's probes each define a number of ways of testing a generator (typically an LLM) 
+garak's probes each define a number of ways of testing a generator (typically an LLM)
 for a specific vulnerability or failure mode.
 
-For a detailed oversight into how a probe operates, see :ref:`garak.probes.base.rst`.
+For a detailed oversight into how a probe operates, see :doc:`garak.probes.base`.
 
 .. toctree::
    :maxdepth: 2
@@ -42,4 +42,3 @@ For a detailed oversight into how a probe operates, see :ref:`garak.probes.base.
    garak.probes.xss
    garak.probes.visual_jailbreak
    garak.probes._tier
-   
