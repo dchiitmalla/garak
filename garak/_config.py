@@ -383,50 +383,78 @@ _EXCLUDED_CONFIG_FIELDS: Set[str] = {
 }
 
 
-def serialize_config() -> Dict[str, Any]:
-    """
-    Centralized function to serialize garak configuration, excluding sensitive and unnecessary data.
+def serialize_config(include_transient: bool = False) -> Dict[str, Any]:
+    """Serializes the current config to support run reproducibility.
     
-    This function handles serializing the configuration in a way that:
-    1. Excludes API keys, secrets, and other sensitive data
-    2. Excludes implementation details, constants, and runtime objects
-    3. Includes only the data necessary to reproduce a run
+    Returns a dictionary with all config values necessary to reproduce a run,
+    while excluding sensitive data like API keys, constants, and implementation details.
+    
+    Args:
+        include_transient: If True, include relevant transient values that might be 
+                          useful for auditing. Default is False (reproducibility mode).
     
     Returns:
-        Dict[str, Any]: A dictionary containing the serialized configuration
+        Dict[str, Any]: Dictionary of config values suitable for serialization
     """
-    # Create base dictionary with entry type
     config_dict = {"entry_type": "start_run setup"}
     
-    # Helper function to determine if a value is serializable
-    def is_serializable(value: Any) -> bool:
-        return type(value) in (
-            str, int, float, bool, dict, tuple, list, set, type(None)
-        ) or isinstance(value, (str, int, float, bool, dict, tuple, list, set))
+    # Constants and sensitive values to exclude
+    _EXCLUDED_CONFIG_FIELDS = [
+        # Sensitive patterns
+        "api_key", "apikey", "token", "password", "secret",
+        # Constants and internal details
+        "CONFIG_FILES", "CONFIG_DIR", "USER_CONFIG_FILE", "DEFAULT_CONFIG_FILE",
+        "osname", "loaded", "_defaults"
+    ]
     
-    # Helper function to check if a field should be excluded
     def should_exclude(key: str) -> bool:
-        # Check direct matches
-        if key in _EXCLUDED_CONFIG_FIELDS:
+        """Check if a key should be excluded from serialization."""
+        # Skip private attributes (except _config itself)
+        if key.startswith('_') and key != '_config':
+            return True
+        
+        # Skip functions, classes, etc.
+        if callable(globals().get(key)):
+            return True
+        
+        # Check if it's a constant (all uppercase with underscores)
+        # but allow some constants that might be important for reproducibility
+        if key.isupper() and key not in ["VERSION"]:
             return True
             
-        # Check for API keys with partial matching
-        key_lower = key.lower()
-        if any(term in key_lower for term in ["api_key", "password", "secret", "token"]):
-            return True
-            
-        # Exclude private members
-        if key.startswith("_") and key != "_config":
-            return True
-            
+        # Skip excluded fields and known patterns
+        for pattern in _EXCLUDED_CONFIG_FIELDS:
+            if pattern in key.lower():
+                return True
+        
         return False
     
-    # Process top-level attributes of _config
+    def is_serializable(value: Any) -> bool:
+        """Check if a value can be safely serialized to JSON."""
+        if value is None:
+            return True
+        
+        # Handle basic types
+        if isinstance(value, (str, int, float, bool)):
+            return True
+        
+        # Handle collections
+        if isinstance(value, (list, tuple)):
+            return all(is_serializable(item) for item in value)
+        
+        if isinstance(value, dict):
+            return (all(isinstance(k, str) for k in value.keys()) and
+                   all(is_serializable(v) for v in value.values()))
+        
+        # Reject all other types
+        return False
+    
+    # Process top-level config attributes
     for k, v in globals().items():
         if k[:2] != "__" and is_serializable(v) and not should_exclude(k):
             config_dict[f"_config.{k}"] = v
     
-    # Process attributes in the main config submodules
+    # Process submodules
     for subset in "system run plugins reporting".split():
         if subset in globals():
             subset_obj = globals()[subset]
@@ -434,20 +462,44 @@ def serialize_config() -> Dict[str, Any]:
                 if k[:2] != "__" and is_serializable(v) and not should_exclude(k):
                     config_dict[f"{subset}.{k}"] = v
     
-    # Include only specific transient values that matter for reproducibility
+    # Handle plugin configuration specially
+    if "plugins" in globals():
+        # Ensure we capture all plugin-specific configuration
+        if hasattr(plugins, "plugin_info") and plugins.plugin_info:
+            plugin_config = {}
+            for plugin_type, plugin_list in plugins.plugin_info.items():
+                for plugin_name, _ in plugin_list.items():
+                    # Get plugin-specific config key
+                    plugin_key = f"{plugin_type}.{plugin_name}"
+                    if hasattr(plugins, plugin_key):
+                        plugin_config[plugin_key] = getattr(plugins, plugin_key)
+            
+            # Add plugin configuration if any was found
+            if plugin_config:
+                config_dict["plugins.specific"] = plugin_config
+    
+    # Include transient values based on parameter
     if "transient" in globals():
+        # Always include these for reproducibility
+        essential_transient = ["run_id", "config_dir", "data_dir", "cache_dir"]
+        
         for k, v in transient.__dict__.items():
-            if k in ["run_id", "config_dir", "data_dir", "cache_dir", "report_filename"] and is_serializable(v):
+            # Include essential transient values or all relevant ones if include_transient=True
+            if (k in essential_transient or 
+                (include_transient and k not in ["reportfile", "logfile"] and is_serializable(v))):
                 config_dict[f"transient.{k}"] = v
     
     return config_dict
 
 
-def serialize_config_to_json() -> str:
-    """
-    Serialize the config and return it as a JSON string.
+def serialize_config_to_json(include_transient: bool = False) -> str:
+    """Serialize the config and return it as a JSON string.
+    
+    Args:
+        include_transient: If True, include relevant transient values that might be 
+                          useful for auditing. Default is False (reproducibility mode).
     
     Returns:
         str: JSON representation of the serialized config
     """
-    return json.dumps(serialize_config(), ensure_ascii=False)
+    return json.dumps(serialize_config(include_transient), ensure_ascii=False)
