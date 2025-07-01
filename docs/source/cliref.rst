@@ -3,7 +3,7 @@ CLI reference for garak
 
 ::
 
-  garak LLM vulnerability scanner v0.11.1.pre1 ( https://github.com/NVIDIA/garak ) at 2025-05-27T19:55:52.735863
+  garak LLM vulnerability scanner v0.12.0 ( https://github.com/NVIDIA/garak ) at 2025-07-01T12:13:36.187367
   usage: python -m garak [-h] [--verbose] [--report_prefix REPORT_PREFIX]
                          [--narrow_output]
                          [--parallel_requests PARALLEL_REQUESTS]
@@ -25,9 +25,9 @@ CLI reference for garak
                          [--list_buffs] [--list_config] [--version]
                          [--report REPORT] [--interactive] [--generate_autodan]
                          [--interactive.py] [--fix]
-
+  
   LLM safety & security scanning tool
-
+  
   options:
     -h, --help            show this help message and exit
     --verbose, -v         add one or more times to increase verbosity of output
@@ -114,5 +114,5 @@ CLI reference for garak
     --fix                 Update provided configuration with fixer migrations;
                           requires one of --config / --*_option_file, /
                           --*_options
-
+  
   See https://github.com/NVIDIA/garak

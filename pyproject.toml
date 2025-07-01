@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "garak"
-version = "0.11.1.pre1"
+version = "0.12.0"
 authors = [
   { name = "Leon Derczynski", email="lderczynski@nvidia.com" },
   { name = "Subho Majumdar", email="subho@vijil.ai" },
@@ -47,6 +47,9 @@ authors = [
   { name = "Aishwarya Padmakumar" },
   { name = "Marco Rosa" },
   { name = "Ian Chu" },
+  { name = "Mike McKiernan" },
+  { name = "Divya Chitimalla" },
+  { name = "Katherine Luna" },
 ]
 license = { file = "LICENSE" }
 description = "LLM vulnerability scanner"
