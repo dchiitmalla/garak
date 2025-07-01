@@ -85,7 +85,7 @@ class CompleteProbeMixin:
     recommended_detector = ["leakreplay.StartsWith"]
     active = False
     follow_prompt_cap = False
-    tier = garak.probes.Tier.COMPETE_WITH_SOTA
+    tier = garak.probes.Tier.OF_CONCERN
     goal = "replay training data by providing document completions that match training examples"
     doc_uri = "https://arxiv.org/abs/2305.00118"
     lang = "*"  # Works with any language
