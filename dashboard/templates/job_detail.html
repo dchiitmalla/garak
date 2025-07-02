@@ -212,10 +212,18 @@
             
             <div class="col-md-8">
                 <!-- Results Card (visible when job is complete) -->
-                {% if job.status == 'completed' and job.report_path %}
+                {% if job.status == 'completed' %}
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title">Evaluation Results</h5>
+                        <ul class="nav nav-tabs card-header-tabs mt-2" id="reportTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="report-html-tab" data-bs-toggle="tab" href="#report-html" role="tab">HTML Report</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="report-summary-tab" data-bs-toggle="tab" href="#report-summary" role="tab">Summary</a>
+                            </li>
+                        </ul>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info">
@@ -223,34 +231,55 @@
                             Results are available for download. Use the download buttons to get the full JSON report or raw data.
                         </div>
                         
-                        <div class="table-responsive">
-                            <table class="table table-hover results-table">
-                                <thead>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Probe</th>
-                                        <th>Vulnerabilities</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- This would be populated from the actual JSON report data -->
-                                    <tr class="vulnerability-high">
-                                        <td>Security</td>
-                                        <td>dan.DanInTheWild</td>
-                                        <td>5 detected</td>
-                                    </tr>
-                                    <tr class="vulnerability-medium">
-                                        <td>Privacy</td>
-                                        <td>leakreplay.PotterComplete</td>
-                                        <td>3 detected</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Robustness</td>
-                                        <td>encoding.InjectZalgo</td>
-                                        <td>0 detected</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="tab-content" id="reportTabsContent">
+                            <!-- HTML Report Tab -->
+                            <div class="tab-pane fade show active" id="report-html" role="tabpanel">
+                                {% if html_report %}
+                                <div class="html-report-container">
+                                    <iframe id="htmlReportFrame" style="width: 100%; height: 700px; border: 1px solid #ddd; border-radius: 4px;"
+                                        srcdoc="{{ html_report|e }}">
+                                    </iframe>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    HTML report is not available for this job.
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Summary Tab -->
+                            <div class="tab-pane fade" id="report-summary" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-hover results-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Probe</th>
+                                                <th>Vulnerabilities</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- This would be populated from the actual JSON report data -->
+                                            <tr class="vulnerability-high">
+                                                <td>Security</td>
+                                                <td>dan.DanInTheWild</td>
+                                                <td>5 detected</td>
+                                            </tr>
+                                            <tr class="vulnerability-medium">
+                                                <td>Privacy</td>
+                                                <td>leakreplay.PotterComplete</td>
+                                                <td>3 detected</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Robustness</td>
+                                                <td>encoding.InjectZalgo</td>
+                                                <td>0 detected</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,15 +291,41 @@
                         <h5 class="card-title">Console Output</h5>
                     </div>
                     <div class="card-body">
-                        {% if job.status == 'pending' %}
-                        <div class="alert alert-warning">
-                            <i class="bi bi-hourglass-split me-2"></i>
-                            Job is pending execution. Output will be displayed when it starts.
+                        {% if job.status == 'pending' or job.status == 'running' %}
+                        <div class="alert alert-info mt-3" role="alert">
+                            <i class="bi bi-hourglass-split me-2"></i>Job is {{ job.status }}...
+                            <span id="refreshStatus" class="spinner-border spinner-border-sm ms-2" role="status" style="display: none;"></span>
                         </div>
-                        {% elif job.status == 'running' %}
+                        <!-- Progress tracking section -->
+                        <div class="mt-3" id="progressTracking">
+                            <h6 class="mb-1">Progress: <span id="progressPercent">0</span>%</h6>
+                            <div class="progress mb-2">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                    role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span id="progressItems">Initializing...</span>
+                                <span id="timeRemaining">Calculating...</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-1">
+                                <span id="elapsedTime"></span>
+                                <span id="estimatedCompletion"></span>
+                            </div>
+                        </div>
                         <div class="alert alert-primary">
                             <i class="bi bi-arrow-repeat me-2"></i>
                             Job is currently running. Output will refresh automatically.
+                        </div>
+                        {% elif job.status == 'completed' %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Job has completed successfully.
+                        </div>
+                        {% elif job.status == 'failed' %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Job has failed. See output below for details.
                         </div>
                         {% endif %}
                         
@@ -290,24 +345,64 @@
             if (jobStatus === 'pending' || jobStatus === 'running') {
                 document.getElementById('refreshStatus').style.display = 'inline-block';
                 
-                // Refresh every 5 seconds
+                // Update progress information
+                function updateProgress() {
+                    fetch('/api/job_progress/{{ job_id }}')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update progress bar
+                            const progressPercent = data.progress || 0;
+                            document.getElementById('progressPercent').textContent = Math.round(progressPercent);
+                            const progressBar = document.getElementById('progressBar');
+                            progressBar.style.width = progressPercent + '%';
+                            progressBar.setAttribute('aria-valuenow', progressPercent);
+                            
+                            // Update item counts if available
+                            if (data.completed_items && data.total_items) {
+                                document.getElementById('progressItems').textContent = 
+                                    `${data.completed_items} of ${data.total_items} items processed`;
+                            }
+                            
+                            // Update time estimates
+                            if (data.time_remaining) {
+                                document.getElementById('timeRemaining').textContent = 
+                                    `Estimated time remaining: ${data.time_remaining}`;
+                            }
+                            
+                            if (data.elapsed_time) {
+                                document.getElementById('elapsedTime').textContent = 
+                                    `Elapsed time: ${data.elapsed_time}`;
+                            }
+                            
+                            // If job completed during our check, refresh the page
+                            if (data.completed) {
+                                window.location.reload();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error updating progress:', error);
+                        });
+                }
+                
+                // Initial update and then every 3 seconds
+                updateProgress();
+                const progressInterval = setInterval(updateProgress, 3000);
+                
+                // Also check job status separately
                 const refreshInterval = setInterval(function() {
                     fetch('/api/job_status/{{ job_id }}')
                         .then(response => response.json())
                         .then(data => {
-                            if (data.status === 'success') {
-                                const job = data.job;
-                                
-                                // Update console output
-                                if (job.output) {
-                                    document.getElementById('consoleOutput').textContent = job.output;
-                                }
-                                
-                                // If job is no longer running, refresh the page to show final results
-                                if (job.status !== 'pending' && job.status !== 'running') {
-                                    clearInterval(refreshInterval);
-                                    window.location.reload();
-                                }
+                            // Update console output if available
+                            if (data.output) {
+                                document.getElementById('consoleOutput').textContent = data.output;
+                            }
+                            
+                            // If job is no longer running, refresh the page to show final results
+                            if (data.status !== 'pending' && data.status !== 'running') {
+                                clearInterval(refreshInterval);
+                                clearInterval(progressInterval);
+                                window.location.reload();
                             }
                         })
                         .catch(error => {
