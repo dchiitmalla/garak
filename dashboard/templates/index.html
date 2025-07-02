@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garak LLM Evaluation Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            padding: 1rem 1.25rem;
+        }
+        .card-title {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .category-switch {
+            margin: 10px 0;
+        }
+        .scenarios-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            font-weight: normal;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+        }
+        .nav-pills .nav-link {
+            color: #495057;
+        }
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        #loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            text-align: center;
+            padding-top: 20%;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-2">Starting evaluation job...</div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock-fill me-2"></i>
+                Garak LLM Evaluation Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/jobs">Jobs</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Create Evaluation</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Model Configuration -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-cpu me-2"></i>Model
+                        </h5>
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Model settings help">
+                            <i class="bi bi-question-circle"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills mb-3" id="modelTypePills" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="supported-tab" data-bs-toggle="pill" data-bs-target="#supported" type="button" role="tab" aria-controls="supported" aria-selected="true">Supported Models</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="custom-tab" data-bs-toggle="pill" data-bs-target="#custom" type="button" role="tab" aria-controls="custom" aria-selected="false">Custom Model</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="modelTypePillsContent">
+                            <div class="tab-pane fade show active" id="supported" role="tabpanel" aria-labelledby="supported-tab">
+                                <div class="mb-3">
+                                    <label for="modelHub" class="form-label">Model Hub</label>
+                                    <select class="form-select" id="modelHub">
+                                        <option value="" selected disabled>Select a model hub</option>
+                                        {% for key, name in generators.items() %}
+                                        <option value="{{ key }}">{{ name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modelName" class="form-label">Model Name</label>
+                                    <select class="form-select" id="modelName" disabled>
+                                        <option value="" selected disabled>Select a model hub first</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
+                                <div class="mb-3">
+                                    <label for="customModelHub" class="form-label">Model Hub</label>
+                                    <select class="form-select" id="customModelHub">
+                                        <option value="" selected disabled>Select a model hub</option>
+                                        {% for key, name in generators.items() %}
+                                        <option value="{{ key }}">{{ name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="customModelName" class="form-label">Model Name</label>
+                                    <input type="text" class="form-control" id="customModelName" placeholder="Enter model name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="apiKeySection">
+                            <label for="apiKey" class="form-label">Primary API Key</label>
+                            <select class="form-select mb-2" id="apiKeyType">
+                                <option value="" selected disabled>Select API Key Type</option>
+                                <option value="openai_api_key">OpenAI API Key</option>
+                                <option value="hf_token">HuggingFace Token</option>
+                                <option value="cohere_api_key">Cohere API Key</option>
+                                <option value="anthropic_api_key">Anthropic API Key</option>
+                            </select>
+                            <input type="password" class="form-control" id="apiKey" placeholder="Enter your API key">
+                            <div class="form-text">Your API keys are only used for this evaluation and never stored.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluation Configuration -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-graph-up me-2"></i>Evaluation
+                        </h5>
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Evaluation settings help">
+                            <i class="bi bi-question-circle"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">Choose test dimensions or click <i class="bi bi-gear-fill"></i> to pick scenarios</p>
+
+                        <ul class="nav nav-pills mb-3" id="evalTypePills" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="full-tab" data-bs-toggle="pill" data-bs-target="#full" type="button" role="tab" aria-controls="full" aria-selected="true">Full</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="lite-tab" data-bs-toggle="pill" data-bs-target="#lite" type="button" role="tab" aria-controls="lite" aria-selected="false">Lite</button>
+                            </li>
+                        </ul>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="selectAll">
+                            <label class="form-check-label" for="selectAll">Select all</label>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Left column categories -->
+                                {% for category in ['performance', 'ethics', 'privacy', 'security'] %}
+                                <div class="category-switch d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <label class="form-check-label" for="{{ category }}Switch">{{ category|capitalize }}</label>
+                                        <span class="badge scenarios-badge">{{ probe_categories[category]|length }} scenarios</span>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input category-toggle" type="checkbox" id="{{ category }}Switch" data-category="{{ category }}">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Right column categories -->
+                                {% for category in ['hallucination', 'robustness', 'toxicity', 'stereotype'] %}
+                                <div class="category-switch d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <label class="form-check-label" for="{{ category }}Switch">{{ category|capitalize }}</label>
+                                        <span class="badge scenarios-badge">{{ probe_categories[category]|length }} scenarios</span>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input category-toggle" type="checkbox" id="{{ category }}Switch" data-category="{{ category }}">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button id="startEvaluation" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-play-fill me-2"></i>Start Evaluation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Evaluation Started</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your evaluation job has been started successfully.</p>
+                    <p>Job ID: <span id="jobId" class="fw-bold"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="#" id="viewJobBtn" class="btn btn-primary">View Job Status</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Model hub selection changes
+        document.getElementById('modelHub').addEventListener('change', function() {
+            const hub = this.value;
+            const modelSelect = document.getElementById('modelName');
+            
+            // In a real app, you would fetch models for the selected hub
+            modelSelect.innerHTML = '<option value="" selected disabled>Loading models...</option>';
+            modelSelect.disabled = false;
+            
+            // Simulate loading models (this would be an API call in a real app)
+            setTimeout(() => {
+                const modelOptions = getModelsForHub(hub);
+                modelSelect.innerHTML = modelOptions;
+            }, 500);
+        });
+
+        // Function to get models for a hub (simulated)
+        function getModelsForHub(hub) {
+            const models = {
+                'openai': ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+                'huggingface': ['meta-llama/Llama-2-70b', 'mistralai/Mistral-7B-v0.1', 'tiiuae/falcon-40b'],
+                'cohere': ['command', 'command-light', 'command-r', 'command-r-plus'],
+                'anthropic': ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
+                'ollama': ['llama2', 'mistral', 'gemma'],
+                'replicate': ['meta/llama-2-70b', 'anthropic/claude-2'],
+                'vertexai': ['gemini-pro', 'gemini-ultra'],
+                'llamacpp': ['llama-2-13b-chat.Q4_K_M', 'mistral-7b-instruct-v0.2.Q4_K_M']
+            };
+            
+            let options = '<option value="" selected disabled>Select a model</option>';
+            if (models[hub]) {
+                models[hub].forEach(model => {
+                    options += `<option value="${model}">${model}</option>`;
+                });
+            } else {
+                options = '<option value="" selected disabled>No models available</option>';
+            }
+            
+            return options;
+        }
+
+        // Select All toggle
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('.category-toggle').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+        });
+
+        // Start evaluation button
+        document.getElementById('startEvaluation').addEventListener('click', function() {
+            // Get model information
+            let generator, modelName;
+            
+            if (document.getElementById('supported-tab').classList.contains('active')) {
+                generator = document.getElementById('modelHub').value;
+                modelName = document.getElementById('modelName').value;
+            } else {
+                generator = document.getElementById('customModelHub').value;
+                modelName = document.getElementById('customModelName').value;
+            }
+            
+            // Get API key
+            const apiKeyType = document.getElementById('apiKeyType').value;
+            const apiKey = document.getElementById('apiKey').value;
+            
+            // Get selected categories
+            const selectedCategories = [];
+            document.querySelectorAll('.category-toggle:checked').forEach(checkbox => {
+                selectedCategories.push(checkbox.dataset.category);
+            });
+            
+            // Validate inputs
+            if (!generator) {
+                alert('Please select a model hub');
+                return;
+            }
+            
+            if (!modelName) {
+                alert('Please select or enter a model name');
+                return;
+            }
+            
+            if (selectedCategories.length === 0) {
+                alert('Please select at least one evaluation category');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            
+            // Prepare API key object
+            const apiKeys = {};
+            if (apiKeyType && apiKey) {
+                apiKeys[apiKeyType] = apiKey;
+            }
+            
+            // Submit job
+            fetch('/api/start_job', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    generator: generator,
+                    model_name: modelName,
+                    categories: selectedCategories,
+                    api_keys: apiKeys
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.status === 'success') {
+                    // Show success modal
+                    document.getElementById('jobId').textContent = data.job_id;
+                    document.getElementById('viewJobBtn').href = `/job/${data.job_id}`;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                    modal.show();
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                alert('Error starting job: ' + error);
+            });
+        });
+    </script>
+</body>
+</html>

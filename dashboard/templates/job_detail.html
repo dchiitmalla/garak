@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Detail - Garak LLM Evaluation Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            padding: 1rem 1.25rem;
+        }
+        .card-title {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+        }
+        .status-pending {
+            background-color: #ffc107;
+        }
+        .status-running {
+            background-color: #0d6efd;
+        }
+        .status-completed {
+            background-color: #198754;
+        }
+        .status-failed {
+            background-color: #dc3545;
+        }
+        .console-output {
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .results-table th {
+            background-color: #f8f9fa;
+        }
+        .vulnerability-high {
+            background-color: #ffecec;
+        }
+        .vulnerability-medium {
+            background-color: #fff9e6;
+        }
+        .vulnerability-low {
+            background-color: #f0f9ff;
+        }
+        #refreshStatus {
+            display: none;
+        }
+        .probe-category {
+            display: inline-block;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+            margin-right: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        .category-security { background-color: #ffebee; }
+        .category-privacy { background-color: #e8f5e9; }
+        .category-toxicity { background-color: #fff8e1; }
+        .category-hallucination { background-color: #e3f2fd; }
+        .category-performance { background-color: #f3e5f5; }
+        .category-robustness { background-color: #e0f2f1; }
+        .category-ethics { background-color: #fce4ec; }
+        .category-stereotype { background-color: #ede7f6; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock-fill me-2"></i>
+                Garak LLM Evaluation Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/jobs">Jobs</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/jobs">Jobs</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Job {{ job_id[:8] }}</li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1>Job Details</h1>
+                    <div>
+                        <span id="refreshStatus" class="me-2">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                            Auto-refreshing...
+                        </span>
+                        <a href="/jobs" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Jobs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Job Summary Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Job Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-center mb-3">
+                            <span class="badge status-badge status-{{ job.status }}">{{ job.status|upper }}</span>
+                        </div>
+                        
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Job ID</th>
+                                    <td class="text-break">{{ job_id }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Generator</th>
+                                    <td>{{ job.generator }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Model</th>
+                                    <td>{{ job.model_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Created</th>
+                                    <td>{{ job.created_at }}</td>
+                                </tr>
+                                {% if job.start_time %}
+                                <tr>
+                                    <th scope="row">Started</th>
+                                    <td>{{ job.start_time }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if job.end_time %}
+                                <tr>
+                                    <th scope="row">Completed</th>
+                                    <td>{{ job.end_time }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        
+                        {% if job.status == 'completed' %}
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="/download/{{ job_id }}/report" class="btn btn-success">
+                                <i class="bi bi-file-earmark-arrow-down me-2"></i>Download Report
+                            </a>
+                            <a href="/download/{{ job_id }}/hits" class="btn btn-outline-primary">
+                                <i class="bi bi-file-earmark-text me-2"></i>Download Raw Data
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Probes Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Probes Used</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total Probes:</strong> {{ job.probes|length }}</p>
+                        <div>
+                            {% for probe in job.probes %}
+                                {% set category = probe.split('.')[0] %}
+                                <span class="probe-category category-{{ category }}">{{ probe }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <!-- Results Card (visible when job is complete) -->
+                {% if job.status == 'completed' and job.report_path %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Evaluation Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Results are available for download. Use the download buttons to get the full JSON report or raw data.
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Probe</th>
+                                        <th>Vulnerabilities</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- This would be populated from the actual JSON report data -->
+                                    <tr class="vulnerability-high">
+                                        <td>Security</td>
+                                        <td>dan.DanInTheWild</td>
+                                        <td>5 detected</td>
+                                    </tr>
+                                    <tr class="vulnerability-medium">
+                                        <td>Privacy</td>
+                                        <td>leakreplay.PotterComplete</td>
+                                        <td>3 detected</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Robustness</td>
+                                        <td>encoding.InjectZalgo</td>
+                                        <td>0 detected</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Console Output Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Console Output</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if job.status == 'pending' %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-hourglass-split me-2"></i>
+                            Job is pending execution. Output will be displayed when it starts.
+                        </div>
+                        {% elif job.status == 'running' %}
+                        <div class="alert alert-primary">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            Job is currently running. Output will refresh automatically.
+                        </div>
+                        {% endif %}
+                        
+                        <div class="console-output" id="consoleOutput">{{ job.output|default('No output available yet.') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-refresh for running jobs
+        document.addEventListener('DOMContentLoaded', function() {
+            const jobStatus = "{{ job.status }}";
+            
+            if (jobStatus === 'pending' || jobStatus === 'running') {
+                document.getElementById('refreshStatus').style.display = 'inline-block';
+                
+                // Refresh every 5 seconds
+                const refreshInterval = setInterval(function() {
+                    fetch('/api/job_status/{{ job_id }}')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                const job = data.job;
+                                
+                                // Update console output
+                                if (job.output) {
+                                    document.getElementById('consoleOutput').textContent = job.output;
+                                }
+                                
+                                // If job is no longer running, refresh the page to show final results
+                                if (job.status !== 'pending' && job.status !== 'running') {
+                                    clearInterval(refreshInterval);
+                                    window.location.reload();
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error refreshing job status:', error);
+                        });
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs - Garak LLM Evaluation Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            padding: 1rem 1.25rem;
+        }
+        .card-title {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #ffc107;
+        }
+        .status-running {
+            background-color: #0d6efd;
+        }
+        .status-completed {
+            background-color: #198754;
+        }
+        .status-failed {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock-fill me-2"></i>
+                Garak LLM Evaluation Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/jobs">Jobs</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Evaluation Jobs</h1>
+                    <a href="/" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>New Evaluation
+                    </a>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Model</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Duration</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if jobs %}
+                                        {% for job_id, job in jobs.items() %}
+                                        <tr>
+                                            <td class="text-muted">{{ job_id[:8] }}...</td>
+                                            <td>{{ job.generator }} / {{ job.model_name }}</td>
+                                            <td>
+                                                <span class="badge status-badge status-{{ job.status }}">{{ job.status }}</span>
+                                            </td>
+                                            <td>{{ job.created_at }}</td>
+                                            <td>
+                                                {% if job.end_time and job.start_time %}
+                                                    {{ job.end_time|default('N/A') }}
+                                                {% else %}
+                                                    In progress
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="/job/{{ job_id }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye-fill"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">No jobs found. Start a new evaluation.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  garak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      # Mount the current directory to /app for development
+      - .:/app
+      # Mount a volume for persistent data
+      - garak_data:/app/data
+      # Mount a volume for reports
+      - garak_reports:/app/reports
+    environment:
+      # Add any environment variables you need
+      - PYTHONPATH=/app
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - COHERE_API_KEY=${COHERE_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    # Override the entrypoint to keep the container running
+    # You can execute commands with: docker-compose exec garak garak <command>
+    command: ["tail", "-f", "/dev/null"]
+  
+  # Web Dashboard service
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      # Share the reports volume with the garak service
+      - garak_reports:/app/reports
+      # Share the data volume with the garak service
+      - garak_data:/app/data
+    environment:
+      - REPORT_DIR=/app/reports
+      - DATA_DIR=/app/data
+      - DEBUG=True
+      - SECRET_KEY=${DASHBOARD_SECRET_KEY:-garak-dashboard-default-key}
+      - PYTHONPATH=/app
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - COHERE_API_KEY=${COHERE_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    working_dir: /app/dashboard
+    command: ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+    depends_on:
+      - garak
+
+volumes:
+  garak_data:
+  garak_reports:
