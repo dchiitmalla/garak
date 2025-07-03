@@ -180,3 +180,4 @@ garak_runs/
 runs/
 logs/
 .DS_Store
+dashboard/data/*.json
