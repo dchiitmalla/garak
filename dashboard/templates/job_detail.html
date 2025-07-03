@@ -221,6 +221,12 @@
                                 <a class="nav-link active" id="report-html-tab" data-bs-toggle="tab" href="#report-html" role="tab">HTML Report</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" id="trust-scores-tab" data-bs-toggle="tab" href="#trust-scores" role="tab">Trust Scores</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="failing-prompts-tab" data-bs-toggle="tab" href="#failing-prompts" role="tab">Failing Prompts</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" id="report-summary-tab" data-bs-toggle="tab" href="#report-summary" role="tab">Summary</a>
                             </li>
                         </ul>
@@ -246,6 +252,170 @@
                                     HTML report is not available for this job.
                                 </div>
                                 {% endif %}
+                            </div>
+                            
+                            <!-- Trust Scores Tab -->
+                            <div class="tab-pane fade" id="trust-scores" role="tabpanel">
+                                <div class="trust-score-container">
+                                    <h3>Trust Scores by Module and Probe</h3>
+                                    
+                                    {% if trust_score_data and trust_score_data|length > 0 %}
+                                        <div class="row mb-4">
+                                            <div class="col-12">
+                                                <div class="alert alert-info">
+                                                    <p><strong>Trust Score Legend:</strong></p>
+                                                    <ul class="mb-0">
+                                                        <li><span class="badge bg-success">100%</span> - All tests passed</li>
+                                                        <li><span class="badge bg-danger">0%</span> - Test failures detected</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="accordion" id="trustScoreAccordion">
+                                            {% for module_name, module_data in trust_score_data.items() %}
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                                        <button class="accordion-button {{ 'collapsed' if not loop.first else '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="{{ 'true' if loop.first else 'false' }}" aria-controls="collapse{{ loop.index }}">
+                                                            <span class="me-2">
+                                                                {% if module_data.score == 100 %}
+                                                                    <span class="badge bg-success">100%</span>
+                                                                {% elif module_data.score == 0 %}
+                                                                    <span class="badge bg-danger">0%</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-warning">{{ module_data.score|int }}%</span>
+                                                                {% endif %}
+                                                            </span>
+                                                            <strong>{{ module_name }}</strong>
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {{ 'show' if loop.first else '' }}" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#trustScoreAccordion">
+                                                        <div class="accordion-body">
+                                                            <table class="table table-striped">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Probe</th>
+                                                                        <th>Score</th>
+                                                                        <th>Failed Detectors</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for probe_name, probe_data in module_data.probes.items() %}
+                                                                        <tr>
+                                                                            <td>{{ probe_name }}</td>
+                                                                            <td>
+                                                                                {% if probe_data.score == 100 %}
+                                                                                    <span class="badge bg-success">100%</span>
+                                                                                {% elif probe_data.score == 0 %}
+                                                                                    <span class="badge bg-danger">0%</span>
+                                                                                {% else %}
+                                                                                    <span class="badge bg-warning">{{ probe_data.score|int }}%</span>
+                                                                                {% endif %}
+                                                                            </td>
+                                                                            <td>
+                                                                                {% if probe_data.detectors|length > 0 %}
+                                                                                    <ul class="mb-0">
+                                                                                        {% for detector_name, detector_data in probe_data.detectors.items() %}
+                                                                                            <li>{{ detector_name }}</li>
+                                                                                        {% endfor %}
+                                                                                    </ul>
+                                                                                {% else %}
+                                                                                    <span class="text-muted">None</span>
+                                                                                {% endif %}
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            No trust score data available for this job.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Failing Prompts Tab -->
+                            <div class="tab-pane fade" id="failing-prompts" role="tabpanel">
+                                <div class="failing-prompts-container">
+                                    <h3>Failing Prompts {% if failing_prompts %}({{ failing_prompts|length }}){% endif %}</h3>
+                                    
+                                    {% if failing_prompts and failing_prompts|length > 0 %}
+                                        <div class="alert alert-info mb-4">
+                                            <i class="bi bi-info-circle-fill me-2"></i>
+                                            <p class="mb-0"><strong>These are prompts that caused the model to fail security tests.</strong> Review these failures carefully to understand potential vulnerabilities.</p>
+                                        </div>
+                                        
+                                        <div class="accordion" id="failingPromptsAccordion">
+                                            {% for failure in failing_prompts %}
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="failureHeading{{ loop.index }}">
+                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#failureCollapse{{ loop.index }}" aria-expanded="false" aria-controls="failureCollapse{{ loop.index }}">
+                                                            <span class="badge bg-danger me-2">Failed</span>
+                                                            <strong>{{ failure.probe }}</strong> - {{ failure.goal|truncate(80) }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="failureCollapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="failureHeading{{ loop.index }}" data-bs-parent="#failingPromptsAccordion">
+                                                        <div class="accordion-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="card mb-3">
+                                                                        <div class="card-header bg-light"><strong>Prompt</strong></div>
+                                                                        <div class="card-body">
+                                                                            <pre class="mb-0">{{ failure.prompt }}</pre>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="card mb-3">
+                                                                        <div class="card-header bg-light"><strong>Model Output</strong></div>
+                                                                        <div class="card-body">
+                                                                            <pre class="mb-0">{{ failure.output }}</pre>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="card mb-3">
+                                                                        <div class="card-header bg-light"><strong>Goal</strong></div>
+                                                                        <div class="card-body">
+                                                                            <p class="mb-0">{{ failure.goal }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="card">
+                                                                        <div class="card-header bg-light"><strong>Failed Detectors</strong></div>
+                                                                        <div class="card-body">
+                                                                            <ul class="mb-0">
+                                                                                {% for detector in failure.failing_detectors %}
+                                                                                    <li>{{ detector }}</li>
+                                                                                {% endfor %}
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-success">
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            No failing prompts found for this job. All tests passed!
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                             
                             <!-- Summary Tab -->

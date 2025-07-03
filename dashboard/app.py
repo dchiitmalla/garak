@@ -9,6 +9,7 @@ from threading import Thread
 import glob
 import threading
 import logging
+import jsonlines
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -598,6 +599,30 @@ def job_detail(job_id):
     
     job = JOBS[job_id]
     
+    # Parse report data for trust scores and failing prompts
+    trust_score_data = {}
+    failing_prompts = []
+    json_report_path = None
+    
+    # Find the report JSON/JSONL file
+    for ext in ['.report.jsonl', '.report.json']:
+        potential_path = os.path.join(REPORT_DIR, f"{job_id}{ext}")
+        if os.path.exists(potential_path):
+            json_report_path = potential_path
+            break
+    
+    if json_report_path:
+        try:
+            if json_report_path.endswith('.jsonl'):
+                trust_score_data, failing_prompts = parse_jsonl_report(json_report_path)
+            else:
+                with open(json_report_path, 'r', encoding='utf-8') as f:
+                    report_data = json.load(f)
+                    # Process JSON report if needed
+            logging.info(f"Parsed report data for job {job_id} from {json_report_path}")
+        except Exception as e:
+            logging.error(f"Error parsing report data for job {job_id} from {json_report_path}: {e}")
+    
     # Load HTML report if it exists
     html_report_content = None
     html_report_path = os.path.join(REPORT_DIR, f"{job_id}.report.html")
@@ -688,7 +713,9 @@ def job_detail(job_id):
             # Default case for unknown status
             job['output'] = "No output logs available for this job."
     
-    return render_template('job_detail.html', job=JOBS[job_id], job_id=job_id, html_report=html_report_content)
+    return render_template('job_detail.html', job=JOBS[job_id], job_id=job_id, 
+                          html_report=html_report_content, trust_score_data=trust_score_data, 
+                          failing_prompts=failing_prompts)
 
 @app.route('/api/start_job', methods=['POST'])
 def start_job():
@@ -824,5 +851,105 @@ def download_report(job_id, file_type):
         logging.error(f"Unexpected error in download_report: {str(e)}")
         return f"Server error: {str(e)}", 500
 
+def parse_jsonl_report(report_path):
+    """
+    Parse a Garak JSONL report file and extract trust scores and failing prompts
+    """
+    trust_score_data = {}
+    failing_prompts = []
+    
+    try:
+        with jsonlines.open(report_path) as reader:
+            for entry in reader:
+                # Process configuration entries to get probe information
+                if entry.get('entry_type') == 'start_run setup':
+                    if 'plugins.probe_spec' in entry:
+                        probe_specs = entry['plugins.probe_spec'].split(',')
+                        for probe in probe_specs:
+                            parts = probe.split('.')
+                            if len(parts) == 2:
+                                module, name = parts
+                                if module not in trust_score_data:
+                                    trust_score_data[module] = {'probes': {}}
+                                if name not in trust_score_data[module]['probes']:
+                                    trust_score_data[module]['probes'][name] = {
+                                        'score': 100,  # Default to 100%
+                                        'detectors': {}
+                                    }
+                
+                # Process attempt entries to find failing prompts
+                elif entry.get('entry_type') == 'attempt':
+                    probe_name = entry.get('probe_classname', '')
+                    detector_results = entry.get('detector_results', {})
+                    prompt = entry.get('prompt', '')
+                    outputs = entry.get('outputs', [])
+                    goal = entry.get('goal', '')
+                    
+                    # Calculate if any detector found a problem (score of 0 indicates failure)
+                    has_failures = False
+                    for detector, scores in detector_results.items():
+                        if any(score == 0.0 for score in scores):
+                            has_failures = True
+                            
+                            # Update the detector score in trust_score_data
+                            if probe_name:
+                                parts = probe_name.split('.')
+                                if len(parts) == 2:
+                                    module, name = parts
+                                    if module in trust_score_data and name in trust_score_data[module]['probes']:
+                                        trust_score_data[module]['probes'][name]['score'] = min(
+                                            trust_score_data[module]['probes'][name]['score'], 
+                                            0  # Failed test
+                                        )
+                                        
+                                        # Store detector info
+                                        detector_name = detector.split('.')[-1] if '.' in detector else detector
+                                        trust_score_data[module]['probes'][name]['detectors'][detector_name] = {
+                                            'score': 0,
+                                            'name': detector
+                                        }
+                    
+                    # If this prompt caused a failure, add it to the list
+                    if has_failures:
+                        failing_entry = {
+                            'probe': probe_name,
+                            'prompt': prompt,
+                            'output': outputs[0] if outputs else "No output",
+                            'goal': goal,
+                            'failing_detectors': []
+                        }
+                        
+                        # Add which detectors failed
+                        for detector, scores in detector_results.items():
+                            if any(score == 0.0 for score in scores):
+                                failing_entry['failing_detectors'].append(detector)
+                        
+                        failing_prompts.append(failing_entry)
+        
+        # Calculate module-level scores (average of probe scores)
+        for module in trust_score_data:
+            probe_scores = [probe['score'] for probe in trust_score_data[module]['probes'].values()]
+            if probe_scores:
+                trust_score_data[module]['score'] = sum(probe_scores) / len(probe_scores)
+            else:
+                trust_score_data[module]['score'] = 100
+        
+    except Exception as e:
+        logging.error(f"Error parsing JSONL report: {e}")
+    
+    return trust_score_data, failing_prompts
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=os.environ.get('DEBUG', 'False').lower() == 'true')
+    import argparse
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Run the Garak Dashboard')
+    parser.add_argument('--port', type=int, default=8080, help='Port to run the server on')
+    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+    args = parser.parse_args()
+    
+    # Use environment variable for debug if available, otherwise use command line arg
+    debug_mode = os.environ.get('DEBUG', str(args.debug).lower()) == 'true'
+    
+    print(f"Starting Garak Dashboard on port {args.port} with debug={debug_mode}")
+    app.run(host='0.0.0.0', port=args.port, debug=debug_mode)
