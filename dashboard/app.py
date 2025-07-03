@@ -4,7 +4,8 @@ import json
 import subprocess
 import time
 import uuid
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from threading import Thread
 import glob
 import threading
@@ -64,8 +65,23 @@ def load_existing_jobs():
             # Load normal job file
             with open(job_file, 'r') as f:
                 job_data = json.load(f)
+            
+            # Handle both 'id' and 'job_id' field names for compatibility
+            if 'id' in job_data and 'job_id' not in job_data:
+                job_data['job_id'] = job_data['id']
+                job_id = job_data['id']
+            elif 'job_id' in job_data and 'id' not in job_data:
+                job_data['id'] = job_data['job_id']
+                job_id = job_data['job_id']
+            elif 'job_id' in job_data:
+                job_id = job_data['job_id']
+            else:
+                # Extract job ID from filename as fallback
+                job_id = os.path.basename(job_file).replace('job_', '').replace('.json', '')
+                job_data['id'] = job_id
+                job_data['job_id'] = job_id
+                logging.warning(f"Job file {job_file} missing both 'id' and 'job_id' fields, using filename: {job_id}")
                 
-            job_id = job_data['job_id']
             JOBS[job_id] = job_data
             
             # Check for stale pending jobs (created more than 30 minutes ago)
@@ -99,6 +115,7 @@ def load_existing_jobs():
                 # Try to recover by creating a minimal job entry
                 job_id = os.path.basename(job_file).replace('job_', '').replace('.json', '')
                 JOBS[job_id] = {
+                    'id': job_id,  # Include both id and job_id for consistency
                     'job_id': job_id,
                     'status': 'failed',
                     'created_at': datetime.now().isoformat(),
@@ -149,14 +166,75 @@ def check_job_status_periodically():
                     report_json = f"{job.get('report_prefix', os.path.join(REPORT_DIR, job_id))}.report.json"
                     report_jsonl = f"{job.get('report_prefix', os.path.join(REPORT_DIR, job_id))}.report.jsonl"
                     hitlog_jsonl = f"{job.get('report_prefix', os.path.join(REPORT_DIR, job_id))}.hitlog.jsonl"
+                    report_html = f"{job.get('report_prefix', os.path.join(REPORT_DIR, job_id))}.report.html"
                     
-                    reports_exist = os.path.exists(report_json) or os.path.exists(report_jsonl)
+                    # Only consider reports to exist if the HTML report is also present
+                    # This is critical as the HTML report is the final output generated
+                    reports_exist = os.path.exists(report_html) and (os.path.exists(report_json) or os.path.exists(report_jsonl))
                     
-                    # If we have report files but job status is still running, update it
+                    # Check if the job is ACTUALLY complete, not just if report files exist
+                    # Report files can exist while the job is still in progress!
                     if reports_exist and job.get('status') in ['running', 'pending']:
-                        logging.info(f"Job {job_id} has report files but status is {job.get('status')}, updating to completed")
-                        JOBS[job_id]['status'] = 'completed'
-                        JOBS[job_id]['end_time'] = datetime.now().isoformat()
+                        # Check if the output contains evidence that Garak is actually finished
+                        is_garak_finished = False
+                        
+                        # First check if this job has output indicating completion
+                        if 'output' in job and job['output']:
+                            output = job['output']
+                            
+                            # Check for completion indicators
+                            completion_indicators = [
+                                'Garak scan completed with exit code: 0',
+                                '100%|██████████| ',
+                                'Reports saved to'
+                            ]
+                            
+                            for indicator in completion_indicators:
+                                if indicator in output:
+                                    is_garak_finished = True
+                                    logging.info(f'Found completion indicator for job {job_id}: "{indicator}"')
+                                    break
+                            
+                            # Check if any progress indicators are in recent output
+                            if not is_garak_finished:
+                                progress_patterns = [
+                                    r'\d+%\|',  # Progress bar pattern
+                                    r'\[\d+:\d+<\d+:\d+',  # Time remaining pattern
+                                    r'Running probe',
+                                    r'Processing results',
+                                    r'it/s',  # iterations per second
+                                    r'\d+/\d+'  # X of Y pattern
+                                ]
+                                
+                                recent_output = output[-5000:] if len(output) > 5000 else output
+                                has_progress_indicators = False
+                                
+                                for pattern in progress_patterns:
+                                    if re.search(pattern, recent_output):
+                                        has_progress_indicators = True
+                                        logging.info(f'Job {job_id} still shows progress indicators, not marking as complete yet')
+                                        break
+                                
+                                # ONLY consider a job complete if we found explicit completion indicators
+                                # The lack of progress indicators alone is NOT sufficient to mark a job as complete
+                                # This prevents premature completion marking
+                        
+                        # Only update to completed if we have explicit completion indicators
+                        if is_garak_finished:
+                            logging.info(f"Job {job_id} appears to be complete, updating status from {job.get('status')}")
+                            JOBS[job_id]['status'] = 'completed'
+                            
+                            # Only set end_time if not already set
+                            if 'end_time' not in JOBS[job_id]:
+                                JOBS[job_id]['end_time'] = datetime.now().isoformat()
+                                
+                            # Also verify report files have actual content (including HTML report)
+                            if (os.path.exists(report_json) and os.path.getsize(report_json) < 10) or \
+                               (os.path.exists(report_html) and os.path.getsize(report_html) < 100):
+                                logging.warning(f"Report file(s) for job {job_id} exist but appear empty/incomplete, not marking as complete")
+                                JOBS[job_id]['status'] = 'running'  # Revert status
+                        else:
+                            logging.info(f"Job {job_id} has report files but appears to still be running, keeping status as {job.get('status')}")
                         
                         # Calculate job duration
                         if 'start_time' in JOBS[job_id]:
@@ -361,7 +439,7 @@ PROBE_CATEGORIES = {
 
 def run_garak_job(job_id, generator, model_name, probes, api_keys):
     # Import needed modules - moved all imports to the beginning
-    import subprocess
+    import subprocess, threading, io, select
     
     try:
         # Create a job configuration dictionary for tracking
@@ -428,7 +506,7 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys):
         if test_mode:
             # In test mode, use a special configuration that doesn't require valid API keys
             # This provides better feedback than just failing with auth errors
-            cmd_str = f"garak --model_type huggingface --model_name gpt2 --probes encoding.InjectBase64 --generations 1 --report_prefix {report_prefix} --detector_options '{{\\\"-a\\\":\\\"test_mode\\\"}}'"  
+            cmd_str = f"garak --model_type huggingface --model_name gpt2 --probes encoding.InjectBase64 --generations 1 --report_prefix {report_prefix} --detector_options '{{\\\"-a\\\":\\\"test_mode\\\"}}'"
             logging.info(f"Using test mode configuration for job {job_id} - will use local HF model instead of {generator}")
         else:
             # Normal mode with actual API keys
@@ -452,95 +530,171 @@ exit $EXIT_CODE
         # Make the script executable
         os.chmod(script_path, 0o755)
         
-        # Run the script as a subprocess and capture output
-        process = subprocess.Popen([script_path], 
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE)
+        # Create output file for streaming
+        live_output_path = os.path.join(REPORT_DIR, f"{job_id}_live_output.txt")
+        with open(live_output_path, "w") as f:
+            f.write("Starting Garak job...\n")
         
-        # Wait for the process to complete and capture output
-        stdout, stderr = process.communicate()
-        return_code = process.returncode
+        # Run the script as a subprocess with streaming output
+        process = subprocess.Popen(
+            [script_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=1,
+            universal_newlines=True
+        )
         
-        # Save stdout and stderr to files for debugging
-        stdout_path = os.path.join(REPORT_DIR, f"{job_id}_stdout.log")
-        stderr_path = os.path.join(REPORT_DIR, f"{job_id}_stderr.log")
+        # Store process ID for status checking
+        JOBS[job_id]['process_id'] = process.pid
         
-        with open(stdout_path, "wb") as f:
-            f.write(stdout)
+        # Function to handle streaming output
+        def stream_output():
+            try:
+                # Initialize buffers for stdout and stderr
+                output_buffer = ""
+                
+                # Open output file for streaming
+                with open(live_output_path, "a") as output_file:
+                    # While the process is running
+                    while process.poll() is None:
+                        # Check if there's output to read from stdout
+                        if process.stdout in select.select([process.stdout], [], [], 0.1)[0]:
+                            line = process.stdout.readline()
+                            if line:
+                                output_buffer += line
+                                output_file.write(line)
+                                output_file.flush()
+                        
+                        # Check if there's output to read from stderr
+                        if process.stderr in select.select([process.stderr], [], [], 0.1)[0]:
+                            line = process.stderr.readline()
+                            if line:
+                                output_buffer += f"ERROR: {line}"
+                                output_file.write(f"ERROR: {line}")
+                                output_file.flush()
+                        
+                        # Update the job output in memory
+                        if output_buffer:
+                            JOBS[job_id]['output'] = output_buffer
+                            
+                            # Update the job file periodically
+                            try:
+                                with open(job_file_path, "w") as job_file:
+                                    json.dump(JOBS[job_id], job_file)
+                            except Exception as e:
+                                logging.error(f"Failed to update job file: {str(e)}")
+                    
+                    # Process has ended, capture any remaining output
+                    stdout, stderr = process.communicate()
+                    if stdout:
+                        output_buffer += stdout
+                        output_file.write(stdout)
+                    if stderr:
+                        output_buffer += f"ERROR: {stderr}"
+                        output_file.write(f"ERROR: {stderr}")
+                
+                # Get the return code
+                return_code = process.returncode
+                
+                # Set report file paths
+                report_json_path = f"{report_prefix}.report.json"
+                report_jsonl_path = f"{report_prefix}.report.jsonl"
+                
+                # Update job with final information
+                JOBS[job_id]['output'] = output_buffer
+                JOBS[job_id]['return_code'] = return_code
+                JOBS[job_id]['end_time'] = datetime.now().isoformat()
+                
+                # Check if report files exist
+                has_reports = False
+                if os.path.exists(report_json_path):
+                    JOBS[job_id]['report_path'] = report_json_path
+                    has_reports = True
+                if os.path.exists(report_jsonl_path):
+                    JOBS[job_id]['hits_path'] = report_jsonl_path
+                    has_reports = True
+                
+                # Set job status based on return code, report existence, and check if output indicates completion
+                is_garak_finished = True
+                
+                # Check if the output contains evidence that Garak is actually finished
+                if output_buffer:
+                    # Look for patterns indicating job is still in progress
+                    progress_patterns = [
+                        r'\d+%\|\s+\| \d+/\d+ \[\d+:\d+<\d+:\d+',  # Progress bar pattern
+                        r'Running probe',
+                        r'Processing results'
+                    ]
+                    
+                    # If any recent output shows progress indicators, don't mark as complete
+                    recent_output = output_buffer[-5000:] if len(output_buffer) > 5000 else output_buffer
+                    for pattern in progress_patterns:
+                        if re.search(pattern, recent_output):
+                            # Still showing progress indicators, not finished
+                            is_garak_finished = False
+                            logging.info(f'Job {job_id} shows progress indicators, not marking as complete yet')
+                            break
+                    
+                    # Look for specific completion indicators
+                    completion_indicators = [
+                        'Garak scan completed with exit code: 0',
+                        '100%|██████████| ',
+                        'Reports saved to'
+                    ]
+                    
+                    # If we're not sure it's finished, look for completion indicators
+                    if not is_garak_finished:
+                        for indicator in completion_indicators:
+                            if indicator in recent_output:
+                                is_garak_finished = True
+                                logging.info(f'Found completion indicator for job {job_id}: {indicator}')
+                                break
+                
+                # Only mark as complete if process exited successfully, reports exist, and output indicates completion
+                if return_code == 0 and has_reports and is_garak_finished:
+                    JOBS[job_id]['status'] = 'completed'
+                    logging.info(f'Job {job_id} marked as completed')
+                elif return_code != 0:
+                    JOBS[job_id]['status'] = 'failed'
+                    logging.info(f'Job {job_id} marked as failed with return code {return_code}')
+                else:
+                    # If process exited with code 0 but doesn't seem finished or doesn't have reports
+                    if not has_reports:
+                        JOBS[job_id]['status'] = 'failed'
+                        JOBS[job_id]['output'] += '\n\nWARNING: No report files were generated.'
+                        logging.warning(f'Job {job_id} has no reports but exited with code 0')
+                    elif not is_garak_finished:
+                        # Process exited but output doesn't indicate completion
+                        JOBS[job_id]['status'] = 'running'  # Keep as running until frontend refreshes
+                        logging.warning(f'Job {job_id} exited but output indicates it may still be running')
+                
+                # Save final job state to disk
+                try:
+                    with open(job_file_path, "w") as f:
+                        json.dump(JOBS[job_id], f)
+                except Exception as e:
+                    logging.error(f"Failed to save final job state: {str(e)}")
+                
+                logging.info(f"Job {job_id} completed with status {JOBS[job_id]['status']}")
             
-        with open(stderr_path, "wb") as f:
-            f.write(stderr)
+            except Exception as e:
+                logging.error(f"Error in streaming thread for job {job_id}: {str(e)}")
+                JOBS[job_id]['status'] = 'failed'
+                JOBS[job_id]['output'] += f"\n\nERROR in output streaming: {str(e)}"
+                JOBS[job_id]['end_time'] = datetime.now().isoformat()
+                
+                try:
+                    with open(job_file_path, "w") as f:
+                        json.dump(JOBS[job_id], f)
+                except Exception as write_err:
+                    logging.error(f"Failed to write error status: {str(write_err)}")
         
-        # Set report file paths
-        report_json_path = f"{report_prefix}.report.json"
-        report_jsonl_path = f"{report_prefix}.report.jsonl"
+        # Start the output streaming in a background thread
+        stream_thread = threading.Thread(target=stream_output)
+        stream_thread.daemon = True
+        stream_thread.start()
         
-        # Combine stdout and stderr for better display
-        JOBS[job_id]['output'] = ''
-        if stdout:
-            JOBS[job_id]['output'] += stdout.decode('utf-8', errors='replace')
-        if stderr:
-            # Add a separator if we have both stdout and stderr
-            if stdout:
-                JOBS[job_id]['output'] += '\n\n---ERROR OUTPUT---\n'
-            JOBS[job_id]['output'] += stderr.decode('utf-8', errors='replace')
-            
-        # Set end time and return code
-        JOBS[job_id]['end_time'] = datetime.now().isoformat()
-        JOBS[job_id]['return_code'] = return_code
-        
-        # Check if report files actually exist before setting paths
-        has_reports = False
-        if os.path.exists(report_json_path):
-            JOBS[job_id]['report_path'] = report_json_path
-            has_reports = True
-        if os.path.exists(report_jsonl_path):
-            JOBS[job_id]['hits_path'] = report_jsonl_path
-            has_reports = True
-        
-        # If return code is successful but no reports are found, treat as failure
-        if return_code == 0 and not has_reports:
-            logging.error(f"Job {job_id} completed successfully but no report files were generated")
-            JOBS[job_id]['output'] += '\n\nWARNING: Job completed successfully but no report files were generated.'
-            JOBS[job_id]['status'] = 'failed'
-            return_code = 1  # Mark as failure
-        else:
-            # Set job status based on return code
-            JOBS[job_id]['status'] = 'completed' if return_code == 0 else 'failed'
-        
-        # Add specific error message based on error output if job failed
-        if return_code != 0:
-            error_text = stderr.decode('utf-8', errors='replace').strip() if stderr else ''
-            if 'unauthorized' in error_text.lower() or 'api key' in error_text.lower():
-                JOBS[job_id]['output'] += '\n\nERROR: API authorization failed. Please check that you have provided valid API credentials.'
-            elif not error_text:
-                JOBS[job_id]['output'] += f'\n\nERROR: Job failed with return code {return_code}.'
-        
-        # Update job config with all the status information
-        job_config.update({
-            'status': JOBS[job_id]['status'],
-            'end_time': JOBS[job_id]['end_time'],
-            'return_code': return_code,
-            'output': JOBS[job_id]['output']
-        })
-        
-        if 'report_path' in JOBS[job_id]:
-            job_config['report_path'] = JOBS[job_id]['report_path']
-        if 'hits_path' in JOBS[job_id]:
-            job_config['hits_path'] = JOBS[job_id]['hits_path']
-            
-        # Write updated job status to disk
-        with open(job_file_path, 'w') as f:
-            json.dump(job_config, f)
-            
-        logging.info(f"Job {job_id} completed with status {job_config['status']}")
-        if job_config['status'] == 'failed':
-            logging.error(f"Job {job_id} failed with return code {return_code}")
-        
-        # Make sure all updated fields are in both memory (JOBS) and disk (job_config)
-        
-        logging.info(f"Job {job_id} completed with status {JOBS[job_id]['status']}")
-        return JOBS[job_id]
+        return job_id
         
     except Exception as e:
         logging.error(f"Error in job {job_id}: {str(e)}")
@@ -577,7 +731,7 @@ exit $EXIT_CODE
             except Exception as write_error:
                 logging.error(f"Failed to write error status to job file for {job_id}: {str(write_error)}")
         
-        return JOBS[job_id]
+        return job_id
 
 @app.route('/')
 def index():
@@ -635,6 +789,25 @@ def job_detail(job_id):
     
     # Before processing, check job status from both memory and disk to ensure consistency
     # This helps fix any jobs that might have inconsistent status between database and UI
+    
+    # Update stale output message for completed jobs
+    if job.get('status') in ['completed', 'failed'] and job.get('output') == "Job is still running. Output will appear here when available.":
+        if job.get('status') == 'completed':
+            job['output'] = "Job completed successfully. No detailed output is available."
+        else:
+            job['output'] = "Job failed. No detailed error information is available."
+        
+        # Update job file on disk
+        job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
+        if os.path.exists(job_file_path):
+            try:
+                with open(job_file_path, 'r') as f:
+                    job_config = json.load(f)
+                job_config['output'] = job['output']
+                with open(job_file_path, 'w') as f:
+                    json.dump(job_config, f)
+            except Exception as e:
+                logging.error(f"Error updating output message in job file: {str(e)}")
     job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
     if os.path.exists(job_file_path):
         try:
@@ -772,6 +945,110 @@ def job_status(job_id):
     return jsonify({
         'status': 'success',
         'job': JOBS[job_id]
+    })
+
+@app.route('/api/job_progress/<job_id>')
+def job_progress(job_id):
+    """Get detailed progress information of a job, optimized for frequent polling"""
+    if job_id not in JOBS:
+        return jsonify({'status': 'error', 'message': 'Job not found'}), 404
+        
+    job = JOBS[job_id]
+    
+    # Calculate progress based on output lines for running jobs
+    progress = 0
+    completed_items = 0
+    total_items = 100  # Default value
+    
+    # Check if the job is still running
+    is_completed = job['status'] not in ['pending', 'running']
+    
+    # Calculate time metrics
+    elapsed_time = ""
+    time_remaining = ""
+    estimated_completion = ""
+    
+    if 'start_time' in job:
+        start_time = datetime.fromisoformat(job['start_time'])
+        now = datetime.now()
+        elapsed_seconds = (now - start_time).total_seconds()
+        
+        # Format elapsed time nicely
+        elapsed_hours, remainder = divmod(elapsed_seconds, 3600)
+        elapsed_minutes, elapsed_seconds = divmod(remainder, 60)
+        elapsed_time = f"{int(elapsed_hours)}h {int(elapsed_minutes)}m {int(elapsed_seconds)}s"
+        
+        # Attempt to calculate progress from output
+        if job['output']:
+            # Look for progress indicators in the output
+            output_lines = job['output'].split('\n')
+            for line in output_lines:
+                # Check for common progress indicators
+                if "%" in line and any(x in line.lower() for x in ["progress", "complete", "done"]):
+                    try:
+                        # Extract percentage
+                        percent_match = re.search(r'(\d+)%', line)
+                        if percent_match:
+                            progress = int(percent_match.group(1))
+                    except:
+                        pass
+                        
+                # Look for items processed patterns (e.g., "10 of 50 items processed")
+                items_match = re.search(r'(\d+)\s+of\s+(\d+)', line)
+                if items_match:
+                    try:
+                        completed_items = int(items_match.group(1))
+                        total_items = int(items_match.group(2))
+                        progress = int((completed_items / total_items) * 100)
+                    except:
+                        pass
+                        
+                # Look for tqdm progress bars which are common in Garak output
+                tqdm_match = re.search(r'(\d+)%\|[\u2588\s]+\|\s+(\d+)/(\d+)', line)
+                if tqdm_match:
+                    try:
+                        progress = int(tqdm_match.group(1))
+                        completed_items = int(tqdm_match.group(2))
+                        total_items = int(tqdm_match.group(3))
+                    except:
+                        pass
+            
+            # If we couldn't find explicit progress, estimate based on time
+            if progress == 0 and 'end_time' not in job:
+                # Make a very rough estimate based on common completion times
+                # Typically garak jobs take 2-5 minutes depending on complexity
+                estimated_total_seconds = 180  # 3 minutes is a common average
+                
+                # Adjust based on the probe count
+                if 'probes' in job and isinstance(job['probes'], list):
+                    estimated_total_seconds = 60 + (len(job['probes']) * 30)
+                
+                progress = min(95, int((elapsed_seconds / estimated_total_seconds) * 100))
+                
+                # Calculate estimated time remaining
+                if progress > 0:
+                    remaining_seconds = (elapsed_seconds / progress) * (100 - progress)
+                    minutes, seconds = divmod(remaining_seconds, 60)
+                    time_remaining = f"{int(minutes)}m {int(seconds)}s"
+                    
+                    completion_time = now + timedelta(seconds=remaining_seconds)
+                    estimated_completion = completion_time.strftime('%H:%M:%S')
+    
+    # For completed jobs, set progress to 100%
+    if is_completed:
+        progress = 100
+        time_remaining = "0s"
+    
+    return jsonify({
+        'status': job['status'],
+        'progress': progress,
+        'completed': is_completed,
+        'completed_items': completed_items,
+        'total_items': total_items,
+        'elapsed_time': elapsed_time,
+        'time_remaining': time_remaining,
+        'estimated_completion': estimated_completion,
+        'output': job.get('output', '')
     })
 
 @app.route('/download/<job_id>/<file_type>')

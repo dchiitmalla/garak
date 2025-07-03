@@ -558,19 +558,23 @@
                 updateProgress();
                 const progressInterval = setInterval(updateProgress, 3000);
                 
-                // Also check job status separately
-                const refreshInterval = setInterval(function() {
+                // Also check job status and update console output more frequently
+                const refreshOutputInterval = setInterval(function() {
                     fetch('/api/job_status/{{ job_id }}')
                         .then(response => response.json())
                         .then(data => {
                             // Update console output if available
                             if (data.output) {
-                                document.getElementById('consoleOutput').textContent = data.output;
+                                const consoleOutput = document.getElementById('consoleOutput');
+                                consoleOutput.textContent = data.output;
+                                
+                                // Auto-scroll to the bottom of the console output
+                                consoleOutput.scrollTop = consoleOutput.scrollHeight;
                             }
                             
                             // If job is no longer running, refresh the page to show final results
                             if (data.status !== 'pending' && data.status !== 'running') {
-                                clearInterval(refreshInterval);
+                                clearInterval(refreshOutputInterval);
                                 clearInterval(progressInterval);
                                 window.location.reload();
                             }
@@ -578,7 +582,12 @@
                         .catch(error => {
                             console.error('Error refreshing job status:', error);
                         });
-                }, 5000);
+                }, 1000); // Update console output every 1 second
+                
+                // Replace the existing refresh interval with the new one
+                if (typeof refreshInterval !== 'undefined') {
+                    clearInterval(refreshInterval);
+                }
             }
         });
     </script>

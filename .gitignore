@@ -3,6 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Garak dashboard logs and reports
+dashboard/data/
+dashboard/reports/
+dashboard/logs/
+dashboard/runs/
+dashboard/garak_runs/
+dashboard/.vscode/
+dashboard/history/
+dashboard/.idea/
 # C extensions
 *.so
 
