@@ -181,3 +181,6 @@ runs/
 logs/
 .DS_Store
 dashboard/data/*.json
+
+# Ignore garak dashboard data files
+dashboard/data/
