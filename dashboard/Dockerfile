@@ -34,9 +34,11 @@ COPY README.md /app/
 # Install Garak package
 RUN pip install --no-cache-dir -e /app/
 
-# Install Flask and dashboard dependencies
+# Install Flask & dashboard deps, then explicitly install Gunicorn
 COPY dashboard/requirements.txt /app/dashboard/
-RUN pip install --no-cache-dir -r /app/dashboard/requirements.txt
+RUN pip install --no-cache-dir -r /app/dashboard/requirements.txt \
+    && pip install --no-cache-dir gunicorn
+
 
 # Copy dashboard application files
 COPY dashboard /app/dashboard/
@@ -57,4 +59,6 @@ EXPOSE 8080
 # Switch to non-root user
 USER garak
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "dashboard.app:app"]
+# Use exec form to make Gunicorn the main process (PID 1)
+# The PORT environment variable is automatically set by Cloud Run.
+CMD exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0 dashboard.app:app --log-level info
