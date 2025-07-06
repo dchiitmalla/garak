@@ -745,10 +745,36 @@ def jobs():
     """View all jobs"""
     return render_template('jobs.html', jobs=JOBS)
 
+def reload_job_from_disk(job_id):
+    """Reload a job from disk if it exists but is not in memory"""
+    job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
+    if os.path.exists(job_file_path):
+        try:
+            with open(job_file_path, 'r') as f:
+                job_data = json.load(f)
+            
+            # Handle both 'id' and 'job_id' field names for compatibility
+            if 'id' in job_data and 'job_id' not in job_data:
+                job_data['job_id'] = job_data['id']
+            elif 'job_id' in job_data and 'id' not in job_data:
+                job_data['id'] = job_data['job_id']
+            elif 'job_id' not in job_data and 'id' not in job_data:
+                job_data['id'] = job_id
+                job_data['job_id'] = job_id
+                
+            # Add the job to the in-memory dictionary
+            JOBS[job_id] = job_data
+            logging.info(f"Reloaded job {job_id} from disk")
+            return True
+        except Exception as e:
+            logging.error(f"Error reloading job {job_id} from disk: {e}")
+    return False
+
 @app.route('/job/<job_id>')
 def job_detail(job_id):
     """View job details"""
-    if job_id not in JOBS:
+    # Try to reload the job from disk if it's not in memory
+    if job_id not in JOBS and not reload_job_from_disk(job_id):
         return "Job not found", 404
     
     job = JOBS[job_id]

@@ -15,6 +15,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+# Create a non-root user to run the application
+RUN groupadd -r garak && useradd -r -g garak garak
+
+# Create and set up home directory for garak user
+RUN mkdir -p /home/garak/.config/garak && \
+    chown -R garak:garak /home/garak && \
+    chmod -R 755 /home/garak
+
 # Create directory structure
 RUN mkdir -p /app/dashboard /app/garak /app/reports /app/data
 
@@ -37,10 +45,16 @@ COPY dashboard /app/dashboard/
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=/app/dashboard/app.py
 ENV PYTHONPATH=/app
+ENV DATA_DIR=/app/data
+ENV REPORT_DIR=/app/reports
 
-# Create necessary directories
-RUN mkdir -p /app/reports /app/data
+# Create necessary directories and set permissions
+RUN mkdir -p /app/reports /app/data && \
+    chown -R garak:garak /app/reports /app/data
 
 EXPOSE 8080
+
+# Switch to non-root user
+USER garak
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "dashboard.app:app"]
