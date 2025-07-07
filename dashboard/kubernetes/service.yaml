@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: garak-dashboard-service
+spec:
+  selector:
+    app: garak-dashboard
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer

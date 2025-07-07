@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garak-dashboard-deployment
+  labels:
+    app: garak-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: garak-dashboard
+  template:
+    metadata:
+      labels:
+        app: garak-dashboard
+    spec:
+      containers:
+      - name: garak-dashboard
+        image: gcr.io/garak-464900/garak-dashboard:latest # <-- IMPORTANT: Replace YOUR_PROJECT_ID
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DATA_DIR
+          value: "/app/data"
+        - name: REPORT_DIR
+          value: "/app/reports"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+        volumeMounts:
+        - name: garak-data
+          mountPath: /app/data
+        - name: garak-data
+          mountPath: /app/reports
+      volumes:
+      - name: garak-data
+        persistentVolumeClaim:
+          claimName: garak-data-pvc
