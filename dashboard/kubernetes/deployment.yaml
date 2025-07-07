@@ -14,28 +14,30 @@ spec:
       labels:
         app: garak-dashboard
     spec:
+      serviceAccountName: garak-dashboard-sa # Important for Workload Identity
       containers:
       - name: garak-dashboard
-        image: gcr.io/garak-464900/garak-dashboard:latest # <-- IMPORTANT: Replace YOUR_PROJECT_ID
+        image: gcr.io/garak-464900/garak-dashboard:latest # Make sure this is your image path
         ports:
         - containerPort: 8080
         env:
         - name: PORT
           value: "8080"
+        - name: GCS_BUCKET_NAME
+          value: "garak-dashboard-storage-garak-464900" # The GCS bucket for storage
         - name: DATA_DIR
-          value: "/app/data"
+          value: "/app/data" # Temporary storage
         - name: REPORT_DIR
-          value: "/app/reports"
+          value: "/app/reports" # Temporary storage
         resources:
           requests:
             memory: "512Mi"
             cpu: "250m"
         volumeMounts:
-        - name: garak-data
+        - name: temp-storage
           mountPath: /app/data
-        - name: garak-data
+        - name: temp-storage
           mountPath: /app/reports
       volumes:
-      - name: garak-data
-        persistentVolumeClaim:
-          claimName: garak-data-pvc
+      - name: temp-storage
+        emptyDir: {}
