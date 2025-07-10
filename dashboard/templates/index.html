@@ -167,6 +167,7 @@
                                 <option value="" selected disabled>Select API Key Type</option>
                                 <option value="openai_api_key">OpenAI API Key</option>
                                 <option value="hf_token">HuggingFace Token</option>
+                                <option value="mistral_api_key">Mistral API Key</option>
                                 <option value="cohere_api_key">Cohere API Key</option>
                                 <option value="anthropic_api_key">Anthropic API Key</option>
                             </select>
@@ -298,6 +299,7 @@
             const models = {
                 'openai': ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
                 'huggingface': ['meta-llama/Llama-2-70b', 'mistralai/Mistral-7B-v0.1', 'tiiuae/falcon-40b'],
+                'mistral': ['mistral-large-latest', 'open-mistral-7b'],
                 'cohere': ['command', 'command-light', 'command-r', 'command-r-plus'],
                 'anthropic': ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
                 'ollama': ['llama2', 'mistral', 'gemma'],

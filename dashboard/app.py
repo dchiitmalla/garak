@@ -367,7 +367,8 @@ GENERATORS = {
     'ollama': 'Ollama',
     'replicate': 'Replicate',
     'vertexai': 'Google VertexAI',
-    'llamacpp': 'LlamaCPP'
+    'llamacpp': 'LlamaCPP',
+    'mistral': 'Mistral'
 }
 
 # Category to probe mapping
@@ -799,7 +800,7 @@ def job_detail(job_id):
                 with open(json_report_path, 'r', encoding='utf-8') as f:
                     report_data = json.load(f)
                     # Process JSON report if needed
-            logging.info(f"Parsed report data for job {job_id} from {json_report_path}")
+            # logging.info(f"Parsed report data for job {job_id} from {json_report_path}")
         except Exception as e:
             logging.error(f"Error parsing report data for job {job_id} from {json_report_path}: {e}")
     
