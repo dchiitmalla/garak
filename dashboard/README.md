@@ -105,6 +105,53 @@ docker run -p 8080:8080 -e PORT=8080 \
 docker stop garak-dashboard-container && docker rm garak-dashboard-container
 ```
 
+## Parsing Reports for BigQuery Analysis
+
+The dashboard includes a Python script, `html_report_parser.py`, designed to parse the generated HTML reports, extract key findings, and upload them to Google BigQuery for advanced analysis and long-term storage.
+
+### Overview
+
+- **Source**: The script reads all `.report.html` files from a Google Cloud Storage (GCS) bucket.
+- **Processing**: It parses the HTML to extract structured data for each probe and detector result.
+- **Destination**: The extracted data is uploaded to a specified BigQuery table.
+
+### Extracted Data Fields
+
+The following fields are extracted from each report and uploaded to BigQuery:
+
+- `run_uuid`: The unique identifier for the Garak scan.
+- `model_name`: The name of the model that was evaluated.
+- `start_time`: The timestamp when the scan was initiated.
+- `garak_version`: The version of Garak used for the scan.
+- `probe_group`: The category of the probe (e.g., `promptinject`).
+- `probe_name`: The specific name of the probe (e.g., `promptinject.Hijack`)
+- `detector_name`: The detector used to evaluate the probe's output.
+- `pass_rate`: The percentage of tests that passed.
+- `z_score`: The statistical z-score of the results.
+- `final_defcon`: The final DEFCON level indicating the severity of the finding.
+- `load_timestamp`: The timestamp when the data was uploaded to BigQuery.
+
+### Configuration and How to Run
+
+The script is pre-configured to work with a specific GCP environment. To run it, follow these steps:
+
+1.  **Place Service Account Credentials**:
+    Ensure you have a GCP service account key file named `gcp-creds.json` in the root directory of the `garak` project. This service account must have permissions for Google Cloud Storage (read) and BigQuery (write).
+
+2.  **Install Required Libraries**:
+    The script requires additional Python libraries. Install them using pip:
+    ```bash
+    pip install google-cloud-storage google-cloud-bigquery beautifulsoup4 lxml
+    ```
+
+3.  **Execute the Script**:
+    Run the script from the root of the `garak` repository:
+    ```bash
+    python dashboard/html_report_parser.py
+    ```
+
+The script will automatically connect to the configured GCS bucket, process all reports, and upload the results to the BigQuery table.
+
 ## Troubleshooting
 
 ### Common Issues
