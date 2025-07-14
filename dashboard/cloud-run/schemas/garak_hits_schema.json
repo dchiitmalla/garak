@@ -1,0 +1,15 @@
+[
+  {"name": "goal", "type": "STRING"},
+  {"name": "prompt", "type": "STRING"},
+  {"name": "output", "type": "STRING"},
+  {"name": "triggers", "type": "STRING", "mode": "REPEATED"},
+  {"name": "score", "type": "FLOAT"},
+  {"name": "run_id", "type": "STRING"},
+  {"name": "attempt_id", "type": "STRING"},
+  {"name": "attempt_seq", "type": "INTEGER"},
+  {"name": "attempt_idx", "type": "INTEGER"},
+  {"name": "generator", "type": "STRING"},
+  {"name": "probe", "type": "STRING"},
+  {"name": "detector", "type": "STRING"},
+  {"name": "generations_per_prompt", "type": "INTEGER"}
+]

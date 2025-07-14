@@ -1,0 +1,10 @@
+[
+  {"name": "entry_type", "type": "STRING"},
+  {"name": "timestamp", "type": "TIMESTAMP"},
+  {"name": "run_id", "type": "STRING"},
+  {"name": "json_payload", "type": "STRING"},
+  {"name": "start_time", "type": "TIMESTAMP"},
+  {"name": "end_time", "type": "TIMESTAMP"},
+  {"name": "model_name", "type": "STRING"},
+  {"name": "ingestion_time", "type": "TIMESTAMP"}
+]

@@ -205,14 +205,30 @@ def upload_to_bigquery(records, bigquery_client, project_id, dataset_id, table_i
         for error in errors:
             print(error)
 
-def process_gcs_to_bigquery():
+def move_blob_to_processed(bucket, blob):
+    """Moves a blob to the 'processed/' directory in the same bucket."""
+    processed_folder = 'processed/'
+    # Ensure the destination blob name is unique to avoid overwriting
+    destination_blob_name = f"{processed_folder}{blob.name}"
+
+    print(f"    -> Moving to {destination_blob_name}")
+    
+    # Copy the blob to the new location
+    bucket.copy_blob(blob, bucket, destination_blob_name)
+
+    # Delete the original blob
+    blob.delete()
+
+    print(f"    -> Move complete.")
+
+def process_gcs_to_bigquery(move_files=False):
     """Processes all HTML reports in a GCS bucket and uploads results to BigQuery."""
     # --- Configuration ---
     project_id = "garak-464900"
     bucket_name = "garak-dashboard-storage-garak-464900"
     dataset_id = "garak"
     table_id = "garak_scan_results"
-    credentials_path = "gcp-creds.json"
+    credentials_path = "../gcp-creds.json"
 
     # --- Check for Libraries ---
     if not storage or not bigquery:
@@ -238,7 +254,13 @@ def process_gcs_to_bigquery():
     blobs = bucket.list_blobs()
     all_records = []
 
-    for blob in blobs:
+    # Convert iterator to list to avoid issues with modification during iteration
+    blob_list = list(blobs)
+
+    for blob in blob_list:
+        if blob.name.startswith('processed/'):
+            continue
+
         if blob.name.endswith('.html'):
             print(f"  - Processing {blob.name}...")
             try:
@@ -253,6 +275,10 @@ def process_gcs_to_bigquery():
 
                 print(f"    ...found {len(records)} records.")
 
+                # If processing was successful and move_files is True, move the blob
+                if move_files:
+                    move_blob_to_processed(bucket, blob)
+
             except Exception as e:
                 print(f"    [ERROR] Failed to process {blob.name}: {e}")
 
@@ -264,4 +290,12 @@ def process_gcs_to_bigquery():
         print("No reports found or processed. Nothing to upload.")
 
 if __name__ == '__main__':
-    process_gcs_to_bigquery()
+    parser = argparse.ArgumentParser(description='Process Garak HTML reports from GCS and upload to BigQuery.')
+    parser.add_argument(
+        '--move-processed-files',
+        action='store_true',
+        help='Move processed HTML files to a `processed/` directory in the GCS bucket.'
+    )
+    args = parser.parse_args()
+
+    process_gcs_to_bigquery(move_files=args.move_processed_files)

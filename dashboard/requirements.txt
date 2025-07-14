@@ -7,3 +7,6 @@ Werkzeug>=2.3.0
 Jinja2>=3.1.2
 redis==5.0.7
 rq==1.16.2
+beautifulsoup4==4.12.3
+google-cloud-bigquery==3.20.0
+pyarrow>=3.0.0
