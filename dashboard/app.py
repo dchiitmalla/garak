@@ -385,9 +385,7 @@ PROBE_CATEGORIES = {
         'dan.Dan_8_0',
         'dan.Dan_9_0',
         'dan.DUDE',
-        'dan.ImageJailbreak',
         'dan.STAN',
-        'dan.STAN_Jailbreak',
         'dan.DanInTheWild',
         'dan.DanInTheWildFull',
         'dan.AutoDAN',
@@ -458,7 +456,7 @@ PROBE_CATEGORIES = {
     ]
 }
 
-def run_garak_job(job_id, generator, model_name, probes, api_keys):
+def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_attempts=1):
     # Import needed modules - moved all imports to the beginning
     import subprocess, threading, io, select
     
@@ -489,21 +487,13 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys):
             json.dump(JOBS[job_id], f)
         
         # Format probes for command line
-        # Handle categories parameter which is passed as 'probes'
         if isinstance(probes, list) and probes:
-            # If the input is a list of category names like ['encoding'], map them to actual probe names
-            if probes[0] in PROBE_CATEGORIES:
-                # Get probes for each category
-                probe_list = []
-                for category in probes:
-                    if category in PROBE_CATEGORIES:
-                        probe_list.extend(PROBE_CATEGORIES[category])
-                probe_str = ",".join(probe_list)
-            else:
-                # If the input is already a list of probe names
-                probe_str = ",".join(probes)
+            # The 'probes' argument is a list of individual probe names expanded from categories.
+            probe_str = ",".join(probes)
+            logging.info(f"Job {job_id}: Using probes: {probe_str}")
         else:
-            # Default to a basic encoding probe if no probes specified
+            # Default to a basic encoding probe if no probes are specified
+            logging.warning(f"No probes selected for job {job_id}, defaulting to encoding.InjectBase64")
             probe_str = "encoding.InjectBase64"
         
         # Create a bash script to run garak CLI command
@@ -514,7 +504,36 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys):
 """
         
         # Add API keys to environment variables
-        test_mode = False
+        # Determine if we should be in test mode. Test mode is only enabled when a generator
+        # that requires API keys is selected, but no keys are provided.
+        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral']
+        logging.info(f"Job {job_id}: Generator: {generator}, API keys received: {list(api_keys.keys())}")
+        
+        # Debug the API keys values (without revealing actual keys)
+        has_api_keys = {k: (v and len(v) > 0) for k, v in api_keys.items()}
+        logging.info(f"Job {job_id}: Has API keys: {has_api_keys}")
+        
+        # Explicitly check for the specific key needed for this generator
+        key_needed = None
+        if generator == 'openai': key_needed = 'openai_api_key'
+        elif generator == 'anthropic': key_needed = 'anthropic_api_key'
+        elif generator == 'cohere': key_needed = 'cohere_api_key'
+        elif generator == 'vertexai': key_needed = 'gcp_credentials_path'
+        elif generator == 'mistral': key_needed = 'mistral_api_key'
+        elif generator == 'replicate': key_needed = 'replicate_api_token'
+        
+        if generator in KEY_REQUIRED_GENERATORS:
+            # For key-requiring generators, check if we have the specific key needed
+            if key_needed and key_needed in api_keys and api_keys[key_needed]:
+                logging.info(f"Job {job_id}: Required API key '{key_needed}' is provided for {generator}.")
+                test_mode = False
+            else:
+                logging.warning(f"Job {job_id}: Required API key '{key_needed}' is missing for {generator}. Enabling test mode.")
+                test_mode = True
+        else:
+            # For local models that don't need keys
+            logging.info(f"Job {job_id}: Generator {generator} doesn't require API keys. Test mode disabled.")
+            test_mode = False
         for key, value in api_keys.items():
             if value:  # Only set if value is not empty
                 # Detect if we're using test keys
@@ -526,12 +545,17 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys):
         # Construct the garak CLI command
         if test_mode:
             # In test mode, use a special configuration that doesn't require valid API keys
-            # This provides better feedback than just failing with auth errors
-            cmd_str = f"garak --model_type huggingface --model_name gpt2 --probes encoding.InjectBase64 --generations 1 --report_prefix {report_prefix} --detector_options '{{\\\"-a\\\":\\\"test_mode\\\"}}'"
+            cmd_str = f"python3 -m garak --model_type huggingface --model_name gpt2 --probes encoding.InjectBase64 --generations 1 --report_prefix {report_prefix} --detector_options '{{\"-a\":\"test_mode\"}}'"
             logging.info(f"Using test mode configuration for job {job_id} - will use local HF model instead of {generator}")
         else:
             # Normal mode with actual API keys
-            cmd_str = f"garak --model_type {generator} --model_name {model_name} --probes {probe_str} --generations 1 --report_prefix {report_prefix}"
+            cmd_str = f"python3 -m garak --model_type {generator} --model_name \"{model_name}\" --probes {probe_str} --report_prefix {report_prefix}"
+            try:
+                if int(parallel_attempts) > 1:
+                    cmd_str += f" --parallel_attempts {int(parallel_attempts)}"
+            except (ValueError, TypeError):
+                pass
+            logging.info(f"Job {job_id}: Executing command: {cmd_str}")
         
         script_content += f"""
 
@@ -945,20 +969,22 @@ def start_job():
     model_name = data.get('model_name')
     selected_categories = data.get('categories', [])
     api_keys = data.get('api_keys', {})
-    
+    parallel_attempts = data.get('parallel_attempts', 1)
+
     # Validate inputs
     if not generator or not model_name:
         return jsonify({'status': 'error', 'message': 'Generator and model name are required'}), 400
-    
+
     # Create a unique job ID
     job_id = str(uuid.uuid4())
-    
+
     # Collect all probes from selected categories
     selected_probes = []
     for category in selected_categories:
         if category in PROBE_CATEGORIES:
             selected_probes.extend(PROBE_CATEGORIES[category])
-    
+    logging.info(f"Job {job_id}: Selected categories {selected_categories} expanded to {len(selected_probes)} probes.")
+
     # Create job entry
     JOBS[job_id] = {
         'id': job_id,
@@ -967,17 +993,18 @@ def start_job():
         'probes': selected_probes,
         'status': 'pending',
         'created_at': datetime.now().isoformat(),
-        'api_keys': {k: '***' for k, v in api_keys.items() if v}  # Don't store actual keys in job history
+        'api_keys': {k: '***' for k, v in api_keys.items() if v},  # Don't store actual keys in job history
+        'parallel_attempts': parallel_attempts
     }
-    
+
     # Start job in background thread
     thread = threading.Thread(
-        target=run_garak_job, 
-        args=(job_id, generator, model_name, selected_probes, api_keys)
+        target=run_garak_job,
+        args=(job_id, generator, model_name, selected_probes, api_keys, parallel_attempts)
     )
     thread.daemon = True
     thread.start()
-    
+
     return jsonify({
         'status': 'success',
         'job_id': job_id,

@@ -143,6 +143,15 @@
                                         <option value="" selected disabled>Select a model hub first</option>
                                     </select>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="parallelAttempts" class="form-label">Parallel Attempts</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="parallelAttempts" value="1" min="1" max="100">
+                                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="Set the number of parallel requests for supported generators to accelerate the scan.">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
                                 <div class="mb-3">
@@ -224,7 +233,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <!-- Left column categories -->
-                                {% for category in ['performance', 'ethics', 'privacy', 'security'] %}
+                                {% for category in ['dan', 'performance', 'ethics', 'privacy', 'security'] %}
                                 <div class="category-switch d-flex justify-content-between align-items-center">
                                     <div>
                                         <label class="form-check-label" for="{{ category }}Switch">{{ category|capitalize }}</label>
@@ -378,6 +387,9 @@
             document.querySelectorAll('.category-toggle:checked').forEach(checkbox => {
                 selectedCategories.push(checkbox.dataset.category);
             });
+
+            // Get parallel attempts
+            const parallelAttempts = document.getElementById('parallelAttempts').value;
             
             // Validate inputs
             if (!generator) {
@@ -400,18 +412,22 @@
             
             // API keys are already prepared
             
+            // Prepare data for API call
+            const data = {
+                generator: generator,
+                model_name: modelName,
+                categories: selectedCategories,  // Changed from 'probes' to 'categories' to match backend expectation
+                api_keys: apiKeys,
+                parallel_attempts: parallelAttempts
+            };
+
             // Submit job
             fetch('/api/start_job', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    generator: generator,
-                    model_name: modelName,
-                    categories: selectedCategories,
-                    api_keys: apiKeys
-                })
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
