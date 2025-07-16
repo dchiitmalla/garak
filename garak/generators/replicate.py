@@ -82,7 +82,7 @@ class ReplicateGenerator(Generator):
                 "seed": self.seed,
             },
         )
-        return ["".join(response_iterator)]
+        return ["".join(str(item) for item in response_iterator)]
 
 
 class InferenceEndpoint(ReplicateGenerator):

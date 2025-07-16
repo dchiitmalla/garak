@@ -162,16 +162,31 @@
                         </div>
 
                         <div class="mb-3" id="apiKeySection">
-                            <label for="apiKey" class="form-label">Primary API Key</label>
-                            <select class="form-select mb-2" id="apiKeyType">
-                                <option value="" selected disabled>Select API Key Type</option>
-                                <option value="openai_api_key">OpenAI API Key</option>
-                                <option value="hf_token">HuggingFace Token</option>
-                                <option value="mistral_api_key">Mistral API Key</option>
-                                <option value="cohere_api_key">Cohere API Key</option>
-                                <option value="anthropic_api_key">Anthropic API Key</option>
-                            </select>
-                            <input type="password" class="form-control" id="apiKey" placeholder="Enter your API key">
+                            <label class="form-label">API Keys</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">OpenAI API Key</span>
+                                <input type="password" class="form-control" id="openai_api_key" placeholder="sk-...">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">HuggingFace Token</span>
+                                <input type="password" class="form-control" id="hf_token" placeholder="hf_...">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">Replicate API Token</span>
+                                <input type="password" class="form-control" id="replicate_api_token" placeholder="r8_...">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">Mistral API Key</span>
+                                <input type="password" class="form-control" id="mistral_api_key" placeholder="...">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">Cohere API Key</span>
+                                <input type="password" class="form-control" id="cohere_api_key" placeholder="...">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">Anthropic API Key</span>
+                                <input type="password" class="form-control" id="anthropic_api_key" placeholder="...">
+                            </div>
                             <div class="form-text">Your API keys are only used for this evaluation and never stored.</div>
                         </div>
                     </div>
@@ -303,7 +318,7 @@
                 'cohere': ['command', 'command-light', 'command-r', 'command-r-plus'],
                 'anthropic': ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
                 'ollama': ['llama2', 'mistral', 'gemma'],
-                'replicate': ['meta/llama-2-70b', 'anthropic/claude-2'],
+                'replicate': ['meta/meta-llama-3-8b-instruct', 'meta/llama-2-70b-chat', 'anthropic/claude-2'],
                 'vertexai': ['gemini-pro', 'gemini-ultra'],
                 'llamacpp': ['llama-2-13b-chat.Q4_K_M', 'mistral-7b-instruct-v0.2.Q4_K_M']
             };
@@ -341,9 +356,22 @@
                 modelName = document.getElementById('customModelName').value;
             }
             
-            // Get API key
-            const apiKeyType = document.getElementById('apiKeyType').value;
-            const apiKey = document.getElementById('apiKey').value;
+            // Get API keys
+            const apiKeys = {};
+            const keyInputs = [
+                'openai_api_key',
+                'hf_token',
+                'replicate_api_token',
+                'mistral_api_key',
+                'cohere_api_key',
+                'anthropic_api_key'
+            ];
+            keyInputs.forEach(keyId => {
+                const input = document.getElementById(keyId);
+                if (input && input.value) {
+                    apiKeys[keyId] = input.value;
+                }
+            });
             
             // Get selected categories
             const selectedCategories = [];
@@ -370,11 +398,7 @@
             // Show loading
             document.getElementById('loading').style.display = 'block';
             
-            // Prepare API key object
-            const apiKeys = {};
-            if (apiKeyType && apiKey) {
-                apiKeys[apiKeyType] = apiKey;
-            }
+            // API keys are already prepared
             
             // Submit job
             fetch('/api/start_job', {
