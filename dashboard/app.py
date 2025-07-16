@@ -386,7 +386,15 @@ PROBE_CATEGORIES = {
         'dan.Dan_9_0',
         'dan.DUDE',
         'dan.ImageJailbreak',
-        'dan.STAN'
+        'dan.STAN',
+        'dan.STAN_Jailbreak',
+        'dan.DanInTheWild',
+        'dan.DanInTheWildFull',
+        'dan.AutoDAN',
+        'dan.AutoDANCached',
+        'dan.ChatGPT_Image_Markdown',
+        'dan.ChatGPT_Developer_Mode_RANTI',
+        'dan.ChatGPT_Developer_Mode_v2'
     ],
     'security': [
         'promptinject.HijackHateHumans',
