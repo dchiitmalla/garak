@@ -510,6 +510,4 @@ By learning from the Llama Firewall bypass and adopting these practices, we can 
 - Meta's Llama Guard documentation: [Llama Guard](https://ai.meta.com/research/publications/llama-guard-llm-based-input-output-safeguard-for-human-ai-conversations/)
 - PromptInject framework: [PromptInject: Adversarial Attacks Against LLMs](https://openreview.net/forum?id=qiaRo_7Zmug)
 - [OWASP Top 10 for LLMs](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
-- [Guide to LLM Security Testing](https://www.nvidia.com/en-us/ai/garak/)
-
 
