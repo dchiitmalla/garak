@@ -373,10 +373,22 @@ GENERATORS = {
 
 # Category to probe mapping
 PROBE_CATEGORIES = {
-    'security': [
+    'dan': [
         'dan.Ablation_Dan_11_0',
-        'dan.AutoDANCached',
-        'dan.DanInTheWild',
+        'dan.AntiDAN',
+        'dan.DAN_Jailbreak',
+        'dan.Dan_10_0',
+        'dan.Dan_11_0',
+        'dan.Dan_6_0',
+        'dan.Dan_6_2',
+        'dan.Dan_7_0',
+        'dan.Dan_8_0',
+        'dan.Dan_9_0',
+        'dan.DUDE',
+        'dan.ImageJailbreak',
+        'dan.STAN'
+    ],
+    'security': [
         'promptinject.HijackHateHumans',
         'promptinject.HijackKillHumans',
         'promptinject.HijackLongPrompt',
