@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garak LLM Evaluation Dashboard - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            padding: 1.5rem 1.25rem 0.5rem;
+            text-align: center;
+        }
+        .card-title {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .login-logo {
+            max-width: 80px;
+            margin-bottom: 15px;
+        }
+        .login-divider {
+            position: relative;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .login-divider span {
+            background-color: #fff;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+            color: #6c757d;
+        }
+        .login-divider:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #e9ecef;
+            z-index: 1;
+        }
+        .social-login {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .social-login button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 0 5px;
+            border: 1px solid #dee2e6;
+            background-color: white;
+            cursor: pointer;
+        }
+        .social-login button:hover {
+            background-color: #f8f9fa;
+        }
+        #error-message {
+            display: none;
+            color: #dc3545;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
+                <h3 class="card-title mt-3">Garak Dashboard</h3>
+                <p class="text-muted">LLM Security Testing Platform</p>
+            </div>
+            <div class="card-body p-4">
+                <div id="error-message" class="alert alert-danger"></div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password">
+                </div>
+                <button id="login-button" class="btn btn-primary">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                </button>
+
+                <div class="login-divider">
+                    <span>Or login with</span>
+                </div>
+
+                <div class="social-login">
+                    <button id="google-login" type="button">
+                        <i class="bi bi-google text-danger me-2"></i>Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script>
+        // Firebase configuration - will be populated from Flask template
+        const firebaseConfig = {
+            apiKey: "{{ firebase_config.apiKey }}",
+            authDomain: "{{ firebase_config.authDomain }}",
+            projectId: "{{ firebase_config.projectId }}",
+            storageBucket: "{{ firebase_config.storageBucket }}",
+            messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+            appId: "{{ firebase_config.appId }}"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Email/Password login
+        document.getElementById('login-button').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('error-message');
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // User signed in
+                    const user = userCredential.user;
+                    
+                    // Get ID token to send to server
+                    return user.getIdToken();
+                })
+                .then((idToken) => {
+                    // Send token to your backend via HTTPS
+                    fetch('/auth/verify-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ idToken })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server verification failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Store token in session/local storage
+                        localStorage.setItem('authToken', idToken);
+                        
+                        // Redirect to home page
+                        window.location.href = '/';
+                    });
+                })
+                .catch((error) => {
+                    // Handle errors
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    errorElement.textContent = errorMessage;
+                    errorElement.style.display = 'block';
+                    console.error(errorCode, errorMessage);
+                });
+        });
+
+        // Google Sign-in
+        document.getElementById('google-login').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    // Handle result
+                    const user = result.user;
+                    return user.getIdToken();
+                })
+                .then((idToken) => {
+                    fetch('/auth/verify-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ idToken })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server verification failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        localStorage.setItem('authToken', idToken);
+                        window.location.href = '/';
+                    });
+                })
+                .catch((error) => {
+                    const errorElement = document.getElementById('error-message');
+                    errorElement.textContent = `Error (${error.code}): ${error.message}`;
+                    errorElement.style.display = 'block';
+                    console.error('Authentication error:', error);
+                    
+                    if (error.code === 'auth/unauthorized-domain') {
+                        errorElement.innerHTML += '<br><br>This domain is not authorized. Try these solutions:<br>' + 
+                        '1. Access using <a href="http://localhost:8002">localhost:8002</a> instead of 127.0.0.1<br>' + 
+                        '2. Add this exact domain to Firebase Console > Authentication > Settings > Authorized domains';
+                    }
+                });
+        });
+
+        // GitHub Sign-in removed as requested
+
+        // Check if user is already signed in
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, check with backend
+                user.getIdToken().then(idToken => {
+                    fetch('/auth/check-session', {
+                        headers: {
+                            'Authorization': `Bearer ${idToken}`
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Valid session exists
+                            window.location.href = '/';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -10,3 +10,4 @@ rq==1.16.2
 beautifulsoup4==4.12.3
 google-cloud-bigquery==3.20.0
 pyarrow>=3.0.0
+firebase-admin==6.2.0

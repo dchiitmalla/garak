@@ -12,10 +12,17 @@ import threading
 import logging
 import jsonlines
 
+# Import authentication module
+from dashboard import auth
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = os.environ.get('SECRET_KEY', 'garak-dashboard-secret-key')
+
+# Initialize Firebase
+with app.app_context():
+    firebase_app = auth.init_firebase_admin()
 
 # Store running jobs
 JOBS = {}
@@ -779,16 +786,19 @@ exit $EXIT_CODE
         return job_id
 
 @app.route('/')
+@auth.login_required
 def index():
     """Main dashboard page"""
     return render_template('index.html', 
+                           user_email=session.get('user_email', ''),
                            generators=GENERATORS, 
                            probe_categories=PROBE_CATEGORIES)
 
 @app.route('/jobs')
+@auth.login_required
 def jobs():
     """View all jobs"""
-    return render_template('jobs.html', jobs=JOBS)
+    return render_template('jobs.html', user_email=session.get('user_email', ''), jobs=JOBS)
 
 def reload_job_from_disk(job_id):
     """Reload a job from disk if it exists but is not in memory"""
@@ -816,6 +826,7 @@ def reload_job_from_disk(job_id):
     return False
 
 @app.route('/job/<job_id>')
+@auth.login_required
 def job_detail(job_id):
     """View job details"""
     # Try to reload the job from disk if it's not in memory
@@ -962,6 +973,7 @@ def job_detail(job_id):
                           failing_prompts=failing_prompts)
 
 @app.route('/api/start_job', methods=['POST'])
+@auth.login_required
 def start_job():
     """API endpoint to start a new Garak job"""
     data = request.json
@@ -1012,6 +1024,7 @@ def start_job():
     })
 
 @app.route('/api/job_status/<job_id>')
+@auth.login_required
 def job_status(job_id):
     """Get status of a specific job"""
     if job_id not in JOBS:
@@ -1022,6 +1035,7 @@ def job_status(job_id):
     })
 
 @app.route('/api/job_progress/<job_id>')
+@auth.login_required
 def job_progress(job_id):
     """Get detailed progress information of a job, optimized for frequent polling"""
     if job_id not in JOBS:
@@ -1126,6 +1140,7 @@ def job_progress(job_id):
     })
 
 @app.route('/download/<job_id>/<file_type>')
+@auth.login_required
 def download_report(job_id, file_type):
     """Download job report or hits file"""
     try:
@@ -1290,17 +1305,21 @@ def parse_jsonl_report(report_path):
     
     return trust_score_data, failing_prompts
 
+# Register authentication routes
+auth.register_auth_routes(app)
+
 if __name__ == '__main__':
     import argparse
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Run the Garak Dashboard')
-    parser.add_argument('--port', type=int, default=8080, help='Port to run the server on')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
+    parser.add_argument('--port', type=int, default=8000, help='Port to run the server on')
     parser.add_argument('--debug', action='store_true', help='Run in debug mode')
     args = parser.parse_args()
     
-    # Use environment variable for debug if available, otherwise use command line arg
+    # Run the app
     debug_mode = os.environ.get('DEBUG', str(args.debug).lower()) == 'true'
     
     print(f"Starting Garak Dashboard on port {args.port} with debug={debug_mode}")
-    app.run(host='0.0.0.0', port=args.port, debug=debug_mode)
+    app.run(host=args.host, port=args.port, debug=debug_mode)

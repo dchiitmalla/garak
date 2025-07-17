@@ -221,6 +221,105 @@ def move_blob_to_processed(bucket, blob):
 
     print(f"    -> Move complete.")
 
+def upload_local_file_to_gcs(local_file_path, bucket_name=None, project_id=None, credentials_path=None):
+    """Uploads a local file to Google Cloud Storage bucket."""
+    # Use default configuration if not provided
+    if not bucket_name:
+        bucket_name = "garak-dashboard-storage-garak-464900"
+    if not project_id:
+        project_id = "garak-464900"
+    
+    print(f"Uploading {local_file_path} to GCS bucket {bucket_name}...")
+    
+    try:
+        # Initialize GCS client
+        if credentials_path and os.path.exists(credentials_path):
+            print(f"Using credentials from {credentials_path}")
+            storage_client = storage.Client.from_service_account_json(credentials_path)
+        else:
+            print("Using default credentials")
+            storage_client = storage.Client(project=project_id)
+        
+        # Get bucket
+        bucket = storage_client.bucket(bucket_name)
+        
+        # Generate destination blob name (use just the filename)
+        destination_blob_name = os.path.basename(local_file_path)
+        
+        # Create blob and upload
+        blob = bucket.blob(destination_blob_name)
+        blob.upload_from_filename(local_file_path)
+        
+        print(f"Successfully uploaded {local_file_path} to gs://{bucket_name}/{destination_blob_name}")
+        return destination_blob_name
+    
+    except Exception as e:
+        print(f"Error uploading file to GCS: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+def process_local_file_to_bigquery(local_file_path, upload_to_gcs=True, process_to_bq=True):
+    """Process a local HTML report file and optionally upload to GCS and BigQuery."""
+    # --- Configuration ---
+    project_id = "garak-464900"
+    bucket_name = "garak-dashboard-storage-garak-464900"
+    dataset_id = "garak"
+    table_id = "garak_scan_results"
+    credentials_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../gcp-creds.json")
+    
+    # --- Check for Libraries ---
+    if not storage or not bigquery:
+        print("Error: Google Cloud libraries not installed. Run: pip install google-cloud-storage google-cloud-bigquery")
+        return
+    
+    if not os.path.exists(local_file_path):
+        print(f"Error: File {local_file_path} not found.")
+        return
+    
+    # 1. Process the local file
+    try:
+        with open(local_file_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        
+        report_metadata, records = parse_html_report(html_content)
+        
+        # Combine metadata with each record
+        all_records = []
+        for record in records:
+            combined_record = report_metadata.copy()
+            combined_record.update(record)
+            all_records.append(combined_record)
+            
+        print(f"Processed {local_file_path}, found {len(all_records)} records")
+        
+        # 2. Upload to GCS if requested
+        if upload_to_gcs:
+            print(f"Uploading {local_file_path} to GCS bucket {bucket_name}...")
+            blob_name = upload_local_file_to_gcs(
+                local_file_path, bucket_name, project_id, credentials_path)
+            
+            if not blob_name:
+                print("GCS upload failed, continuing with BigQuery processing...")
+        
+        # 3. Upload to BigQuery if requested
+        if process_to_bq and all_records:
+            # Initialize BigQuery client
+            if os.path.exists(credentials_path):
+                bigquery_client = bigquery.Client.from_service_account_json(credentials_path)
+            else:
+                bigquery_client = bigquery.Client(project=project_id)
+            
+            upload_to_bigquery(all_records, bigquery_client, project_id, dataset_id, table_id)
+        
+        return True
+        
+    except Exception as e:
+        print(f"Error processing {local_file_path}: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 def process_gcs_to_bigquery(move_files=False):
     """Processes all HTML reports in a GCS bucket and uploads results to BigQuery."""
     # --- Configuration ---
@@ -228,7 +327,7 @@ def process_gcs_to_bigquery(move_files=False):
     bucket_name = "garak-dashboard-storage-garak-464900"
     dataset_id = "garak"
     table_id = "garak_scan_results"
-    credentials_path = "../gcp-creds.json"
+    credentials_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../gcp-creds.json")
 
     # --- Check for Libraries ---
     if not storage or not bigquery:
@@ -290,12 +389,56 @@ def process_gcs_to_bigquery(move_files=False):
         print("No reports found or processed. Nothing to upload.")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Process Garak HTML reports from GCS and upload to BigQuery.')
-    parser.add_argument(
+    parser = argparse.ArgumentParser(description='Process Garak HTML reports and upload to BigQuery.')
+    
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    
+    # Parser for processing reports from GCS
+    gcs_parser = subparsers.add_parser('process-gcs', help='Process HTML reports from GCS bucket')
+    gcs_parser.add_argument(
         '--move-processed-files',
         action='store_true',
         help='Move processed HTML files to a `processed/` directory in the GCS bucket.'
     )
+    
+    # Parser for processing local report files
+    local_parser = subparsers.add_parser('process-local', help='Process local HTML report files')
+    local_parser.add_argument(
+        'file_paths',
+        nargs='+',
+        help='Path(s) to local HTML report file(s)'
+    )
+    local_parser.add_argument(
+        '--skip-gcs',
+        action='store_true',
+        help='Skip uploading files to GCS'
+    )
+    local_parser.add_argument(
+        '--skip-bq',
+        action='store_true',
+        help='Skip processing to BigQuery'
+    )
+    
     args = parser.parse_args()
+    
+    # If no command specified, show help
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+    
+    # Execute the appropriate command
+    if args.command == 'process-gcs':
+        process_gcs_to_bigquery(move_files=args.move_processed_files)
+    elif args.command == 'process-local':
+        success_count = 0
+        for file_path in args.file_paths:
+            print(f"Processing {file_path}...")
+            if process_local_file_to_bigquery(
+                file_path,
+                upload_to_gcs=not args.skip_gcs,
+                process_to_bq=not args.skip_bq
+            ):
+                success_count += 1
+        print(f"Processed {success_count} out of {len(args.file_paths)} files.")
 
-    process_gcs_to_bigquery(move_files=args.move_processed_files)

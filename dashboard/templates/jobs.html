@@ -61,6 +61,18 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="/jobs">Jobs</a>
                     </li>
+                    {% if user_email %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>{{ user_email }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="logout-button">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -129,5 +141,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle logout functionality
+        document.getElementById('logout-button')?.addEventListener('click', function() {
+            // Clear local storage auth token
+            localStorage.removeItem('authToken');
+            
+            // Call backend logout endpoint
+            fetch('/auth/logout')
+                .then(response => {
+                    if (response.ok) {
+                        // Redirect to login page
+                        window.location.href = '/login';
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    alert('Logout error. Please try again.');
+                });
+        });
+    </script>
 </body>
 </html>
