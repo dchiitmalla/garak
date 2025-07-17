@@ -12,6 +12,8 @@ dashboard/garak_runs/
 dashboard/.vscode/
 dashboard/history/
 dashboard/.idea/
+dashboard/garak_tmp/
+dashboard/garak_cache/
 # C extensions
 *.so
 
