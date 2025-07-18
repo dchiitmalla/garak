@@ -10,11 +10,14 @@ Text-output models are supported.
 """
 
 import importlib
+import logging
 import os
-from typing import List, Union
+from typing import Dict, List, Optional, Union
 
 import backoff
 import replicate.exceptions
+import httpx
+import httpcore
 
 from garak import _config
 from garak.generators.base import Generator
@@ -64,7 +67,11 @@ class ReplicateGenerator(Generator):
         self.client = None
 
     @backoff.on_exception(
-        backoff.fibo, replicate.exceptions.ReplicateError, max_value=70
+        backoff.fibo, 
+        (replicate.exceptions.ReplicateError, httpx.RemoteProtocolError, httpcore.RemoteProtocolError,
+         httpx.ReadTimeout, httpx.ConnectTimeout, httpx.NetworkError),
+        max_value=120,  # Increased max value for network issues
+        jitter=backoff.full_jitter
     )
     def _call_model(
         self, prompt: str, generations_this_call: int = 1
@@ -92,7 +99,11 @@ class InferenceEndpoint(ReplicateGenerator):
     """
 
     @backoff.on_exception(
-        backoff.fibo, replicate.exceptions.ReplicateError, max_value=70
+        backoff.fibo, 
+        (replicate.exceptions.ReplicateError, httpx.RemoteProtocolError, httpcore.RemoteProtocolError,
+         httpx.ReadTimeout, httpx.ConnectTimeout, httpx.NetworkError),
+        max_value=120,  # Increased max value for network issues
+        jitter=backoff.full_jitter
     )
     def _call_model(
         self, prompt, generations_this_call: int = 1

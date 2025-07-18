@@ -317,18 +317,23 @@ class OpenAIGenerator(OpenAICompatible):
             self.generator = self.client.completions
         elif self.name in chat_models:
             self.generator = self.client.chat.completions
+        # Handle models with periods in their names (e.g., gpt-4.1)
+        elif self.name.startswith("gpt-4."):
+            self.generator = self.client.chat.completions
+        # Handle O3 models
+        elif self.name == "o3" or self.name.startswith("o3-"):
+            self.generator = self.client.chat.completions
         elif "-".join(self.name.split("-")[:-1]) in chat_models and re.match(
             r"^.+-[01][0-9][0-3][0-9]$", self.name
         ):  # handle model names -MMDDish suffix
             self.generator = self.client.completions
-
         else:
             raise ValueError(
                 f"No {self.generator_family_name} API defined for '{self.name}' in generators/openai.py - please add one!"
             )
 
-        if self.__class__.__name__ == "OpenAIGenerator" and self.name.startswith("o1-"):
-            msg = "'o1'-class models should use openai.OpenAIReasoningGenerator. Try e.g. `-m openai.OpenAIReasoningGenerator` instead of `-m openai`"
+        if self.__class__.__name__ == "OpenAIGenerator" and (self.name.startswith("o1-") or self.name.startswith("o3")):
+            msg = f"'{self.name.split('-')[0] if '-' in self.name else self.name}'-class models should use openai.OpenAIReasoningGenerator. Try e.g. `-m openai.OpenAIReasoningGenerator` instead of `-m openai`"
             logging.error(msg)
             raise garak.exception.BadGeneratorException("🛑 " + msg)
 
