@@ -43,6 +43,7 @@ chat_models = (
     "gpt-4-turbo-2024-04-09",
     "gpt-4-turbo-preview",
     "gpt-4-vision-preview",
+    "gpt-4.1",
     "gpt-4o",  # links to latest version
     "gpt-4o-2024-05-13",
     "gpt-4o-2024-08-06",
@@ -65,6 +66,8 @@ chat_models = (
     "o1-preview-2024-09-12",
     "o3-mini",  # links to latest version
     "o3-mini-2025-01-31",
+    "o3",
+    "o3-2025-01-31",
     # "gpt-3.5-turbo-0613",  # deprecated, shutdown 2024-09-13
     # "gpt-3.5-turbo-16k-0613",  # # deprecated, shutdown 2024-09-13
 )
@@ -110,6 +113,7 @@ context_lengths = {
     "gpt-4-turbo-2024-04-09": 128000,
     "gpt-4-turbo-preview": 128000,
     "gpt-4-vision-preview": 128000,
+    "gpt-4.1": 128000,
     "gpt-4o": 128000,
     "gpt-4o-2024-05-13": 128000,
     "gpt-4o-2024-08-06": 128000,
@@ -119,6 +123,10 @@ context_lengths = {
     "o1-mini-2024-09-12": 65536,
     "o1-preview": 32768,
     "o1-preview-2024-09-12": 32768,
+    "o3-mini": 65536,
+    "o3-mini-2025-01-31": 65536,
+    "o3": 32768,
+    "o3-2025-01-31": 32768,
 }
 
 

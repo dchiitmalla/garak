@@ -22,7 +22,15 @@ app.secret_key = os.environ.get('SECRET_KEY', 'garak-dashboard-secret-key')
 
 # Initialize Firebase
 with app.app_context():
-    firebase_app = auth.init_firebase_admin()
+    try:
+        firebase_app = auth.init_firebase_admin()
+        if not firebase_app:
+            app.logger.error("Failed to initialize Firebase Admin SDK. Check logs for details.")
+        else:
+            app.logger.info("Firebase Admin SDK initialized successfully")
+    except Exception as e:
+        app.logger.error(f"Error initializing Firebase: {str(e)}", exc_info=True)
+        firebase_app = None
 
 # Store running jobs
 JOBS = {}

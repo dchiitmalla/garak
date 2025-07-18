@@ -149,8 +149,24 @@
             appId: "{{ firebase_config.appId }}"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        console.log('Firebase Config:', firebaseConfig);
+
+        // Check for required Firebase config
+        if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+            console.error('Firebase configuration is missing required fields');
+            document.getElementById('error-message').textContent = 'Configuration error: Missing Firebase configuration. Please contact support.';
+            document.getElementById('error-message').style.display = 'block';
+        } else {
+            try {
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                document.getElementById('error-message').textContent = 'Authentication service error. Please try again later.';
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }
         
         // Email/Password login
         document.getElementById('login-button').addEventListener('click', () => {
