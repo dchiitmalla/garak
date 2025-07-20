@@ -383,8 +383,19 @@ GENERATORS = {
     'replicate': 'Replicate',
     'vertexai': 'Google VertexAI',
     'llamacpp': 'LlamaCPP',
-    'mistral': 'Mistral'
+    'mistral': 'Mistral',
+    'litellm': 'LiteLLM'
 }
+
+# List of Anthropic models available via LiteLLM
+ANTHROPIC_MODELS = [
+    "claude-3-opus-20240229",
+    "claude-3-sonnet-20240229",
+    "claude-3-haiku-20240307",
+    "claude-2.1",
+    "claude-2.0",
+    "claude-instant-1.2"
+]
 
 # Category to probe mapping
 PROBE_CATEGORIES = {
@@ -521,7 +532,7 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
         # Add API keys to environment variables
         # Determine if we should be in test mode. Test mode is only enabled when a generator
         # that requires API keys is selected, but no keys are provided.
-        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral']
+        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral', 'litellm']
         logging.info(f"Job {job_id}: Generator: {generator}, API keys received: {list(api_keys.keys())}")
         
         # Debug the API keys values (without revealing actual keys)
@@ -536,6 +547,7 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
         elif generator == 'vertexai': key_needed = 'gcp_credentials_path'
         elif generator == 'mistral': key_needed = 'mistral_api_key'
         elif generator == 'replicate': key_needed = 'replicate_api_token'
+        elif generator == 'litellm': key_needed = 'anthropic_api_key'  # LiteLLM with Anthropic models uses the Anthropic API key
         
         if generator in KEY_REQUIRED_GENERATORS:
             # For key-requiring generators, check if we have the specific key needed
@@ -565,6 +577,8 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
         else:
             # Normal mode with actual API keys
             cmd_str = f"python3 -m garak --model_type {generator} --model_name \"{model_name}\" --probes {probe_str} --report_prefix {report_prefix}"
+            if model_name.startswith('o3'):
+                cmd_str += " -m openai.OpenAIReasoningGenerator"
             try:
                 if int(parallel_attempts) > 1:
                     cmd_str += f" --parallel_attempts {int(parallel_attempts)}"
@@ -800,7 +814,8 @@ def index():
     return render_template('index.html', 
                            user_email=session.get('user_email', ''),
                            generators=GENERATORS, 
-                           probe_categories=PROBE_CATEGORIES)
+                           probe_categories=PROBE_CATEGORIES,
+                           anthropic_models=ANTHROPIC_MODELS)
 
 @app.route('/jobs')
 @auth.login_required
@@ -988,6 +1003,11 @@ def start_job():
     generator = data.get('generator')
     model_name = data.get('model_name')
     selected_categories = data.get('categories', [])
+    
+    # Handle Anthropic models via LiteLLM
+    if generator == 'anthropic' and model_name in ANTHROPIC_MODELS:
+        generator = 'litellm'
+        logging.info(f"Using LiteLLM for Anthropic model: {model_name}")
     api_keys = data.get('api_keys', {})
     parallel_attempts = data.get('parallel_attempts', 1)
 
