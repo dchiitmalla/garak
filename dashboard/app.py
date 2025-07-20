@@ -389,9 +389,21 @@ GENERATORS = {
 
 # List of Anthropic models available via LiteLLM
 ANTHROPIC_MODELS = [
+    # Claude 4 models
+    "claude-opus-4-20250514",
+    "claude-sonnet-4-20250514",
+    # Claude 3.7 models
+    "claude-3-7-sonnet-20250219",
+    # Claude 3.5 models
+    "claude-3-5-opus-20241003",
+    "claude-3-5-sonnet-20240620",
+    "claude-3-5-haiku-20241022",
+    "claude-3-5-sonnet-20241022",
+    # Claude 3 models
     "claude-3-opus-20240229",
     "claude-3-sonnet-20240229",
     "claude-3-haiku-20240307",
+    # Legacy Claude models
     "claude-2.1",
     "claude-2.0",
     "claude-instant-1.2"
