@@ -544,7 +544,7 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
         # Add API keys to environment variables
         # Determine if we should be in test mode. Test mode is only enabled when a generator
         # that requires API keys is selected, but no keys are provided.
-        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral', 'litellm']
+        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral', 'litellm', 'gemini']
         logging.info(f"Job {job_id}: Generator: {generator}, API keys received: {list(api_keys.keys())}")
         
         # Debug the API keys values (without revealing actual keys)
@@ -559,6 +559,7 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
         elif generator == 'vertexai': key_needed = 'gcp_credentials_path'
         elif generator == 'mistral': key_needed = 'mistral_api_key'
         elif generator == 'replicate': key_needed = 'replicate_api_token'
+        elif generator == 'gemini': key_needed = 'google_api_key'
         elif generator == 'litellm': key_needed = 'anthropic_api_key'  # LiteLLM with Anthropic models uses the Anthropic API key
         
         if generator in KEY_REQUIRED_GENERATORS:

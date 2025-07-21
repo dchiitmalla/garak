@@ -206,7 +206,11 @@
                             </div>
                             <div class="input-group mb-2">
                                 <span class="input-group-text" style="width: 180px;">Anthropic API Key</span>
-                                <input type="password" class="form-control" id="anthropic_api_key" placeholder="...">
+                                <input type="password" class="form-control" id="anthropic_api_key" placeholder="sk-ant-...">                                
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">Google API Key</span>
+                                <input type="password" class="form-control" id="google_api_key" placeholder="AIza...">                                
                             </div>
                             <div class="form-text">Your API keys are only used for this evaluation and never stored.</div>
                         </div>
@@ -364,6 +368,11 @@
                 ],
                 'ollama': ['llama2', 'mistral', 'gemma'],
                 'replicate': ['meta/meta-llama-3-8b-instruct', 'meta/llama-2-70b-chat', 'anthropic/claude-2'],
+                'gemini': [
+                    'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite-preview', 
+                    'gemini-2.5-flash-native-audio', 'gemini-2.5-flash-preview-text-to-speech', 
+                    'gemini-2.5-pro-preview-text-to-speech', 'gemini-2.0-flash'
+                ],
                 'vertexai': ['gemini-pro', 'gemini-ultra'],
                 'llamacpp': ['llama-2-13b-chat.Q4_K_M', 'mistral-7b-instruct-v0.2.Q4_K_M']
             };
@@ -409,7 +418,8 @@
                 'replicate_api_token',
                 'mistral_api_key',
                 'cohere_api_key',
-                'anthropic_api_key'
+                'anthropic_api_key',
+                'google_api_key'
             ];
             keyInputs.forEach(keyId => {
                 const input = document.getElementById(keyId);
