@@ -105,6 +105,78 @@ docker run -p 8080:8080 -e PORT=8080 \
 docker stop garak-dashboard-container && docker rm garak-dashboard-container
 ```
 
+## Deploying to Google Cloud Platform (GCP)
+
+The Garak Dashboard can be deployed to Google Cloud Platform using Google Container Registry (GCR) and Cloud Run for a serverless deployment.
+
+### Prerequisites
+
+- Google Cloud Platform account
+- Google Cloud SDK installed and configured
+- Docker installed locally
+
+### Building and Pushing Docker Images to GCP
+
+#### 1. Authenticate with Google Cloud
+
+```bash
+# Login to Google Cloud
+gcloud auth login
+
+# Configure Docker to use gcloud as a credential helper
+gcloud auth configure-docker
+```
+
+#### 2. Build the Docker Image for AMD64 Architecture
+
+For Cloud Run deployment, build the image specifically for AMD64 architecture using Docker Buildx:
+
+```bash
+# Build the image with AMD64 platform specification and load it into Docker
+docker buildx build --platform linux/amd64 -t garak-dashboard:latest -f dashboard/Dockerfile . --load
+```
+
+#### 3. Tag the Image for Google Container Registry
+
+Replace `[PROJECT_ID]` with your Google Cloud project ID:
+
+```bash
+docker tag garak-dashboard:latest gcr.io/[PROJECT_ID]/garak-dashboard:latest
+```
+
+#### 4. Push the Image to Google Container Registry
+
+```bash
+docker push gcr.io/[PROJECT_ID]/garak-dashboard:latest
+```
+
+#### 5. Deploy to Cloud Run
+
+```bash
+gcloud run deploy garak-dashboard \
+  --image gcr.io/[PROJECT_ID]/garak-dashboard:latest \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2 \
+  --port 8080 \
+  --set-env-vars="DISABLE_AUTH=false"
+```
+
+### Important Considerations for GCP Deployment
+
+1. **Data Persistence**: Cloud Run containers are ephemeral. For persistent storage:
+   - Mount a Cloud Storage bucket using the Cloud Storage FUSE adapter
+   - Use a separate database service for job and report data
+
+2. **Environment Variables**: Set these in the Cloud Run deployment:
+   - `DISABLE_AUTH`: Set to `false` to enable authentication
+   - `FIREBASE_PROJECT_ID`: Your Firebase project ID for authentication
+   - `GOOGLE_APPLICATION_CREDENTIALS`: Path to service account credentials
+
+3. **Resource Allocation**: Adjust memory and CPU based on your workload requirements
+
 ## Parsing Reports for BigQuery Analysis
 
 The dashboard includes a Python script, `html_report_parser.py`, designed to parse the generated HTML reports, extract key findings, and upload them to Google BigQuery for advanced analysis and long-term storage.

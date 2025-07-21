@@ -27,6 +27,12 @@ def watsonx_compat_mocks():
 
 @pytest.fixture
 def mistral_compat_mocks():
-    """Mock responses for OpenAI compatible endpoints"""
+    """Mock responses for Mistral AI based endpoints"""
     with open(pathlib.Path(__file__).parents[0] / "mistral.json") as mock_mistral:
         return json.load(mock_mistral)
+
+@pytest.fixture
+def gemini_compat_mocks():
+    """Mock responses for Google Gemini based endpoints"""
+    with open(pathlib.Path(__file__).parents[0] / "gemini.json") as mock_gemini:
+        return json.load(mock_gemini)
