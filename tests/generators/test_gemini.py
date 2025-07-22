@@ -9,6 +9,7 @@ import httpx
 from unittest.mock import patch, MagicMock
 import google.api_core.exceptions
 from garak.generators.gemini import GeminiGenerator
+import google.generativeai as genai
 
 DEFAULT_MODEL_NAME = "gemini-2.5-pro"
 
@@ -26,6 +27,30 @@ def set_fake_env(request) -> None:
 
     os.environ[GeminiGenerator.ENV_VAR] = os.path.abspath(__file__)
     request.addfinalizer(restore_env)
+
+@pytest.fixture
+def gemini_compat_mocks(monkeypatch):
+    """Mock the Google Generative AI client for testing."""
+    # Mock the GenerativeModel class
+    mock_model = MagicMock()
+    mock_response = MagicMock()
+    mock_response.text = "This is a mock response from the Gemini model."
+    mock_model.generate_content.return_value = mock_response
+    
+    # Mock the genai.GenerativeModel constructor
+    mock_generative_model = MagicMock(return_value=mock_model)
+    monkeypatch.setattr(genai, 'GenerativeModel', mock_generative_model)
+    
+    # Mock the genai.configure function
+    mock_configure = MagicMock()
+    monkeypatch.setattr(genai, 'configure', mock_configure)
+    
+    return {
+        'model': mock_model,
+        'response': mock_response,
+        'generative_model': mock_generative_model,
+        'configure': mock_configure
+    }
 
 @pytest.mark.usefixtures("set_fake_env")
 def test_gemini_generator_init():
