@@ -14,9 +14,7 @@ All probes will inherit from ``garak.probes.base.Probe``, exposed at package lev
     import garak.probes
 
     class MyNewProbe(garak.probes.Probe):
-        """
-        Probe to do something naughty to a language model
-        """
+        """Probe to do something naughty to a language model"""
         ...
 
 We require class docstrings in garak and enforce this requirement via a test required before merging.
@@ -104,9 +102,7 @@ Many of these are decent defaults, though there are a few that we absolutely wan
 .. code-block:: python
 
     class MyNewProbe(garak.probes.Probe):
-        """
-        Probe to do something naughty to a language model
-        """
+        """Probe to do something naughty to a language model"""
 
         recommended_detector = ["mitigation.MitigationBypass"]
         tags = [

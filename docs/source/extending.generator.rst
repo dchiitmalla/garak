@@ -15,9 +15,7 @@ All generators in garak must descend from ``garak.generators.base.Generator``. S
     from garak.generators.base import Generator
 
     class ReplicateGenerator(Generator):
-        """
-        Interface for public endpoints of models hosted in Replicate (replicate.com).
-        """
+        """Interface for public endpoints of models hosted in Replicate (replicate.com)."""
         pass
 
 Class docstrings are mandatory in garak, enforced by a test that's required to pass before merging. And they're just sensible practice anyway. So we add a brief docstring here too.
@@ -68,8 +66,8 @@ We end up with this:
 .. code-block:: python
 
     Class ReplicateGenerator(Generator):
-        """
-        Interface for public endpoints of models hosted in Replicate (replicate.com).
+        """Interface for public endpoints of models hosted in Replicate (replicate.com).
+        
         Expects API key in REPLICATE_API_TOKEN environment variable.
         """
 

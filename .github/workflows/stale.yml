@@ -35,5 +35,5 @@ jobs:
           days-before-pr-close: -1
           stale-issue-label: "stale"
           close-issue-label: "closed"
-          exempt-issue-labels: "good first issue,bug,dontautoclose"
+          exempt-issue-labels: "good first issue,bug,dontautoclose,high priority"
           stale-issue-message: "This issue has been automatically marked as stale because it has not had recent activity. If you are still interested in this issue, please respond to keep it open. Thank you!"
