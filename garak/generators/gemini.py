@@ -115,12 +115,6 @@ class GeminiGenerator(Generator):
         # Call parent init which will load config and override defaults
         super().__init__(name, config_root)
         
-        # Validate and get API key
-        if not hasattr(self, "api_key") or not self.api_key:
-            self.api_key = os.environ.get(self.ENV_VAR)
-            if not self.api_key:
-                raise ValueError(f"API key not found in environment variable {self.ENV_VAR}")
-        
         # Load the model
         self._load_model()
 
