@@ -80,25 +80,10 @@ class GeminiGenerator(Generator):
         # Configure the API client
         genai.configure(api_key=self.api_key)
         
-        # Set up generation config based on model type
-        generation_config = {
-            "temperature": self.temperature,
-            "top_p": self.top_p,
-            "top_k": self.top_k,
-            "max_output_tokens": self.max_output_tokens,
-        }
-        
-        # Special handling for text-to-speech models if needed
-        if "text-to-speech" in self.name:
-            # Text-to-speech models might need additional configuration
-            # For now, we're using the same config as other models
-            pass
-            
-        # Initialize the model
-        self.model = genai.GenerativeModel(
-            model_name=self.name,
-            generation_config=generation_config
-        )
+        # Initialize the model without generation config
+        # Generation config will be set in _call_model for each request
+        # This allows us to set different parameters for each call, including candidate_count
+        self.model = genai.GenerativeModel(model_name=self.name)
 
     def _clear_model(self):
         """Clear the model to avoid pickling issues."""
@@ -129,46 +114,75 @@ class GeminiGenerator(Generator):
         Returns:
             A list of response strings, or None for failed generations
         """
-        responses = []
         import logging
+        responses = []
         
-        for _ in range(generations_this_call):
-            try:
-                # Handle different model variants
-                if "text-to-speech" in self.name:
-                    # For text-to-speech models, we still get the text response
-                    # In a real implementation, we might handle the audio output differently
-                    response = self.model.generate_content(prompt)
-                    if hasattr(response, "text") and response.text:
-                        responses.append(response.text)
-                    else:
-                        responses.append(None)
-                elif "native-audio" in self.name:
-                    # For audio input models, we're still using text input in this implementation
-                    # In a real implementation, we might handle audio input differently
-                    response = self.model.generate_content(prompt)
-                    if hasattr(response, "text") and response.text:
-                        responses.append(response.text)
-                    else:
-                        responses.append(None)
+        try:
+            # Create generation config with candidate count for multiple generations
+            generation_config = genai.types.GenerationConfig(
+                temperature=self.temperature,
+                top_p=self.top_p,
+                top_k=self.top_k,
+                max_output_tokens=self.max_output_tokens,
+                candidate_count=generations_this_call
+            )
+            
+            # Handle different model variants
+            if "text-to-speech" in self.name or "native-audio" in self.name:
+                # For specialized models, we still get the text response
+                # In a real implementation, we might handle audio output differently
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config=generation_config
+                )
+                
+                # Process candidates if available, otherwise process single response
+                if hasattr(response, "candidates") and response.candidates:
+                    for candidate in response.candidates:
+                        if hasattr(candidate, "content") and hasattr(candidate.content, "text") and candidate.content.text:
+                            responses.append(candidate.content.text)
+                        else:
+                            responses.append(None)
+                elif hasattr(response, "text") and response.text:
+                    responses.append(response.text)
                 else:
-                    # Standard text models
-                    response = self.model.generate_content(prompt)
-                    if hasattr(response, "text") and response.text:
-                        responses.append(response.text)
-                    else:
-                        logging.warning(f"Empty response from Gemini model {self.name}")
-                        responses.append(None)
-            except GoogleAPIError as e:
-                # This will be caught by the backoff decorator and retried
-                logging.error(f"GoogleAPIError when calling {self.name}: {e}")
-                raise
-            except Exception as e:
-                # Other exceptions are not retried
-                logging.error(f"Error generating response from {self.name}: {e}")
-                responses.append(None)
+                    responses.append(None)
+            else:
+                # Standard text models
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config=generation_config
+                )
+                
+                # Process candidates if available, otherwise process single response
+                if hasattr(response, "candidates") and response.candidates:
+                    for candidate in response.candidates:
+                        if hasattr(candidate, "content") and hasattr(candidate.content, "text") and candidate.content.text:
+                            responses.append(candidate.content.text)
+                        else:
+                            logging.warning(f"Empty candidate response from Gemini model {self.name}")
+                            responses.append(None)
+                elif hasattr(response, "text") and response.text:
+                    responses.append(response.text)
+                else:
+                    logging.warning(f"Empty response from Gemini model {self.name}")
+                    responses.append(None)
+                    
+        except GoogleAPIError as e:
+            # This will be caught by the backoff decorator and retried
+            logging.error(f"GoogleAPIError when calling {self.name}: {e}")
+            raise
+        except Exception as e:
+            # Other exceptions are not retried
+            logging.error(f"Error generating response from {self.name}: {e}")
+            # Fill with None values for the expected number of generations
+            responses = [None] * generations_this_call
         
-        return responses
+        # Ensure we return the expected number of responses
+        while len(responses) < generations_this_call:
+            responses.append(None)
+        
+        return responses[:generations_this_call]
 
 
 DEFAULT_CLASS = "GeminiGenerator"
