@@ -18,29 +18,47 @@ def init_firebase_admin():
         current_app.logger.warning("Authentication is disabled. Set DISABLE_AUTH=false to enable.")
         return None
 
-    # Get the path to the Firebase credentials file (default to firebase-sa.json)
-    creds_path = os.environ.get("FIREBASE_CREDENTIALS", "firebase-sa.json")
+    # Get paths from environment variables or use defaults
+    sa_path = os.environ.get('FIREBASE_CREDENTIALS', '/app/firebase-sa.json')
+    config_path = os.environ.get('FIREBASE_CONFIG', '/app/firebase-config.json')
+    
+    current_app.logger.info(f"Looking for Firebase service account at: {sa_path}")
+    current_app.logger.info(f"Looking for Firebase config at: {config_path}")
+    
+    # Check if files exist
+    if not os.path.exists(sa_path):
+        current_app.logger.error(f"Could not find Firebase service account file at: {sa_path}")
+        return None
+    
+    if not os.path.exists(config_path):
+        current_app.logger.error(f"Could not find Firebase config file at: {config_path}")
+        return None
     
     try:
         # Initialize Firebase Admin SDK if not already initialized
         if not firebase_admin._apps:
-            cred = credentials.Certificate(creds_path)
+            # Load service account file
+            current_app.logger.info(f"Loading Firebase service account from {sa_path}")
+            cred = credentials.Certificate(sa_path)
             firebase_app = firebase_admin.initialize_app(cred)
             
-            # Extract Firebase config information for client use
-            with open(creds_path, 'r') as f:
-                sa_info = json.load(f)
-                
-            # Build Firebase client config
-            project_id = sa_info.get('project_id', '')
+            # Load Firebase config file
+            current_app.logger.info(f"Loading Firebase client config from {config_path}")
+            with open(config_path, 'r') as f:
+                config_data = json.load(f)
+            
+            # Use the config data directly
             firebase_config.update({
-                'apiKey': os.environ.get('FIREBASE_API_KEY', ''),
-                'authDomain': f"{project_id}.firebaseapp.com",
-                'projectId': project_id,
-                'storageBucket': f"{project_id}.appspot.com",
-                'messagingSenderId': sa_info.get('client_id', ''),
-                'appId': os.environ.get('FIREBASE_APP_ID', '')
+                'apiKey': config_data.get('apiKey', ''),
+                'authDomain': config_data.get('authDomain', ''),
+                'projectId': config_data.get('projectId', ''),
+                'storageBucket': config_data.get('storageBucket', ''),
+                'messagingSenderId': config_data.get('messagingSenderId', ''),
+                'appId': config_data.get('appId', '')
             })
+            
+            # Log the Firebase config for debugging
+            current_app.logger.info(f'Firebase client config: {firebase_config}')
             
             current_app.logger.info("Firebase Admin SDK initialized successfully")
             return firebase_app
