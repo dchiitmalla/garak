@@ -1,0 +1,91 @@
+# Multi-stage Docker build for production deployment
+# Stage 1: Build dependencies and compile packages
+FROM python:3.10-slim as builder
+
+WORKDIR /build
+
+# Install system dependencies needed for building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    curl \
+    pkg-config \
+    libssl-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust for base2048 package compilation
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Copy requirements and install Python dependencies
+COPY dashboard/requirements.txt /build/dashboard/
+COPY pyproject.toml README.md /build/
+COPY garak /build/garak/
+
+# Create virtual environment and install all dependencies
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -e /build/ && \
+    pip install --no-cache-dir -r /build/dashboard/requirements.txt && \
+    pip install --no-cache-dir gunicorn google-cloud-secret-manager
+
+# Stage 2: Production runtime
+FROM python:3.10-slim as production
+
+WORKDIR /app
+
+# Install only runtime system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y \
+    && apt-get clean
+
+# Create non-root user for security
+RUN groupadd -r garak && useradd -r -g garak garak
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy application files
+COPY dashboard /app/dashboard/
+COPY garak /app/garak/
+COPY pyproject.toml README.md /app/
+
+# Copy entrypoint script
+COPY dashboard/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Set environment variables for production
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+ENV FLASK_APP=/app/dashboard/app.py
+ENV DATA_DIR=/app/data
+ENV REPORT_DIR=/app/reports
+ENV DOCKER_ENV=true
+ENV PORT=8080
+
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/data /app/reports /tmp/garak && \
+    chown -R garak:garak /app /tmp/garak
+
+# Expose port (Cloud Run will override this)
+EXPOSE 8080
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Switch to non-root user
+USER garak
+
+# Use entrypoint script to handle environment setup
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command (can be overridden)
+CMD ["gunicorn", "--bind", "0.0.0.0:${PORT}", "--workers", "2", "--threads", "4", "--timeout", "120", "--keep-alive", "2", "--max-requests", "1000", "--max-requests-jitter", "100", "dashboard.app:app", "--log-level", "info", "--access-logfile", "-", "--error-logfile", "-"]

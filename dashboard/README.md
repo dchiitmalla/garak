@@ -9,6 +9,7 @@ The Garak Dashboard is a web interface for managing and viewing security evaluat
 - Python 3.10 or higher
 - pip package manager
 - Garak framework installed
+- Firebase project (for authentication) OR set `DISABLE_AUTH=true` for development
 
 ### Installation
 
@@ -28,6 +29,76 @@ The Garak Dashboard is a web interface for managing and viewing security evaluat
    cd dashboard
    pip install -r requirements.txt
    ```
+
+### Authentication Setup
+
+The dashboard supports Firebase authentication. You have two options:
+
+#### Option 1: Firebase Authentication (Recommended for Production)
+
+1. **Create a Firebase Project**:
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Click "Create a project" or "Add project"
+   - Follow the setup wizard
+
+2. **Enable Authentication**:
+   - In your Firebase project, go to "Authentication" in the left sidebar
+   - Click "Get started"
+   - Go to "Sign-in method" tab
+   - Enable "Email/Password" and "Google" providers
+
+3. **Get Firebase Configuration**:
+   - Go to Project Settings (gear icon) > General tab
+   - Scroll down to "Your apps" section
+   - Click "Add app" and select Web app
+   - Register your app and copy the configuration values
+
+4. **Generate Service Account Key**:
+   - Go to Project Settings > Service Accounts tab
+   - Click "Generate new private key"
+   - Save the JSON file as `firebase-sa.json` in the dashboard directory
+
+5. **Set Environment Variables**:
+   
+   **Option A**: Use the provided configuration (if files already exist):
+   ```bash
+   # Load environment variables from .env file
+   cd dashboard
+   source load_env.sh
+   ```
+   
+   **Option B**: Manual configuration:
+   ```bash
+   export FIREBASE_API_KEY="your-api-key"
+   export FIREBASE_AUTH_DOMAIN="your-project-id.firebaseapp.com"
+   export FIREBASE_PROJECT_ID="your-project-id"
+   export FIREBASE_STORAGE_BUCKET="your-project-id.appspot.com"
+   export FIREBASE_MESSAGING_SENDER_ID="your-messaging-sender-id"
+   export FIREBASE_APP_ID="your-app-id"
+   export FIREBASE_CREDENTIALS="./firebase-sa.json"  # Path to service account file
+   ```
+
+#### Option 2: Disable Authentication (Development Only)
+
+For local development, you can bypass authentication:
+
+```bash
+export DISABLE_AUTH=true
+```
+
+**Warning**: Only use this in development environments. Do not disable authentication in production.
+
+### Quick Start (Using Existing Configuration)
+
+If the Firebase configuration files already exist:
+
+```bash
+cd dashboard
+source load_env.sh  # Load Firebase configuration
+python app.py       # Start the dashboard
+```
+
+Then visit: http://localhost:8000
 
 ### Running the Dashboard
 
@@ -228,6 +299,28 @@ The script will automatically connect to the configured GCS bucket, process all 
 
 ### Common Issues
 
+#### Authentication Issues
+
+**Problem**: Login page shows "Configuration error: Missing Firebase configuration"
+- **Cause**: Missing Firebase environment variables
+- **Solution**: Set all required Firebase environment variables or use `DISABLE_AUTH=true` for development
+
+**Problem**: "Could not find Firebase service account file"
+- **Cause**: Missing service account JSON file
+- **Solution**: Download service account key from Firebase Console and save it to the specified path
+
+**Problem**: "Firebase initialization error"
+- **Cause**: Invalid Firebase configuration or network issues
+- **Solution**: 
+  1. Verify all Firebase environment variables are correct
+  2. Check that service account file is valid JSON
+  3. Ensure network connectivity to Firebase
+  4. Visit `/auth/status` endpoint for detailed error information
+
+**Problem**: "Authentication required" errors when accessing dashboard
+- **Cause**: User not authenticated or session expired
+- **Solution**: Go to `/login` to authenticate, or set `DISABLE_AUTH=true` for development
+
 #### Job Not Found Errors
 
 If you see "Job not found" errors for jobs that should exist:
@@ -247,6 +340,14 @@ The dashboard uses several environment variables that can be configured:
 - `DATA_DIR`: Path to the directory where job data is stored (default: `dashboard/data`)
 - `REPORT_DIR`: Path to the directory where reports are stored (default: `dashboard/reports`)
 - `DOCKER_ENV`: Set to `true` when running in Docker to adjust paths accordingly
+- `DISABLE_AUTH`: Set to `true` to bypass authentication (development only)
+
+#### Getting Help
+
+1. Check the application logs for detailed error messages
+2. Visit `/auth/status` endpoint to see authentication system status
+3. Enable debug mode by setting `DEBUG=true` environment variable
+4. Review Firebase Console for authentication-related issues
 
 ## Creating a New Evaluation
 

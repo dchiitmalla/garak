@@ -13,20 +13,42 @@ import logging
 import jsonlines
 
 # Import authentication module
-from dashboard import auth
+try:
+    # Try containerized import path first
+    from dashboard import auth
+except ImportError:
+    # Fallback to local import for development
+    import auth
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = os.environ.get('SECRET_KEY', 'garak-dashboard-secret-key')
 
-# Initialize Firebase
+# Initialize Firebase and validate configuration
 with app.app_context():
     try:
+        # Check authentication status and log configuration issues
+        auth_status = auth.get_auth_status()
+        
+        if not auth_status['auth_enabled']:
+            app.logger.warning("Authentication is disabled via DISABLE_AUTH=true")
+            app.logger.warning("This should only be used in development environments")
+        elif auth_status['errors']:
+            app.logger.error("Authentication configuration issues detected:")
+            for error in auth_status['errors']:
+                app.logger.error(f"  - {error}")
+            
+            if auth_status['setup_instructions']:
+                app.logger.info("Setup instructions:")
+                for instruction in auth_status['setup_instructions'][:5]:  # Show first 5 instructions
+                    app.logger.info(f"  {instruction}")
+        
         firebase_app = auth.init_firebase_admin()
-        if not firebase_app:
+        if not firebase_app and auth_status['auth_enabled']:
             app.logger.error("Failed to initialize Firebase Admin SDK. Check logs for details.")
-        else:
+            app.logger.error("Visit /auth/status endpoint for detailed configuration status")
+        elif firebase_app:
             app.logger.info("Firebase Admin SDK initialized successfully")
     except Exception as e:
         app.logger.error(f"Error initializing Firebase: {str(e)}", exc_info=True)
@@ -1345,6 +1367,67 @@ def parse_jsonl_report(report_path):
         logging.error(f"Error parsing JSONL report: {e}")
     
     return trust_score_data, failing_prompts
+
+# Health check endpoint for Cloud Run
+@app.route('/health')
+def health_check():
+    """Health check endpoint for load balancers and Cloud Run"""
+    try:
+        # Basic application health checks
+        health_status = {
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'version': '1.0.0',
+            'environment': os.environ.get('FLASK_ENV', 'production')
+        }
+        
+        # Check authentication system status
+        auth_status = auth.get_auth_status()
+        health_status['auth_enabled'] = auth_status['auth_enabled']
+        health_status['firebase_initialized'] = auth_status['firebase_initialized']
+        
+        # Check if critical directories exist
+        health_status['data_dir_exists'] = os.path.exists(DATA_DIR)
+        health_status['report_dir_exists'] = os.path.exists(REPORT_DIR)
+        
+        # Return 200 OK with health info
+        return jsonify(health_status), 200
+        
+    except Exception as e:
+        # Return 503 Service Unavailable if health check fails
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 503
+
+# Readiness probe for Kubernetes (optional)
+@app.route('/ready')
+def readiness_check():
+    """Readiness check endpoint"""
+    try:
+        # More thorough checks for readiness
+        if os.environ.get("DISABLE_AUTH", "").lower() != "true":
+            # Check if Firebase is properly initialized
+            auth_status = auth.get_auth_status()
+            if not auth_status['firebase_initialized']:
+                return jsonify({
+                    'status': 'not ready',
+                    'reason': 'Firebase not initialized',
+                    'timestamp': datetime.now().isoformat()
+                }), 503
+        
+        return jsonify({
+            'status': 'ready',
+            'timestamp': datetime.now().isoformat()
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'not ready',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 503
 
 # Register authentication routes
 auth.register_auth_routes(app)

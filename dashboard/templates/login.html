@@ -110,15 +110,46 @@
             <div class="card-body p-4">
                 <div id="error-message" class="alert alert-danger"></div>
                 
+                {% if auth_status and auth_status.errors %}
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Authentication Setup Required</h6>
+                    <p class="mb-2">The following issues need to be resolved:</p>
+                    <ul class="mb-2">
+                        {% for error in auth_status.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if auth_status.setup_instructions %}
+                    <details class="mt-2">
+                        <summary><strong>Setup Instructions</strong></summary>
+                        <ol class="mt-2 mb-0">
+                            {% for instruction in auth_status.setup_instructions %}
+                            <li>{{ instruction }}</li>
+                            {% endfor %}
+                        </ol>
+                    </details>
+                    {% endif %}
+                    
+                    <hr>
+                    <small class="text-muted">
+                        <strong>For Development:</strong> Set <code>DISABLE_AUTH=true</code> to bypass authentication.
+                    </small>
+                </div>
+                {% endif %}
+                
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                    <input type="email" class="form-control" id="email" placeholder="Enter your email" 
+                           {% if auth_status and auth_status.errors %}disabled{% endif %}>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter your password">
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password"
+                           {% if auth_status and auth_status.errors %}disabled{% endif %}>
                 </div>
-                <button id="login-button" class="btn btn-primary">
+                <button id="login-button" class="btn btn-primary"
+                        {% if auth_status and auth_status.errors %}disabled{% endif %}>
                     <i class="bi bi-box-arrow-in-right me-2"></i>Login
                 </button>
 
@@ -127,7 +158,8 @@
                 </div>
 
                 <div class="social-login">
-                    <button id="google-login" type="button">
+                    <button id="google-login" type="button"
+                            {% if auth_status and auth_status.errors %}disabled{% endif %}>
                         <i class="bi bi-google text-danger me-2"></i>Google
                     </button>
                 </div>
@@ -154,8 +186,15 @@
         // Check for required Firebase config
         if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
             console.error('Firebase configuration is missing required fields');
-            document.getElementById('error-message').textContent = 'Configuration error: Missing Firebase configuration. Please contact support.';
+            const errorMsg = 'Configuration error: Missing Firebase configuration. ' +
+                'Please check that FIREBASE_API_KEY and FIREBASE_PROJECT_ID environment variables are set. ' +
+                'For development, you can set DISABLE_AUTH=true to bypass authentication.';
+            document.getElementById('error-message').innerHTML = errorMsg;
             document.getElementById('error-message').style.display = 'block';
+            
+            // Disable login buttons
+            document.getElementById('login-button').disabled = true;
+            document.getElementById('google-login').disabled = true;
         } else {
             try {
                 // Initialize Firebase
@@ -163,7 +202,18 @@
                 console.log('Firebase initialized successfully');
             } catch (error) {
                 console.error('Firebase initialization error:', error);
-                document.getElementById('error-message').textContent = 'Authentication service error. Please try again later.';
+                let errorMsg = 'Authentication service error: ' + error.message + '. ';
+                
+                // Provide specific guidance based on error type
+                if (error.code === 'app/invalid-api-key') {
+                    errorMsg += 'Please check your FIREBASE_API_KEY environment variable.';
+                } else if (error.code === 'app/invalid-app-id') {
+                    errorMsg += 'Please check your FIREBASE_APP_ID environment variable.';
+                } else {
+                    errorMsg += 'Please check your Firebase configuration or contact support.';
+                }
+                
+                document.getElementById('error-message').innerHTML = errorMsg;
                 document.getElementById('error-message').style.display = 'block';
             }
         }
@@ -216,8 +266,16 @@
         });
 
         // Google Sign-in using popup (simpler for local testing)
+        let isAuthInProgress = false;
         document.getElementById('google-login').addEventListener('click', () => {
+            // Prevent multiple simultaneous auth attempts
+            if (isAuthInProgress) {
+                console.log('Authentication already in progress');
+                return;
+            }
+            
             try {
+                isAuthInProgress = true;
                 const provider = new firebase.auth.GoogleAuthProvider();
                 // Add scopes if needed
                 provider.addScope('profile');
@@ -240,10 +298,21 @@
                                 },
                                 body: JSON.stringify({ idToken })
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 localStorage.setItem('authToken', idToken);
                                 window.location.href = '/';
+                            })
+                            .catch(fetchError => {
+                                console.error('Backend verification error:', fetchError);
+                                const errorElement = document.getElementById('error-message');
+                                errorElement.textContent = `Backend error: ${fetchError.message}`;
+                                errorElement.style.display = 'block';
                             });
                         }
                     })
@@ -252,6 +321,9 @@
                         errorElement.textContent = `Error (${error.code}): ${error.message}`;
                         errorElement.style.display = 'block';
                         console.error('Authentication error:', error);
+                    })
+                    .finally(() => {
+                        isAuthInProgress = false; // Reset flag when auth completes or fails
                     });
             } catch (error) {
                 console.error('Error setting up auth:', error);
@@ -265,9 +337,11 @@
 
         // GitHub Sign-in removed as requested
 
-        // Check if user is already signed in
+        // Check if user is already signed in (only once on page load)
+        let authStateHandled = false;
         firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
+            if (user && !authStateHandled && !isAuthInProgress) {
+                authStateHandled = true;
                 // User is signed in, check with backend
                 user.getIdToken().then(idToken => {
                     fetch('/auth/check-session', {
