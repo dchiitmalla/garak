@@ -215,47 +215,53 @@
                 });
         });
 
-        // Google Sign-in
+        // Google Sign-in using popup (simpler for local testing)
         document.getElementById('google-login').addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    // Handle result
-                    const user = result.user;
-                    return user.getIdToken();
-                })
-                .then((idToken) => {
-                    fetch('/auth/verify-token', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ idToken })
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                // Add scopes if needed
+                provider.addScope('profile');
+                provider.addScope('email');
+                
+                // Use popup for local testing
+                firebase.auth().signInWithPopup(provider)
+                    .then((result) => {
+                        // Handle successful sign-in
+                        const user = result.user;
+                        return user.getIdToken();
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Server verification failed');
+                    .then((idToken) => {
+                        if (idToken) {
+                            // Send token to backend
+                            fetch('/auth/verify-token', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ idToken })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                localStorage.setItem('authToken', idToken);
+                                window.location.href = '/';
+                            });
                         }
-                        return response.json();
                     })
-                    .then(data => {
-                        localStorage.setItem('authToken', idToken);
-                        window.location.href = '/';
+                    .catch((error) => {
+                        const errorElement = document.getElementById('error-message');
+                        errorElement.textContent = `Error (${error.code}): ${error.message}`;
+                        errorElement.style.display = 'block';
+                        console.error('Authentication error:', error);
                     });
-                })
-                .catch((error) => {
-                    const errorElement = document.getElementById('error-message');
-                    errorElement.textContent = `Error (${error.code}): ${error.message}`;
-                    errorElement.style.display = 'block';
-                    console.error('Authentication error:', error);
-                    
-                    if (error.code === 'auth/unauthorized-domain') {
-                        errorElement.innerHTML += '<br><br>This domain is not authorized. Try these solutions:<br>' + 
-                        '1. Access using <a href="http://localhost:8002">localhost:8002</a> instead of 127.0.0.1<br>' + 
-                        '2. Add this exact domain to Firebase Console > Authentication > Settings > Authorized domains';
-                    }
-                });
+            } catch (error) {
+                console.error('Error setting up auth:', error);
+                const errorElement = document.getElementById('error-message');
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
         });
+        
+        // No need for redirect result handler when using popup authentication
 
         // GitHub Sign-in removed as requested
 
