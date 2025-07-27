@@ -1432,6 +1432,28 @@ def readiness_check():
 # Register authentication routes
 auth.register_auth_routes(app)
 
+# Register public API blueprints
+try:
+    from api_v1 import api_v1
+    from api_admin import api_admin  
+    from api_metadata import api_metadata
+    from api_docs import api_docs, create_swagger_blueprint
+    
+    app.register_blueprint(api_v1)
+    app.register_blueprint(api_admin)
+    app.register_blueprint(api_metadata)
+    app.register_blueprint(api_docs)
+    
+    # Register Swagger UI
+    swagger_blueprint = create_swagger_blueprint()
+    app.register_blueprint(swagger_blueprint)
+    
+    logging.info("Registered public API blueprints successfully")
+except ImportError as e:
+    logging.warning(f"Failed to import API modules: {e}. Public API will not be available.")
+except Exception as e:
+    logging.error(f"Failed to register API blueprints: {e}. Public API will not be available.")
+
 if __name__ == '__main__':
     import argparse
     
