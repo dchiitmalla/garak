@@ -1434,10 +1434,10 @@ auth.register_auth_routes(app)
 
 # Register public API blueprints
 try:
-    from api_v1 import api_v1
-    from api_admin import api_admin  
-    from api_metadata import api_metadata
-    from api_docs import api_docs, create_swagger_blueprint
+    from api.v1.scans import api_v1
+    from api.v1.admin import api_admin  
+    from api.v1.metadata import api_metadata
+    from api.docs import api_docs, create_swagger_blueprint
     
     app.register_blueprint(api_v1)
     app.register_blueprint(api_admin)

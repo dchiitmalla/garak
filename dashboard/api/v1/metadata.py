@@ -8,30 +8,19 @@ probes, models, and other metadata needed to construct scan requests.
 from flask import Blueprint, jsonify, current_app
 from typing import List, Dict, Any
 
-from api_auth import read_required
-from rate_limiter import rate_limit
-from api_models import GeneratorInfo, ProbeCategory, ProbeInfo, ErrorResponse
+from api.core.auth import read_required
+from api.core.rate_limiter import rate_limit
+from api.core.models import GeneratorInfo, ProbeCategory, ProbeInfo, ErrorResponse, HealthResponse
+from api.core.utils import (
+    get_probe_categories, get_generators, get_anthropic_models, get_jobs_data,
+    get_generator_info, get_probe_category_info, create_error_handler
+)
 
 # Blueprint for metadata endpoints
 api_metadata = Blueprint('api_metadata', __name__, url_prefix='/api/v1')
 
 
-def get_probe_categories():
-    """Get access to probe categories from main app."""
-    from api_v1 import get_probe_categories
-    return get_probe_categories()
-
-
-def get_generators():
-    """Get access to generators from main app."""
-    from api_v1 import get_generators
-    return get_generators()
-
-
-def get_anthropic_models():
-    """Get access to Anthropic models from main app."""
-    from api_v1 import get_anthropic_models
-    return get_anthropic_models()
+# Utility functions are now imported from api.core.utils
 
 
 @api_metadata.errorhandler(Exception)
@@ -427,14 +416,14 @@ def api_info():
 def health_check():
     """API health check endpoint."""
     try:
-        from api_models import HealthResponse
+        from datetime import datetime
         
         # Check various system components
         services = {}
         
         # Check Redis connection
         try:
-            from rate_limiter import rate_limiter
+            from api.core.rate_limiter import rate_limiter
             if rate_limiter.redis_client:
                 rate_limiter.redis_client.ping()
                 services['redis'] = 'healthy'
@@ -445,7 +434,7 @@ def health_check():
         
         # Check database
         try:
-            from api_auth import api_key_manager
+            from api.core.auth import api_key_manager
             api_key_manager.list_api_keys()
             services['database'] = 'healthy'
         except Exception:
@@ -453,7 +442,6 @@ def health_check():
         
         # Check job system
         try:
-            from api_v1 import get_jobs_data
             get_jobs_data()
             services['job_system'] = 'healthy'
         except Exception:
@@ -468,9 +456,7 @@ def health_check():
         
         response = HealthResponse(
             status=status,
-            timestamp=current_app.logger.handlers[0].formatter.formatTime(
-                current_app.logger.handlers[0].formatter._style._fmt, None
-            ) if current_app.logger.handlers else str(datetime.now()),
+            timestamp=str(datetime.now()),
             version='1.0.0',
             services=services
         )

@@ -14,89 +14,30 @@ from flask import Blueprint, request, jsonify, current_app, send_file, g
 from pydantic import ValidationError
 
 # Import our custom modules
-from api_auth import api_key_required, read_required, write_required
-from rate_limiter import rate_limit
-from api_models import (
+from api.core.auth import api_key_required, read_required, write_required
+from api.core.rate_limiter import rate_limit
+from api.core.models import (
     CreateScanRequest, UpdateScanRequest, ScanResponse, ScanListResponse,
     ScanMetadata, ScanResult, ReportInfo, ReportType, ScanStatus,
     ErrorResponse, GeneratorInfo, ProbeCategory, ProbeInfo,
     scan_to_metadata
+)
+from api.core.utils import (
+    get_jobs_data, get_probe_categories, get_generators, get_anthropic_models,
+    run_garak_job_wrapper, validate_json_request, create_error_handler
 )
 
 # Blueprint for API v1
 api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
 
 
-def get_jobs_data():
-    """Get access to the global JOBS dictionary from main app."""
-    # Import here to avoid circular imports
-    from app import JOBS
-    return JOBS
-
-
-def get_probe_categories():
-    """Get access to probe categories from main app."""
-    from app import PROBE_CATEGORIES
-    return PROBE_CATEGORIES
-
-
-def get_generators():
-    """Get access to generators from main app."""
-    from app import GENERATORS
-    return GENERATORS
-
-
-def get_anthropic_models():
-    """Get access to Anthropic models from main app."""
-    from app import ANTHROPIC_MODELS
-    return ANTHROPIC_MODELS
-
-
-def run_garak_job_wrapper(job_id: str, generator: str, model_name: str, 
-                         probes: List[str], api_keys: Dict[str, str], 
-                         parallel_attempts: int = 1):
-    """Wrapper for the run_garak_job function."""
-    from app import run_garak_job
-    return run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_attempts)
-
-
-def validate_json_request(model_class):
-    """Decorator to validate JSON request body using Pydantic model."""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                if not request.is_json:
-                    return jsonify(ErrorResponse(
-                        error="invalid_content_type",
-                        message="Content-Type must be application/json"
-                    ).dict()), 400
-                
-                # Validate request data
-                request_data = model_class(**request.json)
-                # Pass validated data to the view function
-                return func(request_data, *args, **kwargs)
-                
-            except ValidationError as e:
-                return jsonify(ErrorResponse(
-                    error="validation_error",
-                    message="Request validation failed",
-                    details=e.errors()
-                ).dict()), 400
-            
-        wrapper.__name__ = func.__name__
-        return wrapper
-    return decorator
+# Utility functions are now imported from api.core.utils
 
 
 @api_v1.errorhandler(Exception)
 def handle_api_error(error):
     """Global error handler for API v1."""
-    current_app.logger.error(f"API error: {str(error)}", exc_info=True)
-    
-    return jsonify(ErrorResponse(
-        error="internal_server_error",
-        message="An unexpected error occurred"
-    ).dict()), 500
+    return create_error_handler("API v1")(error)
 
 
 # Scan Management Endpoints

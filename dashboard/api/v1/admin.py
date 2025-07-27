@@ -8,54 +8,25 @@ and managing API keys for the public API.
 from flask import Blueprint, request, jsonify, current_app, g
 from pydantic import ValidationError
 
-from api_auth import api_key_manager, admin_required, api_key_required
-from rate_limiter import rate_limit, get_rate_limit_status
-from api_models import (
+from api.core.auth import api_key_manager, admin_required, api_key_required
+from api.core.rate_limiter import rate_limit, get_rate_limit_status
+from api.core.models import (
     CreateAPIKeyRequest, APIKeyResponse, APIKeyInfo, ErrorResponse,
     RateLimitInfo
 )
+from api.core.utils import validate_json_request, create_error_handler, get_jobs_data
 
 # Blueprint for admin API endpoints
 api_admin = Blueprint('api_admin', __name__, url_prefix='/api/v1/admin')
 
 
-def validate_json_request(model_class):
-    """Decorator to validate JSON request body using Pydantic model."""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                if not request.is_json:
-                    return jsonify(ErrorResponse(
-                        error="invalid_content_type",
-                        message="Content-Type must be application/json"
-                    ).dict()), 400
-                
-                # Validate request data
-                request_data = model_class(**request.json)
-                # Pass validated data to the view function
-                return func(request_data, *args, **kwargs)
-                
-            except ValidationError as e:
-                return jsonify(ErrorResponse(
-                    error="validation_error",
-                    message="Request validation failed",
-                    details=e.errors()
-                ).dict()), 400
-            
-        wrapper.__name__ = func.__name__
-        return wrapper
-    return decorator
+# validate_json_request is now imported from api.core.utils
 
 
 @api_admin.errorhandler(Exception)
 def handle_admin_error(error):
     """Global error handler for admin API."""
-    current_app.logger.error(f"Admin API error: {str(error)}", exc_info=True)
-    
-    return jsonify(ErrorResponse(
-        error="internal_server_error",
-        message="An unexpected error occurred"
-    ).dict()), 500
+    return create_error_handler("Admin API")(error)
 
 
 # API Key Management Endpoints
@@ -314,7 +285,6 @@ def get_system_stats():
         total_requests = sum(k['usage_count'] for k in keys_data)
         
         # Get scan statistics
-        from api_v1 import get_jobs_data
         jobs_data = get_jobs_data()
         
         total_scans = len(jobs_data)
