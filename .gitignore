@@ -187,3 +187,14 @@ dashboard/data/*.json
 # Ignore garak dashboard data files
 dashboard/data/
 .terraform/
+
+# GCP and Firebase credentials
+firebase-config.json
+firebase-sa.json
+gcp-creds.json
+
+# Cloud build configs
+cloudbuild*.yaml
+
+# Blog files
+blog*.md
