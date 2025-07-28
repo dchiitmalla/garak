@@ -59,6 +59,11 @@ Garak uses a plugin-based architecture where each component type has:
 - Base classes in `base.py` files that define interfaces
 - Plugin modules that inherit from base classes
 - Automatic plugin discovery and loading via `_plugins.py`
+- Plugin cache for performance optimization
+
+Data flow: `Probe → Buff (optional) → Generator → Model → Detector → Evaluator → Report`
+
+Plugin types: `("probes", "detectors", "generators", "harnesses", "buffs")`
 
 ### Configuration System
 
@@ -79,15 +84,25 @@ Garak uses a plugin-based architecture where each component type has:
 ### Creating New Plugins
 
 1. Inherit from appropriate base class (`base.Probe`, `base.Detector`, etc.)
-2. Override minimal required methods
+2. Override minimal required methods (e.g., `_call_model` for generators)
 3. Define `recommended_detectors` for probes
 4. Place in appropriate module directory
+
+Example plugin structure:
+```python
+class ExampleProbe(garak.probes.base.Probe):
+    recommended_detector = ["always.Pass"]
+    tags = ["avid-effect:security:S0403"]
+    goal = "test specific vulnerability"
+    prompts = ["test prompt here"]
+```
 
 ### Testing Strategy
 
 - Unit tests for individual plugins in `tests/[component]/`
 - Integration tests that combine components
-- Test generators use `test.Blank` and `test.Repeat` generators
+- Test generators use `test.Blank`, `test.Repeat`, and `test.Single` generators
+- Test detectors use `always.Pass`, `always.Fail`, and `always.Random`
 - Mock external dependencies (API calls, file systems)
 - Use `conftest.py` files for shared test fixtures
 - Test with: `python3 -m garak -m test.Blank -p mymodule -d always.Pass`
@@ -132,6 +147,9 @@ gunicorn --workers 2 --bind 0.0.0.0:8080 app:app
 # Run with Docker
 docker build -t garak-dashboard -f dashboard/Dockerfile .
 docker run -p 8080:8080 garak-dashboard
+
+# Build for GCP deployment (requires AMD64 architecture)
+docker buildx build --platform linux/amd64 -f dashboard/Dockerfile -t gcr.io/PROJECT_ID/garak-dashboard:latest .
 
 # Load Firebase environment (if configured)
 source load_env.sh

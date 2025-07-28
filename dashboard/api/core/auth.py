@@ -253,6 +253,18 @@ def api_key_required(f):
     """Decorator that requires a valid API key for endpoint access."""
     @functools.wraps(f)
     def decorated_function(*args, **kwargs):
+        # Skip API key authentication if disabled
+        if os.environ.get("DISABLE_AUTH", "").lower() == "true":
+            # Create a mock API key info for bypass mode
+            g.api_key_info = {
+                'id': 'bypass',
+                'name': 'Auth Disabled',
+                'permissions': 'read,write,admin',
+                'rate_limit': 999999,
+                'user_id': 'bypass_user'
+            }
+            return f(*args, **kwargs)
+        
         api_key = extract_api_key(request)
         
         if not api_key:

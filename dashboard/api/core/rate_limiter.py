@@ -45,7 +45,7 @@ class RateLimiter:
         """
         if not self.redis_client:
             # If Redis is not available, don't rate limit
-            return False, {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None}
+            return False, {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None, 'remaining': limit}
         
         current_time = time.time()
         window_start = current_time - window
@@ -94,12 +94,12 @@ class RateLimiter:
         except redis.RedisError as e:
             print(f"Redis error in rate limiting: {e}")
             # If Redis fails, don't rate limit
-            return False, {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None}
+            return False, {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None, 'remaining': limit}
     
     def get_rate_info(self, key: str, limit: int, window: int = 60) -> Dict[str, Any]:
         """Get current rate limiting info without incrementing counter."""
         if not self.redis_client:
-            return {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None}
+            return {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None, 'remaining': limit}
         
         current_time = time.time()
         window_start = current_time - window
@@ -129,7 +129,7 @@ class RateLimiter:
             
         except redis.RedisError as e:
             print(f"Redis error getting rate info: {e}")
-            return {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None}
+            return {'requests': 0, 'limit': limit, 'window': window, 'reset_time': None, 'remaining': limit}
 
 
 # Global rate limiter instance
