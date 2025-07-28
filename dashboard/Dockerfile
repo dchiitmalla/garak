@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Create a non-root user to run the application
-RUN groupadd -r garak && useradd -r -g garak garak
+# Create a non-root user to run the application with proper home directory
+RUN groupadd -r garak && useradd -r -g garak -m -d /home/garak garak
 
 # Create and set up home directory for garak user
 RUN mkdir -p /home/garak/.config/garak && \
@@ -46,19 +46,26 @@ COPY dashboard /app/dashboard/
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=/app/dashboard/app.py
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app:/app/dashboard
 ENV DATA_DIR=/app/data
 ENV REPORT_DIR=/app/reports
+ENV HOME=/home/garak
+ENV GARAK_CONFIG_DIR=/home/garak/.config/garak
 
 # Create necessary directories and set permissions
 RUN mkdir -p /app/reports /app/data && \
-    chown -R garak:garak /app/reports /app/data
+    mkdir -p /home/garak/.config/garak && \
+    chown -R garak:garak /app/reports /app/data /home/garak && \
+    chmod -R 755 /home/garak
 
 EXPOSE 8080
 
 # Switch to non-root user
 USER garak
 
+# Set working directory to dashboard
+WORKDIR /app/dashboard
+
 # Use exec form to make Gunicorn the main process (PID 1)
 # The PORT environment variable is automatically set by Cloud Run.
-CMD exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0 dashboard.app:app --log-level info
+CMD exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0 app:app --log-level info

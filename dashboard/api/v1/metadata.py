@@ -434,11 +434,24 @@ def health_check():
         
         # Check database
         try:
-            from api.core.auth import api_key_manager
-            api_key_manager.list_api_keys()
-            services['database'] = 'healthy'
-        except Exception:
+            from api.core.database import db_manager
+            db_info = db_manager.get_database_info()
+            services['database'] = db_info['status']
+            services['database_type'] = db_info['type']
+            services['database_version'] = db_info['version']
+        except Exception as e:
             services['database'] = 'unhealthy'
+            services['database_error'] = str(e)
+        
+        # Check storage system
+        try:
+            from api.core.storage import storage_manager
+            storage_info = storage_manager.health_check()
+            services['storage'] = storage_info['status']
+            services['storage_type'] = storage_info['type']
+        except Exception as e:
+            services['storage'] = 'unhealthy'
+            services['storage_error'] = str(e)
         
         # Check job system
         try:

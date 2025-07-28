@@ -494,7 +494,7 @@ def create_swagger_blueprint():
     """Create Swagger UI blueprint."""
     # Swagger UI configuration
     swagger_url = '/api/docs'
-    api_url = '/api/openapi.json'
+    api_url = '/openapi.json'
     
     swaggerui_blueprint = get_swaggerui_blueprint(
         swagger_url,

@@ -1,0 +1,114 @@
+# Cloud Build configuration for Garak Dashboard
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'build'
+      - '--platform=linux/amd64'
+      - '-f'
+      - 'dashboard/Dockerfile.cloudrun'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/garak-dashboard:latest'
+      - '.'
+    timeout: '1800s'
+
+  # Step 2: Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/garak-dashboard:latest']
+
+  # Step 3: Run security scan (optional)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'container'
+      - 'images'
+      - 'scan'
+      - 'gcr.io/$PROJECT_ID/garak-dashboard:latest'
+      - '--quiet'
+    allowFailure: true
+
+  # Step 4: Deploy to Cloud Run (staging)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'garak-dashboard-staging'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/garak-dashboard:latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '10'
+      - '--set-env-vars'
+      - 'ENVIRONMENT=staging,DISABLE_AUTH=true,PROJECT_ID=$PROJECT_ID,FLASK_ENV=production'
+      - '--vpc-connector'
+      - 'garak-vpc-connector'
+      - '--vpc-egress'
+      - 'private-ranges-only'
+    id: 'deploy-staging'
+
+  # Step 5: Run integration tests against staging
+  - name: 'gcr.io/cloud-builders/curl'
+    args:
+      - '-f'
+      - '-s'
+      - '-X'
+      - 'GET'
+      - 'https://garak-dashboard-staging-$(_PROJECT_NUMBER).a.run.app/api/v1/health'
+    id: 'test-staging'
+    waitFor: ['deploy-staging']
+
+  # Step 6: Deploy to production (manual trigger or main branch only)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'garak-dashboard-api'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/garak-dashboard:latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--min-instances'
+      - '1'
+      - '--max-instances'
+      - '100'
+      - '--set-env-vars'
+      - 'ENVIRONMENT=production,DISABLE_AUTH=true,PROJECT_ID=$PROJECT_ID,FLASK_ENV=production'
+      - '--vpc-connector'
+      - 'garak-vpc-connector'
+      - '--vpc-egress'
+      - 'private-ranges-only'
+      - '--service-account'
+      - 'garak-dashboard-sa@$PROJECT_ID.iam.gserviceaccount.com'
+    id: 'deploy-production'
+    waitFor: ['test-staging']
+
+substitutions:
+  _PROJECT_NUMBER: '${PROJECT_NUMBER}'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+  substitution_option: 'ALLOW_LOOSE'
+
+# Build timeout
+timeout: '2400s'
+
+# Images to store in Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/garak-dashboard:latest'

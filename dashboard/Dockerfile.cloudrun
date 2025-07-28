@@ -1,0 +1,80 @@
+# Optimized Dockerfile for Garak Dashboard Cloud Run Deployment
+FROM --platform=linux/amd64 python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    FLASK_APP=app.py \
+    PORT=8080 \
+    HOME=/home/garak \
+    GARAK_CONFIG_DIR=/home/garak/.config/garak
+
+# Create app directory
+WORKDIR /app
+
+# Install system dependencies efficiently
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    curl \
+    pkg-config \
+    libssl-dev \
+    libpq-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y \
+    && apt-get clean
+
+# Install Rust for base2048 package (required by Garak)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Create non-root user for security with proper home directory
+RUN groupadd -r garak && useradd -r -g garak -u 1001 -m -d /home/garak garak \
+    && mkdir -p /home/garak/.config/garak \
+    && chown -R garak:garak /home/garak \
+    && chmod -R 755 /home/garak
+
+# Copy requirements and install Python dependencies
+COPY dashboard/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy and install Garak core package
+COPY garak /app/garak/
+COPY pyproject.toml README.md /app/
+RUN pip install --no-cache-dir -e . \
+    && rm -rf /root/.cache/pip
+
+# Copy dashboard application
+COPY dashboard/ /app/dashboard/
+WORKDIR /app/dashboard
+
+# Create necessary directories and set permissions
+RUN mkdir -p /app/data /app/reports /app/logs \
+    && mkdir -p /home/garak/.config/garak \
+    && chown -R garak:garak /app/data /app/reports /app/logs /home/garak \
+    && chmod -R 755 /home/garak
+
+# Copy health check script
+COPY dashboard/healthcheck.py /app/healthcheck.py
+RUN chmod +x /app/healthcheck.py
+
+# Copy startup script
+COPY dashboard/start.sh /app/start.sh
+RUN chmod +x /app/start.sh && chown garak:garak /app/start.sh
+
+# Switch to non-root user
+USER garak
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python3 /app/healthcheck.py
+
+# Expose port
+EXPOSE 8080
+
+# Set the startup command
+CMD ["/app/start.sh"]

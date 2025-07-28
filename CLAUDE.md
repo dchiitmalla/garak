@@ -112,31 +112,70 @@ Garak uses a plugin-based architecture where each component type has:
 
 ## Dashboard Component
 
-The `dashboard/` directory contains a Flask web application for visualizing garak results with authentication, job management, and report analysis capabilities.
+The `dashboard/` directory contains a Flask web application for visualizing garak results with authentication, job management, and report analysis capabilities. It includes both a web UI and a comprehensive public API.
 
 ### Dashboard Development Commands
 ```bash
+# Setup virtual environment (recommended)
+cd dashboard && python3 -m venv venv && source venv/bin/activate
+
 # Install dashboard dependencies
-cd dashboard && pip install -r requirements.txt
+pip install -r requirements.txt
 
 # Run dashboard locally (development)
 export DISABLE_AUTH=true  # For development only
-python dashboard/app.py
+python app.py  # Starts on http://localhost:8000
+
+# Run with production server
+gunicorn --workers 2 --bind 0.0.0.0:8080 app:app
 
 # Run with Docker
 docker build -t garak-dashboard -f dashboard/Dockerfile .
 docker run -p 8080:8080 garak-dashboard
 
 # Load Firebase environment (if configured)
-cd dashboard && source load_env.sh
+source load_env.sh
 ```
+
+### Dashboard Architecture
+
+The dashboard uses a modular Flask application structure with:
+- **Web UI**: Flask templates for job management and result visualization
+- **Authentication**: Firebase integration or bypass for development
+- **Job Management**: Background task execution with status tracking
+- **Report Processing**: HTML/JSON report parsing and analysis
+- **Public API**: RESTful API with authentication and rate limiting
+
+Key files:
+- `app.py` - Main Flask application with job management logic
+- `auth.py` - Firebase authentication integration
+- `tasks.py` - Background job orchestration
+- `html_report_parser.py` - Report parsing for BigQuery upload
 
 ## Public API System
 
-The dashboard includes a comprehensive public API for programmatic access to garak red-teaming functionality.
+The dashboard includes a comprehensive public API organized in a clean package structure for programmatic access to garak red-teaming functionality.
+
+### API Package Structure
+```
+dashboard/api/
+├── core/               # Core functionality
+│   ├── auth.py        # API key authentication & management
+│   ├── models.py      # Pydantic request/response models
+│   ├── rate_limiter.py # Redis-based rate limiting
+│   └── utils.py       # Shared utilities (eliminates circular deps)
+├── v1/                # API version 1 endpoints
+│   ├── scans.py       # Scan management (CRUD operations)
+│   ├── metadata.py    # Discovery (generators, probes, models)
+│   └── admin.py       # API key management, system stats
+└── docs.py            # OpenAPI/Swagger documentation
+```
 
 ### API Development Commands
 ```bash
+# Use virtual environment
+source venv/bin/activate
+
 # Test API endpoints locally
 curl -X GET http://localhost:8000/api/v1/info
 
@@ -145,38 +184,61 @@ curl -X POST http://localhost:8000/api/v1/admin/bootstrap
 
 # Test with Redis rate limiting (requires Redis)
 export REDIS_URL=redis://localhost:6379/0
-python dashboard/app.py
+python app.py
 
 # View API documentation
 # http://localhost:8000/api/docs (Swagger UI)
 # http://localhost:8000/api/docs/examples (Usage examples)
+
+# Test API module imports
+python3 -c "from api.v1.scans import api_v1; print('✓ API imports working')"
 ```
 
 ### API Architecture
-- **Authentication**: API key-based with SQLite storage
-- **Rate Limiting**: Redis-based sliding window algorithm
-- **Validation**: Pydantic models for request/response validation
-- **Documentation**: OpenAPI/Swagger specification with interactive UI
-- **Endpoints**:
-  - `/api/v1/scans` - Scan management (CRUD operations)
-  - `/api/v1/generators` - Available model generators
-  - `/api/v1/probes` - Available security probes
-  - `/api/v1/admin/*` - API key management (admin only)
 
-### API Key Management
+- **Authentication**: API key-based with SQLite storage, SHA256 hashing
+- **Rate Limiting**: Redis-based sliding window algorithm with per-key/per-endpoint limits
+- **Validation**: Pydantic models for request/response validation with automatic OpenAPI generation
+- **Documentation**: Interactive Swagger UI with usage examples
+- **Modular Design**: Clean separation of concerns with shared utilities to eliminate circular dependencies
+
+Key endpoints:
+- `/api/v1/scans` - Scan management (create, list, get status, cancel, download reports)
+- `/api/v1/generators` - Available model generators and supported models
+- `/api/v1/probes` - Available security probe categories and individual probes  
+- `/api/v1/admin/*` - API key management and system statistics (admin only)
+- `/api/v1/info` - API capabilities and version information
+- `/api/v1/health` - System health check with component status
+
+### API Key Management Workflow
 ```bash
-# Create admin key (bootstrap)
+# 1. Bootstrap initial admin key (first time only)
 POST /api/v1/admin/bootstrap
+# Returns: {"api_key": "garak_...", "message": "Store securely"}
 
-# Create regular API keys
+# 2. Create regular API keys (using admin key)
 POST /api/v1/admin/api-keys
+Headers: X-API-Key: garak_admin_key_here
 {
-  "name": "My API Key",
+  "name": "Scan API Key",
+  "description": "For automated security scans",
   "permissions": ["read", "write"],
-  "rate_limit": 100
+  "rate_limit": 100,
+  "expires_days": 90
 }
 
-# List and manage keys
-GET /api/v1/admin/api-keys
-DELETE /api/v1/admin/api-keys/{id}
+# 3. Use API key for scans
+POST /api/v1/scans
+Headers: X-API-Key: garak_scan_key_here
+{
+  "generator": "openai",
+  "model_name": "gpt-3.5-turbo",
+  "probe_categories": ["dan", "security"],
+  "api_keys": {"openai_api_key": "sk-..."}
+}
+
+# 4. Monitor and manage keys
+GET /api/v1/admin/api-keys              # List all keys
+GET /api/v1/admin/api-keys/{id}/rate-limit  # Check rate limit status
+DELETE /api/v1/admin/api-keys/{id}      # Delete key
 ```
