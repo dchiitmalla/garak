@@ -155,6 +155,30 @@ docker buildx build --platform linux/amd64 -f dashboard/Dockerfile -t gcr.io/PRO
 source load_env.sh
 ```
 
+### Local Testing and Error Catching
+```bash
+# Always use virtual environment for local testing
+cd dashboard && source venv/bin/activate
+
+# Run comprehensive test suite (catches issues before deployment)
+python test_local.py
+
+# Run quick smoke test
+python quick_test.py
+
+# Test specific API endpoints locally
+export DISABLE_AUTH=true
+python app.py &
+curl http://localhost:8000/api/v1/health
+curl http://localhost:8000/api/v1/generators
+
+# Test Pydantic models directly
+python -c "from api.core.models import ErrorResponse; print(ErrorResponse(error='test', message='test').model_dump())"
+
+# Check rate limiter functionality
+python -c "from api.core.rate_limiter import RateLimiter; r = RateLimiter(); print(r.is_rate_limited('test', 10, 60))"
+```
+
 ### Dashboard Architecture
 
 The dashboard uses a modular Flask application structure with:

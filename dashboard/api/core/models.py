@@ -86,7 +86,8 @@ class CreateScanRequest(BaseModel):
         """Validate generator type."""
         valid_generators = [
             'openai', 'huggingface', 'cohere', 'anthropic', 'ollama',
-            'replicate', 'vertexai', 'llamacpp', 'mistral', 'litellm'
+            'replicate', 'vertexai', 'llamacpp', 'mistral', 'litellm',
+            'test.Blank', 'test.Repeat'  # Test generators for development
         ]
         if v not in valid_generators:
             raise ValueError(f"Invalid generator: {v}. Valid options: {valid_generators}")
@@ -252,8 +253,8 @@ class ErrorResponse(BaseModel):
     
     error: str = Field(..., description="Error type or code")
     message: str = Field(..., description="Human-readable error message")
-    details: Optional[Dict[str, Any]] = Field(default=None, description="Additional error details")
-    timestamp: datetime = Field(default_factory=datetime.now, description="Error timestamp")
+    details: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]] = Field(default=None, description="Additional error details")
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Error timestamp")
 
 
 class RateLimitInfo(BaseModel):
