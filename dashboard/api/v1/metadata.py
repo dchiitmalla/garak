@@ -31,7 +31,7 @@ def handle_metadata_error(error):
     return jsonify(ErrorResponse(
         error="internal_server_error",
         message="An unexpected error occurred"
-    ).dict()), 500
+    ).model_dump()), 500
 
 
 # Generator and Model Discovery
@@ -148,7 +148,7 @@ def list_generators():
             generators.append(generator)
         
         return jsonify({
-            'generators': [gen.dict() for gen in generators],
+            'generators': [gen.model_dump() for gen in generators],
             'total': len(generators)
         })
         
@@ -157,7 +157,132 @@ def list_generators():
         return jsonify(ErrorResponse(
             error="generator_list_failed",
             message="Failed to list available generators"
-        ).dict()), 500
+        ).model_dump()), 500
+
+
+@api_metadata.route('/generators/<generator_name>', methods=['GET'])
+@read_required
+@rate_limit(limit=100, window=60)
+def get_generator(generator_name: str):
+    """Get detailed information about a specific generator."""
+    try:
+        generators_map = get_generators()
+        
+        if generator_name not in generators_map:
+            return jsonify(ErrorResponse(
+                error="generator_not_found",
+                message=f"Generator '{generator_name}' not found"
+            ).model_dump()), 404
+        
+        # Enhanced generator information (same as in list_generators)
+        generators_info = {
+            'openai': {
+                'display_name': 'OpenAI',
+                'description': 'OpenAI models including GPT-3.5, GPT-4, and others',
+                'requires_api_key': True,
+                'api_key_env': 'OPENAI_API_KEY',
+                'supported_models': [
+                    'gpt-4', 'gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini',
+                    'gpt-3.5-turbo', 'gpt-3.5-turbo-instruct',
+                    'text-davinci-003', 'text-davinci-002'
+                ]
+            },
+            'anthropic': {
+                'display_name': 'Anthropic Claude',
+                'description': 'Anthropic Claude models via LiteLLM',
+                'requires_api_key': True,
+                'api_key_env': 'ANTHROPIC_API_KEY',
+                'supported_models': get_anthropic_models()
+            },
+            'huggingface': {
+                'display_name': 'Hugging Face',
+                'description': 'Open source models from Hugging Face Hub',
+                'requires_api_key': False,
+                'api_key_env': 'HF_INFERENCE_TOKEN',
+                'supported_models': [
+                    'gpt2', 'microsoft/DialoGPT-medium', 'facebook/blenderbot-400M-distill',
+                    'EleutherAI/gpt-neo-2.7B', 'EleutherAI/gpt-j-6B'
+                ]
+            },
+            'cohere': {
+                'display_name': 'Cohere',
+                'description': 'Cohere language models',
+                'requires_api_key': True,
+                'api_key_env': 'COHERE_API_KEY',
+                'supported_models': ['command', 'command-light', 'command-nightly']
+            },
+            'ollama': {
+                'display_name': 'Ollama',
+                'description': 'Local models via Ollama',
+                'requires_api_key': False,
+                'api_key_env': None,
+                'supported_models': ['llama2', 'mistral', 'codellama', 'vicuna']
+            },
+            'replicate': {
+                'display_name': 'Replicate',
+                'description': 'Models hosted on Replicate platform',
+                'requires_api_key': True,
+                'api_key_env': 'REPLICATE_API_TOKEN',
+                'supported_models': [
+                    'meta/llama-2-70b-chat', 'mistralai/mistral-7b-instruct-v0.1',
+                    'stability-ai/stablelm-tuned-alpha-7b'
+                ]
+            },
+            'vertexai': {
+                'display_name': 'Google Vertex AI',
+                'description': 'Google Cloud Vertex AI models',
+                'requires_api_key': True,
+                'api_key_env': 'GOOGLE_APPLICATION_CREDENTIALS',
+                'supported_models': ['text-bison', 'chat-bison', 'codechat-bison']
+            },
+            'llamacpp': {
+                'display_name': 'Llama.cpp',
+                'description': 'Local GGML/GGUF models via llama.cpp',
+                'requires_api_key': False,
+                'api_key_env': 'GGML_MAIN_PATH',
+                'supported_models': ['Custom GGML/GGUF models']
+            },
+            'mistral': {
+                'display_name': 'Mistral AI',
+                'description': 'Mistral AI models',
+                'requires_api_key': True,
+                'api_key_env': 'MISTRAL_API_KEY',
+                'supported_models': ['mistral-tiny', 'mistral-small', 'mistral-medium']
+            },
+            'litellm': {
+                'display_name': 'LiteLLM',
+                'description': 'Universal LLM interface supporting multiple providers',
+                'requires_api_key': True,
+                'api_key_env': 'Various (depends on model)',
+                'supported_models': ['Supports 100+ models from various providers']
+            }
+        }
+        
+        display_name = generators_map[generator_name]
+        info = generators_info.get(generator_name, {
+            'display_name': display_name,
+            'description': f'{display_name} models',
+            'requires_api_key': True,
+            'api_key_env': None,
+            'supported_models': []
+        })
+        
+        generator = GeneratorInfo(
+            name=generator_name,
+            display_name=info['display_name'],
+            description=info['description'],
+            requires_api_key=info['requires_api_key'],
+            supported_models=info['supported_models']
+        )
+        
+        return jsonify(generator.model_dump())
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting generator {generator_name}: {str(e)}")
+        return jsonify(ErrorResponse(
+            error="generator_fetch_failed",
+            message=f"Failed to get generator '{generator_name}'"
+        ).model_dump()), 500
 
 
 @api_metadata.route('/generators/<generator_name>/models', methods=['GET'])
@@ -172,7 +297,7 @@ def list_generator_models(generator_name: str):
             return jsonify(ErrorResponse(
                 error="generator_not_found",
                 message=f"Generator '{generator_name}' not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         # Get models based on generator type
         models = []
@@ -218,7 +343,7 @@ def list_generator_models(generator_name: str):
         return jsonify(ErrorResponse(
             error="model_list_failed",
             message=f"Failed to list models for generator '{generator_name}'"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # Probe Discovery
@@ -299,7 +424,7 @@ def list_probe_categories():
             categories.append(category)
         
         return jsonify({
-            'categories': [cat.dict() for cat in categories],
+            'categories': [cat.model_dump() for cat in categories],
             'total_categories': len(categories),
             'total_probes': sum(len(cat.probes) for cat in categories)
         })
@@ -309,7 +434,7 @@ def list_probe_categories():
         return jsonify(ErrorResponse(
             error="probe_list_failed",
             message="Failed to list available probe categories"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_metadata.route('/probes/<category_name>', methods=['GET'])
@@ -324,7 +449,7 @@ def list_category_probes(category_name: str):
             return jsonify(ErrorResponse(
                 error="category_not_found",
                 message=f"Probe category '{category_name}' not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         probes_list = probe_categories_map[category_name]
         
@@ -342,7 +467,7 @@ def list_category_probes(category_name: str):
         
         return jsonify({
             'category': category_name,
-            'probes': [probe.dict() for probe in probes],
+            'probes': [probe.model_dump() for probe in probes],
             'total': len(probes)
         })
         
@@ -351,7 +476,7 @@ def list_category_probes(category_name: str):
         return jsonify(ErrorResponse(
             error="category_probe_list_failed",
             message=f"Failed to list probes for category '{category_name}'"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # API Information and Health
@@ -363,6 +488,7 @@ def api_info():
     try:
         return jsonify({
             'api_version': 'v1',
+            'version': 'v1',  # Add version field for compatibility
             'service': 'Garak LLM Security Scanner',
             'description': 'Public API for running AI red-teaming security scans',
             'documentation_url': '/api/docs',
@@ -408,7 +534,7 @@ def api_info():
         return jsonify(ErrorResponse(
             error="info_retrieval_failed",
             message="Failed to retrieve API information"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_metadata.route('/health', methods=['GET'])
@@ -475,7 +601,7 @@ def health_check():
         )
         
         status_code = 200 if status == 'healthy' else 503
-        return jsonify(response.dict()), status_code
+        return jsonify(response.model_dump()), status_code
         
     except Exception as e:
         current_app.logger.error(f"Error in health check: {str(e)}")

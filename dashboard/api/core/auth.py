@@ -259,9 +259,10 @@ def api_key_required(f):
             g.api_key_info = {
                 'id': 'bypass',
                 'name': 'Auth Disabled',
-                'permissions': 'read,write,admin',
+                'permissions': ['read', 'write', 'admin'],
                 'rate_limit': 999999,
-                'user_id': 'bypass_user'
+                'user_id': 'bypass_user',
+                'key_prefix': 'bypass_...'
             }
             return f(*args, **kwargs)
         
@@ -298,7 +299,7 @@ def permission_required(required_permission: str):
             key_info = g.api_key_info
             
             # Check if the API key has the required permission
-            permissions = [p.strip() for p in key_info['permissions'].split(',')]
+            permissions = key_info['permissions'] if isinstance(key_info['permissions'], list) else [p.strip() for p in key_info['permissions'].split(',')]
             
             if required_permission not in permissions and 'admin' not in permissions:
                 return jsonify({
@@ -340,5 +341,5 @@ def is_admin_user() -> bool:
     if not hasattr(g, 'api_key_info') or not g.api_key_info:
         return False
     
-    permissions = [p.strip() for p in g.api_key_info['permissions'].split(',')]
+    permissions = g.api_key_info['permissions'] if isinstance(g.api_key_info['permissions'], list) else [p.strip() for p in g.api_key_info['permissions'].split(',')]
     return 'admin' in permissions

@@ -7,7 +7,7 @@ supporting both SQLite and PostgreSQL backends.
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text
 from sqlalchemy.sql import func
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from .database import Base
@@ -55,7 +55,7 @@ class APIKey(Base):
             'key_prefix': self.key_prefix,
             'name': self.name,
             'description': self.description,
-            'permissions': self.permissions,
+            'permissions': [p.strip() for p in self.permissions.split(',')],
             'rate_limit': self.rate_limit,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_used': self.last_used.isoformat() if self.last_used else None,
@@ -69,7 +69,16 @@ class APIKey(Base):
         """Check if the API key has expired."""
         if self.expires_at is None:
             return False
-        return datetime.utcnow() > self.expires_at
+        
+        # Ensure we're comparing timezone-aware datetimes
+        now = datetime.now(timezone.utc)
+        expires_at = self.expires_at
+        
+        # If expires_at is naive, assume it's UTC
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        
+        return now > expires_at
     
     def has_permission(self, required_permission: str) -> bool:
         """Check if the API key has the required permission."""
@@ -85,7 +94,7 @@ class APIKey(Base):
     def increment_usage(self):
         """Increment the usage count and update last used timestamp."""
         self.usage_count += 1
-        self.last_used = datetime.utcnow()
+        self.last_used = datetime.now(timezone.utc)
 
 
 class JobMetadata(Base):

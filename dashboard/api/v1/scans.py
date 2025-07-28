@@ -69,7 +69,7 @@ def create_scan(request_data: CreateScanRequest):
             return jsonify(ErrorResponse(
                 error="no_probes_selected",
                 message="No probes specified. Provide either 'probes' or 'probe_categories'"
-            ).dict()), 400
+            ).model_dump()), 400
         
         # Handle Anthropic models via LiteLLM
         generator = request_data.generator
@@ -117,7 +117,7 @@ def create_scan(request_data: CreateScanRequest):
         return jsonify({
             'scan_id': scan_id,
             'message': f'Scan created successfully with ID: {scan_id}',
-            'metadata': metadata.dict()
+            'metadata': metadata.model_dump()
         }), 201
         
     except Exception as e:
@@ -125,7 +125,7 @@ def create_scan(request_data: CreateScanRequest):
         return jsonify(ErrorResponse(
             error="scan_creation_failed",
             message=f"Failed to create scan: {str(e)}"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans', methods=['GET'])
@@ -165,14 +165,14 @@ def list_scans():
             has_next=end_idx < total
         )
         
-        return jsonify(response.dict())
+        return jsonify(response.model_dump())
         
     except Exception as e:
         current_app.logger.error(f"Error listing scans: {str(e)}")
         return jsonify(ErrorResponse(
             error="scan_list_failed",
             message="Failed to retrieve scan list"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans/<scan_id>', methods=['GET'])
@@ -187,7 +187,7 @@ def get_scan(scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         
@@ -212,14 +212,14 @@ def get_scan(scan_id: str):
             output_log=output_log
         )
         
-        return jsonify(response.dict())
+        return jsonify(response.model_dump())
         
     except Exception as e:
         current_app.logger.error(f"Error getting scan {scan_id}: {str(e)}")
         return jsonify(ErrorResponse(
             error="scan_retrieval_failed",
             message="Failed to retrieve scan information"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans/<scan_id>/status', methods=['GET'])
@@ -234,7 +234,7 @@ def get_scan_status(scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         metadata = scan_to_metadata(job_data)
@@ -242,7 +242,7 @@ def get_scan_status(scan_id: str):
         return jsonify({
             'scan_id': scan_id,
             'status': metadata.status,
-            'progress': metadata.progress.dict() if metadata.progress else None,
+            'progress': metadata.progress.model_dump() if metadata.progress else None,
             'created_at': metadata.created_at.isoformat(),
             'started_at': metadata.started_at.isoformat() if metadata.started_at else None,
             'completed_at': metadata.completed_at.isoformat() if metadata.completed_at else None
@@ -253,7 +253,7 @@ def get_scan_status(scan_id: str):
         return jsonify(ErrorResponse(
             error="status_retrieval_failed",
             message="Failed to retrieve scan status"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans/<scan_id>/progress', methods=['GET'])
@@ -268,7 +268,7 @@ def get_scan_progress(scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         
@@ -291,7 +291,7 @@ def get_scan_progress(scan_id: str):
         return jsonify(ErrorResponse(
             error="progress_retrieval_failed",
             message="Failed to retrieve scan progress"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans/<scan_id>', methods=['PATCH'])
@@ -307,7 +307,7 @@ def update_scan(request_data: UpdateScanRequest, scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         
@@ -331,7 +331,7 @@ def update_scan(request_data: UpdateScanRequest, scan_id: str):
         
         return jsonify({
             'message': 'Scan updated successfully',
-            'metadata': metadata.dict()
+            'metadata': metadata.model_dump()
         })
         
     except Exception as e:
@@ -339,7 +339,7 @@ def update_scan(request_data: UpdateScanRequest, scan_id: str):
         return jsonify(ErrorResponse(
             error="scan_update_failed",
             message="Failed to update scan"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans/<scan_id>', methods=['DELETE'])
@@ -354,7 +354,7 @@ def cancel_scan(scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         
@@ -363,7 +363,7 @@ def cancel_scan(scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_cancellable",
                 message=f"Cannot cancel scan with status: {job_data.get('status')}"
-            ).dict()), 400
+            ).model_dump()), 400
         
         # Update status to cancelled
         job_data['status'] = ScanStatus.CANCELLED.value
@@ -394,7 +394,7 @@ def cancel_scan(scan_id: str):
         return jsonify(ErrorResponse(
             error="scan_cancellation_failed",
             message="Failed to cancel scan"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # Report Download Endpoints
@@ -411,14 +411,14 @@ def list_scan_reports(scan_id: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         reports = _get_available_reports(scan_id, job_data)
         
         return jsonify({
             'scan_id': scan_id,
-            'reports': [report.dict() for report in reports]
+            'reports': [report.model_dump() for report in reports]
         })
         
     except Exception as e:
@@ -426,7 +426,7 @@ def list_scan_reports(scan_id: str):
         return jsonify(ErrorResponse(
             error="report_list_failed",
             message="Failed to list scan reports"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_v1.route('/scans/<scan_id>/reports/<report_type>', methods=['GET'])
@@ -441,14 +441,14 @@ def download_scan_report(scan_id: str, report_type: str):
             return jsonify(ErrorResponse(
                 error="scan_not_found",
                 message=f"Scan with ID {scan_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         # Validate report type
         if report_type not in [rt.value for rt in ReportType]:
             return jsonify(ErrorResponse(
                 error="invalid_report_type",
                 message=f"Invalid report type: {report_type}. Valid types: {[rt.value for rt in ReportType]}"
-            ).dict()), 400
+            ).model_dump()), 400
         
         job_data = jobs_data[scan_id]
         
@@ -474,7 +474,7 @@ def download_scan_report(scan_id: str, report_type: str):
             return jsonify(ErrorResponse(
                 error="report_not_found",
                 message=f"Report file not found: {report_type}"
-            ).dict()), 404
+            ).model_dump()), 404
         
         return send_file(file_path, as_attachment=True, download_name=filename)
         
@@ -483,7 +483,7 @@ def download_scan_report(scan_id: str, report_type: str):
         return jsonify(ErrorResponse(
             error="report_download_failed",
             message="Failed to download report"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # Helper Functions

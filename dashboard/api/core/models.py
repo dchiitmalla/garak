@@ -6,7 +6,7 @@ and response serialization in the public API.
 """
 
 from typing import Optional, List, Dict, Any, Union
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pydantic import BaseModel, Field, validator
 
@@ -254,7 +254,7 @@ class ErrorResponse(BaseModel):
     error: str = Field(..., description="Error type or code")
     message: str = Field(..., description="Human-readable error message")
     details: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]] = Field(default=None, description="Additional error details")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Error timestamp")
+    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Error timestamp")
 
 
 class RateLimitInfo(BaseModel):
@@ -280,6 +280,31 @@ class HealthResponse(BaseModel):
 
 def scan_to_metadata(job_data: Dict[str, Any]) -> ScanMetadata:
     """Convert internal job data to ScanMetadata model."""
+    
+    def _parse_datetime(dt_value):
+        """Parse datetime value that could be string or datetime object."""
+        if dt_value is None:
+            # Return current time if no timestamp available
+            return datetime.now(timezone.utc)
+        
+        if isinstance(dt_value, str):
+            parsed = datetime.fromisoformat(dt_value.replace('Z', '+00:00'))
+        elif isinstance(dt_value, datetime):
+            parsed = dt_value
+        else:
+            # Try to parse as string anyway
+            try:
+                parsed = datetime.fromisoformat(str(dt_value).replace('Z', '+00:00'))
+            except (ValueError, TypeError):
+                # If all else fails, return current time
+                return datetime.now(timezone.utc)
+        
+        # Ensure the datetime is timezone-aware
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        
+        return parsed
+    
     return ScanMetadata(
         scan_id=job_data.get('id', job_data.get('job_id')),
         name=job_data.get('name'),
@@ -289,9 +314,9 @@ def scan_to_metadata(job_data: Dict[str, Any]) -> ScanMetadata:
         probe_categories=job_data.get('probe_categories', []),
         probes=job_data.get('probes', []),
         status=ScanStatus(job_data.get('status', 'pending')),
-        created_at=datetime.fromisoformat(job_data.get('created_at')),
-        started_at=datetime.fromisoformat(job_data['start_time']) if job_data.get('start_time') else None,
-        completed_at=datetime.fromisoformat(job_data['end_time']) if job_data.get('end_time') else None,
+        created_at=_parse_datetime(job_data.get('created_at')),
+        started_at=_parse_datetime(job_data.get('start_time')),
+        completed_at=_parse_datetime(job_data.get('end_time')),
         duration_seconds=job_data.get('duration'),
         parallel_attempts=job_data.get('parallel_attempts', 1),
         progress=_convert_progress_info(job_data.get('progress'))

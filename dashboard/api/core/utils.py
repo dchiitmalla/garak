@@ -59,20 +59,51 @@ def validate_json_request(model_class):
                     return jsonify(ErrorResponse(
                         error="invalid_content_type",
                         message="Content-Type must be application/json"
-                    ).dict()), 400
+                    ).model_dump()), 400
+                
+                # Try to get JSON data (may raise BadRequest for invalid JSON)
+                try:
+                    json_data = request.get_json()
+                except Exception as json_error:
+                    return jsonify(ErrorResponse(
+                        error="invalid_json",
+                        message="Invalid JSON format",
+                        details=str(json_error)
+                    ).model_dump()), 400
                 
                 # Validate request data
-                request_data = model_class(**request.json)
+                request_data = model_class(**json_data)
                 # Pass validated data to the view function
                 return func(request_data, *args, **kwargs)
                 
             except ValidationError as e:
                 from api.core.models import ErrorResponse
+                
+                # Clean validation errors to remove non-serializable objects
+                clean_errors = []
+                for error in e.errors():
+                    clean_error = {
+                        'type': error.get('type'),
+                        'loc': list(error.get('loc', [])),
+                        'msg': error.get('msg'),
+                        'input': str(error.get('input', ''))[:200]  # Limit input length
+                    }
+                    if 'url' in error:
+                        clean_error['url'] = error['url']
+                    clean_errors.append(clean_error)
+                
                 return jsonify(ErrorResponse(
                     error="validation_error",
                     message="Request validation failed",
-                    details=e.errors()
-                ).dict()), 400
+                    details=clean_errors
+                ).model_dump()), 400
+            except Exception as e:
+                from api.core.models import ErrorResponse
+                return jsonify(ErrorResponse(
+                    error="request_processing_error",
+                    message="Failed to process request",
+                    details=str(e)
+                ).model_dump()), 400
             
         wrapper.__name__ = func.__name__
         return wrapper
@@ -89,7 +120,7 @@ def create_error_handler(blueprint_name: str):
         return jsonify(ErrorResponse(
             error="internal_server_error",
             message="An unexpected error occurred"
-        ).dict()), 500
+        ).model_dump()), 500
     
     return handle_error
 
@@ -236,6 +267,9 @@ def get_generator_info(generator_name: str) -> Dict[str, Any]:
         'supported_models': []
     })
     
+    # Always include the generator name
+    info['name'] = generator_name
+    
     # Handle dynamic model lists
     if generator_name == 'anthropic' and info['supported_models'] is None:
         info['supported_models'] = get_anthropic_models()
@@ -245,7 +279,10 @@ def get_generator_info(generator_name: str) -> Dict[str, Any]:
 
 def get_probe_category_info(category_name: str) -> Dict[str, str]:
     """Get enhanced information about a probe category."""
-    return PROBE_CATEGORY_DESCRIPTIONS.get(category_name, {
+    info = PROBE_CATEGORY_DESCRIPTIONS.get(category_name, {
         'display_name': category_name.title(),
         'description': f'Probes in the {category_name} category'
     })
+    # Always include the category name
+    info['name'] = category_name
+    return info

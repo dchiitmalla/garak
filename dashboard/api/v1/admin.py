@@ -75,14 +75,14 @@ def create_api_key(request_data: CreateAPIKeyRequest):
             f"Admin: {g.api_key_info['key_prefix']} ({g.api_key_info['name']})"
         )
         
-        return jsonify(response.dict()), 201
+        return jsonify(response.model_dump()), 201
         
     except Exception as e:
         current_app.logger.error(f"Error creating API key: {str(e)}")
         return jsonify(ErrorResponse(
             error="key_creation_failed",
             message=f"Failed to create API key: {str(e)}"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_admin.route('/api-keys', methods=['GET'])
@@ -112,7 +112,7 @@ def list_api_keys():
             api_keys.append(api_key_info)
         
         return jsonify({
-            'api_keys': [key.dict() for key in api_keys],
+            'api_keys': [key.model_dump() for key in api_keys],
             'total': len(api_keys)
         })
         
@@ -121,7 +121,7 @@ def list_api_keys():
         return jsonify(ErrorResponse(
             error="key_list_failed",
             message="Failed to list API keys"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_admin.route('/api-keys/<int:key_id>', methods=['GET'])
@@ -143,7 +143,7 @@ def get_api_key(key_id: int):
             return jsonify(ErrorResponse(
                 error="key_not_found",
                 message=f"API key with ID {key_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         api_key_info = APIKeyInfo(
             id=key_data['id'],
@@ -159,14 +159,14 @@ def get_api_key(key_id: int):
             is_active=key_data['is_active']
         )
         
-        return jsonify(api_key_info.dict())
+        return jsonify(api_key_info.model_dump())
         
     except Exception as e:
         current_app.logger.error(f"Error getting API key {key_id}: {str(e)}")
         return jsonify(ErrorResponse(
             error="key_retrieval_failed",
             message="Failed to retrieve API key information"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_admin.route('/api-keys/<int:key_id>/revoke', methods=['POST'])
@@ -181,7 +181,7 @@ def revoke_api_key(key_id: int):
             return jsonify(ErrorResponse(
                 error="key_not_found",
                 message=f"API key with ID {key_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         current_app.logger.info(
             f"Revoked API key ID {key_id} - "
@@ -199,7 +199,7 @@ def revoke_api_key(key_id: int):
         return jsonify(ErrorResponse(
             error="key_revocation_failed",
             message="Failed to revoke API key"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 @api_admin.route('/api-keys/<int:key_id>', methods=['DELETE'])
@@ -214,7 +214,7 @@ def delete_api_key(key_id: int):
             return jsonify(ErrorResponse(
                 error="key_not_found",
                 message=f"API key with ID {key_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         current_app.logger.info(
             f"Deleted API key ID {key_id} - "
@@ -231,7 +231,7 @@ def delete_api_key(key_id: int):
         return jsonify(ErrorResponse(
             error="key_deletion_failed",
             message="Failed to delete API key"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # Rate Limiting Management
@@ -254,7 +254,7 @@ def get_api_key_rate_limit(key_id: int):
             return jsonify(ErrorResponse(
                 error="key_not_found",
                 message=f"API key with ID {key_id} not found"
-            ).dict()), 404
+            ).model_dump()), 404
         
         # Get rate limit status
         rate_status = get_rate_limit_status(key_data)
@@ -266,7 +266,7 @@ def get_api_key_rate_limit(key_id: int):
         return jsonify(ErrorResponse(
             error="rate_limit_retrieval_failed",
             message="Failed to retrieve rate limit information"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # System Status and Statistics
@@ -316,7 +316,7 @@ def get_system_stats():
         return jsonify(ErrorResponse(
             error="stats_retrieval_failed",
             message="Failed to retrieve system statistics"
-        ).dict()), 500
+        ).model_dump()), 500
 
 
 # Bootstrap/Initial Setup
@@ -333,7 +333,7 @@ def bootstrap_admin():
             return jsonify(ErrorResponse(
                 error="admin_exists",
                 message="Admin API key already exists. Use existing admin key to create more keys."
-            ).dict()), 400
+            ).model_dump()), 400
         
         # Create the initial admin key
         api_key, key_metadata = api_key_manager.generate_api_key(
@@ -366,7 +366,7 @@ def bootstrap_admin():
         current_app.logger.info("Created bootstrap admin API key")
         
         return jsonify({
-            **response.dict(),
+            **response.model_dump(),
             'message': 'Bootstrap admin key created successfully. Store this key securely - it will not be shown again.',
             'next_steps': [
                 'Store the API key in a secure location',
@@ -380,4 +380,4 @@ def bootstrap_admin():
         return jsonify(ErrorResponse(
             error="bootstrap_failed",
             message=f"Failed to create bootstrap admin key: {str(e)}"
-        ).dict()), 500
+        ).model_dump()), 500
