@@ -6,9 +6,14 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
+    g++ \
     curl \
+    wget \
     pkg-config \
     libssl-dev \
+    libffi-dev \
+    libmagic1 \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Rust for base2048 package
@@ -34,6 +39,12 @@ COPY README.md /app/
 # Install Garak package
 RUN pip install --no-cache-dir -e /app/
 
+# Install optional dependencies that are commonly needed to prevent import errors
+RUN pip install --no-cache-dir google-generativeai
+
+# Pre-download NLTK data to system location (accessible to all users)
+RUN python3 -c "import nltk; nltk.download('words', quiet=True, download_dir='/usr/local/share/nltk_data'); nltk.download('punkt', quiet=True, download_dir='/usr/local/share/nltk_data'); nltk.download('stopwords', quiet=True, download_dir='/usr/local/share/nltk_data')"
+
 # Install Flask & dashboard deps, then explicitly install Gunicorn
 COPY dashboard/requirements.txt /app/dashboard/
 RUN pip install --no-cache-dir -r /app/dashboard/requirements.txt \
@@ -43,6 +54,10 @@ RUN pip install --no-cache-dir -r /app/dashboard/requirements.txt \
 # Copy dashboard application files
 COPY dashboard /app/dashboard/
 
+# Test garak installation and basic functionality
+RUN python3 -c "import garak; print('Garak imported successfully')"
+RUN python3 -m garak --help > /dev/null && echo "Garak CLI working"
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=/app/dashboard/app.py
@@ -51,10 +66,17 @@ ENV DATA_DIR=/app/data
 ENV REPORT_DIR=/app/reports
 ENV HOME=/home/garak
 ENV GARAK_CONFIG_DIR=/home/garak/.config/garak
+ENV HF_HOME=/home/garak/.cache/huggingface
+ENV TRANSFORMERS_CACHE=/home/garak/.cache/huggingface/transformers
+ENV NLTK_DATA=/usr/local/share/nltk_data:/home/garak/.nltk_data
+ENV TORCH_HOME=/home/garak/.cache/torch
 
 # Create necessary directories and set permissions
 RUN mkdir -p /app/reports /app/data && \
     mkdir -p /home/garak/.config/garak && \
+    mkdir -p /home/garak/.cache/huggingface/transformers && \
+    mkdir -p /home/garak/.nltk_data && \
+    mkdir -p /home/garak/.cache/torch && \
     chown -R garak:garak /app/reports /app/data /home/garak && \
     chmod -R 755 /home/garak
 
@@ -62,6 +84,10 @@ EXPOSE 8080
 
 # Switch to non-root user
 USER garak
+
+# Test garak functionality as garak user
+RUN python3 -c "import garak; print('Garak working as garak user')"
+RUN python3 -m garak --help > /dev/null && echo "Garak CLI working as garak user"
 
 # Set working directory to dashboard
 WORKDIR /app/dashboard

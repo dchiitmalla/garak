@@ -653,6 +653,9 @@ exit $EXIT_CODE
             universal_newlines=True
         )
         
+        # Set a timeout for garak execution (30 minutes)
+        GARAK_TIMEOUT = 30 * 60
+        
         # Store process ID for status checking
         JOBS[job_id]['process_id'] = process.pid
         
@@ -661,11 +664,21 @@ exit $EXIT_CODE
             try:
                 # Initialize buffers for stdout and stderr
                 output_buffer = ""
+                start_time = time.time()
                 
                 # Open output file for streaming
                 with open(live_output_path, "a") as output_file:
                     # While the process is running
                     while process.poll() is None:
+                        # Check for timeout
+                        if time.time() - start_time > GARAK_TIMEOUT:
+                            logging.warning(f"Job {job_id} timeout after {GARAK_TIMEOUT} seconds, terminating process")
+                            process.terminate()
+                            time.sleep(5)  # Give it time to terminate gracefully
+                            if process.poll() is None:
+                                process.kill()  # Force kill if still running
+                            output_file.write(f"\nERROR: Garak scan timed out after {GARAK_TIMEOUT} seconds\n")
+                            break
                         # Check if there's output to read from stdout
                         if process.stdout in select.select([process.stdout], [], [], 0.1)[0]:
                             line = process.stdout.readline()
