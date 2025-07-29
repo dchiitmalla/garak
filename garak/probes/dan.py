@@ -611,6 +611,14 @@ class AutoDAN(garak.probes.Probe):
     def probe(self, generator) -> Iterable[garak.attempt.Attempt]:
         self.generator = generator
 
+        # Check if generator is compatible with AutoDAN
+        from garak.generators.huggingface import Model
+        if not isinstance(self.generator, Model):
+            logging.warning(f"AutoDAN probe skipped: requires HuggingFace models, got {type(self.generator).__name__}")
+            print(f"AutoDAN probe skipped: requires HuggingFace models, got {type(self.generator).__name__}")
+            # Return empty list instead of None to avoid further issues
+            return []
+
         if self.autodan is None:
             from garak.resources.autodan import autodan_generate
 
@@ -621,7 +629,7 @@ class AutoDAN(garak.probes.Probe):
                 generator=self.generator, prompt=self.goal_str, target=self.target
             )
         except Exception as e:
-            logging.error(e)
+            logging.error(f"AutoDAN generation failed: {e}")
             print(f"AutoDAN generation encountered an error:\n{e}")
             autodan_outputs = None
 

@@ -328,14 +328,16 @@ The dashboard includes a comprehensive pytest-based testing system with 60+ test
 ```
 dashboard/tests/
 ├── conftest.py           # Shared fixtures and configuration
-├── unit/                 # Unit tests (34 tests)
+├── unit/                 # Unit tests (42+ tests)
 │   ├── test_models.py    # Pydantic model validation tests
 │   ├── test_utils.py     # Utility function tests
 │   ├── test_rate_limiter.py # Rate limiting tests
-│   └── test_database.py  # Database model tests
-└── integration/          # Integration tests (26 tests)
+│   ├── test_database.py  # Database model tests
+│   └── test_probe_error_handling.py # Probe error handling tests
+└── integration/          # Integration tests (38+ tests)
     ├── test_api_endpoints.py # API endpoint tests
-    └── test_auth.py      # Authentication tests
+    ├── test_auth.py      # Authentication tests
+    └── test_job_error_handling.py # Job execution error handling tests
 ```
 
 ### Test Markers and Categories
@@ -351,3 +353,83 @@ dashboard/tests/
 - **API endpoint testing**: Uses Flask test client with JSON requests/responses
 - **Mock external dependencies**: Redis, Firebase, external APIs
 - **Environment setup**: `DISABLE_AUTH=true` and `FLASK_ENV=testing` automatically configured
+
+## Critical Job Execution and Error Handling
+
+### Job Persistence and Recovery
+The dashboard implements robust job persistence with automatic disk reload capabilities:
+- Jobs are atomically written to disk using temporary files to prevent corruption
+- Scan data can be retrieved even after server restarts or memory clearing
+- Automatic fallback to disk-based loading when jobs aren't in memory
+- Race condition prevention through file locking and validation
+
+### Probe Error Handling
+Recent improvements ensure jobs continue execution despite individual probe failures:
+- **AutoDAN Compatibility**: AutoDAN probe gracefully handles non-HuggingFace generators by early detection and fallback
+- **Logging Configuration**: HTTP client loggers (`httpcore`, `httpx`, `urllib3`) set to WARNING level to prevent recursive logging errors
+- **Script-level Error Handling**: Bash execution scripts include error recovery and report validation
+- **Atomic File Operations**: Job data uses atomic writes with `fsync` and temporary files
+
+### Error Recovery Patterns
+```python
+# Probe compatibility checking example
+if not isinstance(generator, Model):
+    logging.warning(f"Probe skipped: requires HuggingFace models, got {type(generator).__name__}")
+    return []  # Return empty instead of crashing
+
+# Atomic file write pattern
+temp_path = job_file_path + '.tmp'
+with open(temp_path, 'w') as f:
+    json.dump(job_data, f, indent=2)
+    f.flush()
+    os.fsync(f.fileno())
+os.rename(temp_path, job_file_path)  # Atomic move
+```
+
+## Advanced Dashboard Features
+
+### Scan Persistence Architecture
+- **In-Memory Management**: Global `JOBS` dictionary for active scan tracking
+- **Disk Persistence**: JSON files in `DATA_DIR` for permanent storage
+- **Automatic Recovery**: Functions `_reload_jobs_from_disk()` and `_reload_specific_job()` for memory reconstruction
+- **Data Validation**: Empty file detection, JSON validation, and field verification
+
+### Background Job Management  
+- **Threading Model**: Daemon threads for non-blocking scan execution
+- **Status Tracking**: Real-time status updates with progress estimation
+- **Timeout Handling**: 30-minute execution timeout with graceful cleanup
+- **Process Management**: PID tracking and proper subprocess lifecycle management
+
+### API Robustness Features
+- **Rate Limiting**: Redis-based sliding window with per-endpoint limits
+- **Request Validation**: Pydantic models with comprehensive error handling
+- **Authentication**: SHA256-hashed API keys with role-based permissions
+- **Error Recovery**: Automatic scan reload from disk when not in memory
+
+## Development Workflow Considerations
+
+### Testing Critical Systems
+```bash
+# Test probe error handling specifically
+pytest tests/unit/test_probe_error_handling.py -v
+
+# Test job persistence and recovery
+pytest tests/integration/test_api_endpoints.py -k "persistence or retrieval" -v
+
+# Test error handling under various conditions
+pytest tests/integration/test_job_error_handling.py -v
+```
+
+### Common Debugging Scenarios
+- **Empty Job Files**: Check for race conditions in job creation vs background execution
+- **Logging Recursion**: Verify HTTP client logger levels are set to WARNING or higher
+- **Probe Failures**: Check generator compatibility (especially AutoDAN with non-HF models)
+- **Memory vs Disk Sync**: Use scan retrieval endpoints to test disk reload functionality
+
+### Environment Variables for Troubleshooting
+```bash
+export GARAK_LOG_LEVEL=DEBUG      # Enable verbose garak logging
+export PYTHONUNBUFFERED=1         # Prevent output buffering issues
+export DISABLE_AUTH=true          # Bypass auth for local development
+export REDIS_URL=redis://localhost:6379/0  # Enable rate limiting (optional)
+```

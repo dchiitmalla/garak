@@ -97,6 +97,36 @@ def create_scan(request_data: CreateScanRequest):
             'api_key_id': g.api_key_info['id']
         }
         
+        # Ensure job is persisted to disk before starting execution
+        from app import DATA_DIR
+        import json
+        import tempfile
+        
+        job_file_path = os.path.join(DATA_DIR, f"job_{scan_id}.json")
+        temp_path = job_file_path + '.tmp'
+        try:
+            # Use atomic write to prevent race conditions
+            with open(temp_path, 'w') as f:
+                json.dump(jobs_data[scan_id], f, indent=2)
+                f.flush()  # Ensure data is written
+                os.fsync(f.fileno())  # Force write to disk
+            
+            # Atomic move to final location
+            os.rename(temp_path, job_file_path)
+            current_app.logger.info(f"Job {scan_id} persisted to disk: {job_file_path}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to persist job {scan_id} to disk: {e}")
+            # Clean up temp file if it exists
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except:
+                pass
+            return jsonify(ErrorResponse(
+                error="scan_persistence_failed",
+                message="Failed to save scan to disk"
+            ).model_dump()), 500
+        
         # Start job in background thread
         thread = threading.Thread(
             target=run_garak_job_wrapper,
@@ -141,12 +171,22 @@ def list_scans():
         
         jobs_data = get_jobs_data()
         
+        # Ensure jobs are loaded from disk if not in memory
+        if not jobs_data:
+            current_app.logger.info("Jobs data empty, attempting to reload from disk")
+            _reload_jobs_from_disk()
+            jobs_data = get_jobs_data()
+        
         # Filter scans by status if specified
         scans = []
         for job_id, job_data in jobs_data.items():
-            if status_filter and job_data.get('status') != status_filter:
+            try:
+                if status_filter and job_data.get('status') != status_filter:
+                    continue
+                scans.append(scan_to_metadata(job_data))
+            except Exception as e:
+                current_app.logger.warning(f"Failed to process job {job_id}: {e}")
                 continue
-            scans.append(scan_to_metadata(job_data))
         
         # Sort by creation date (most recent first)
         scans.sort(key=lambda x: x.created_at, reverse=True)
@@ -168,7 +208,7 @@ def list_scans():
         return jsonify(response.model_dump())
         
     except Exception as e:
-        current_app.logger.error(f"Error listing scans: {str(e)}")
+        current_app.logger.error(f"Error listing scans: {str(e)}", exc_info=True)
         return jsonify(ErrorResponse(
             error="scan_list_failed",
             message="Failed to retrieve scan list"
@@ -183,11 +223,16 @@ def get_scan(scan_id: str):
     try:
         jobs_data = get_jobs_data()
         
+        # If scan not found in memory, try to reload from disk
         if scan_id not in jobs_data:
-            return jsonify(ErrorResponse(
-                error="scan_not_found",
-                message=f"Scan with ID {scan_id} not found"
-            ).model_dump()), 404
+            current_app.logger.info(f"Scan {scan_id} not found in memory, attempting to reload from disk")
+            if _reload_specific_job(scan_id):
+                jobs_data = get_jobs_data()
+            else:
+                return jsonify(ErrorResponse(
+                    error="scan_not_found",
+                    message=f"Scan with ID {scan_id} not found"
+                ).model_dump()), 404
         
         job_data = jobs_data[scan_id]
         
@@ -215,7 +260,7 @@ def get_scan(scan_id: str):
         return jsonify(response.model_dump())
         
     except Exception as e:
-        current_app.logger.error(f"Error getting scan {scan_id}: {str(e)}")
+        current_app.logger.error(f"Error getting scan {scan_id}: {str(e)}", exc_info=True)
         return jsonify(ErrorResponse(
             error="scan_retrieval_failed",
             message="Failed to retrieve scan information"
@@ -230,11 +275,15 @@ def get_scan_status(scan_id: str):
     try:
         jobs_data = get_jobs_data()
         
+        # If scan not found in memory, try to reload from disk
         if scan_id not in jobs_data:
-            return jsonify(ErrorResponse(
-                error="scan_not_found",
-                message=f"Scan with ID {scan_id} not found"
-            ).model_dump()), 404
+            current_app.logger.info(f"Scan {scan_id} not found in memory for status check, attempting to reload from disk")
+            if not _reload_specific_job(scan_id):
+                return jsonify(ErrorResponse(
+                    error="scan_not_found",
+                    message=f"Scan with ID {scan_id} not found"
+                ).model_dump()), 404
+            jobs_data = get_jobs_data()
         
         job_data = jobs_data[scan_id]
         metadata = scan_to_metadata(job_data)
@@ -249,7 +298,7 @@ def get_scan_status(scan_id: str):
         })
         
     except Exception as e:
-        current_app.logger.error(f"Error getting scan status {scan_id}: {str(e)}")
+        current_app.logger.error(f"Error getting scan status {scan_id}: {str(e)}", exc_info=True)
         return jsonify(ErrorResponse(
             error="status_retrieval_failed",
             message="Failed to retrieve scan status"
@@ -487,6 +536,65 @@ def download_scan_report(scan_id: str, report_type: str):
 
 
 # Helper Functions
+
+def _reload_jobs_from_disk():
+    """Reload all jobs from disk into memory."""
+    try:
+        from app import load_existing_jobs
+        load_existing_jobs()
+        current_app.logger.info("Successfully reloaded jobs from disk")
+    except Exception as e:
+        current_app.logger.error(f"Failed to reload jobs from disk: {e}")
+
+
+def _reload_specific_job(job_id: str) -> bool:
+    """Reload a specific job from disk into memory."""
+    try:
+        from app import DATA_DIR
+        import json
+        
+        job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
+        if not os.path.exists(job_file_path):
+            current_app.logger.warning(f"Job file not found for {job_id}")
+            return False
+        
+        # Check if file is empty or too small to contain valid JSON
+        if os.path.getsize(job_file_path) == 0:
+            current_app.logger.warning(f"Job file for {job_id} is empty")
+            return False
+        
+        with open(job_file_path, 'r') as f:
+            content = f.read().strip()
+            if not content:
+                current_app.logger.warning(f"Job file for {job_id} contains only whitespace")
+                return False
+                
+            job_data = json.loads(content)
+        
+        # Ensure job_data is a dictionary and has required fields
+        if not isinstance(job_data, dict):
+            current_app.logger.warning(f"Job file for {job_id} does not contain a valid job object")
+            return False
+            
+        # Ensure it has at least the job_id field
+        if 'job_id' not in job_data and 'id' not in job_data:
+            current_app.logger.warning(f"Job file for {job_id} missing required ID field")
+            return False
+        
+        # Update the global JOBS dictionary
+        jobs_data = get_jobs_data()
+        jobs_data[job_id] = job_data
+        
+        current_app.logger.info(f"Successfully reloaded job {job_id} from disk")
+        return True
+        
+    except json.JSONDecodeError as e:
+        current_app.logger.error(f"Failed to parse JSON for job {job_id}: {e}")
+        return False
+    except Exception as e:
+        current_app.logger.error(f"Failed to reload job {job_id} from disk: {e}")
+        return False
+
 
 def _get_progress_data(job_data: Dict[str, Any]) -> Dict[str, Any]:
     """Extract progress data from job information."""

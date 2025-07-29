@@ -24,6 +24,11 @@ except ImportError:
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Prevent recursive logging issues with HTTP clients by setting more restrictive levels
+logging.getLogger('httpcore').setLevel(logging.WARNING)
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+
 app = Flask(__name__, static_folder='static')
 app.secret_key = os.environ.get('SECRET_KEY', 'garak-dashboard-secret-key')
 
@@ -523,22 +528,34 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
     import subprocess, threading, io, select
     
     try:
-        # Create a job configuration dictionary for tracking
-        job_config = {
+        # Preserve existing job data and update with runtime config
+        job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
+        existing_job_data = {}
+        
+        # Load existing job data if it exists
+        if os.path.exists(job_file_path):
+            try:
+                with open(job_file_path, 'r') as f:
+                    existing_job_data = json.load(f)
+            except (json.JSONDecodeError, IOError) as e:
+                logging.warning(f"Failed to load existing job data for {job_id}: {e}")
+        
+        # Create a job configuration dictionary, preserving existing data
+        job_config = existing_job_data.copy()
+        job_config.update({
             'job_id': job_id,
             'generator': generator,
             'model_name': model_name,
             'probes': probes,
             'api_keys': api_keys,
             'report_prefix': os.path.join(REPORT_DIR, job_id),
-        }
+        })
         
-        # Save job config for reference
-        job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
+        # Save updated job config
         with open(job_file_path, 'w') as f:
             json.dump(job_config, f)
             
-        logging.info(f"Created job file: {job_file_path}")
+        logging.info(f"Updated job file: {job_file_path}")
         
         # Update job status to running
         JOBS[job_id]['status'] = 'running'
@@ -562,7 +579,9 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
         report_prefix = os.path.join(REPORT_DIR, job_id)
         script_content = """#!/bin/bash
 
-# Set environment variables for API keys
+# Set environment variables for API keys and logging configuration
+export PYTHONUNBUFFERED=1
+export GARAK_LOG_LEVEL=WARNING
 """
         
         # Add API keys to environment variables
@@ -620,17 +639,30 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
                 if int(parallel_attempts) > 1:
                     cmd_str += f" --parallel_attempts {int(parallel_attempts)}"
             except (ValueError, TypeError):
-                pass
+                logging.warning(f"Invalid parallel_attempts value: {parallel_attempts}, using default of 1")
+                parallel_attempts = 1
             logging.info(f"Job {job_id}: Executing command: {cmd_str}")
         
         script_content += f"""
 
 echo "Running Garak scan with command: {cmd_str}"
-{cmd_str} 2>&1
 
+# Run garak with error handling - continue even if some probes fail
+set +e  # Don't exit on error
+{cmd_str} 2>&1
 EXIT_CODE=$?
+set -e  # Re-enable exit on error
+
 echo "Garak scan completed with exit code: $EXIT_CODE"
-exit $EXIT_CODE
+
+# Check if any reports were generated, even with errors
+if [ -f "{report_prefix}.report.json" ] || [ -f "{report_prefix}.report.jsonl" ]; then
+    echo "Reports generated successfully despite any probe errors"
+    exit 0
+else
+    echo "No reports generated"
+    exit $EXIT_CODE
+fi
 """
         
         # Write the script to a file

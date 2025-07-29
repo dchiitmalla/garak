@@ -199,6 +199,160 @@ class TestScanEndpoints:
         data = response.get_json()
         assert 'error' in data
         assert 'message' in data
+    
+    def test_scan_persistence_after_creation(self, client, sample_scan_request):
+        """Test that scans are properly persisted to disk after creation."""
+        import os
+        import json
+        from app import DATA_DIR
+        
+        # Create a scan
+        create_response = client.post('/api/v1/scans', 
+                                    json=sample_scan_request,
+                                    content_type='application/json')
+        assert create_response.status_code == 201
+        
+        scan_id = create_response.get_json()['scan_id']
+        
+        # Verify job file exists on disk
+        job_file_path = os.path.join(DATA_DIR, f"job_{scan_id}.json")
+        assert os.path.exists(job_file_path), f"Job file should exist at {job_file_path}"
+        
+        # Verify job file contains correct data
+        # Add a small delay to ensure file is written completely
+        import time
+        time.sleep(0.1)
+        
+        with open(job_file_path, 'r') as f:
+            content = f.read().strip()
+            if not content:
+                # If file is empty, try waiting a bit longer
+                time.sleep(0.5)
+                f.seek(0)
+                content = f.read().strip()
+            
+            assert content, f"Job file {job_file_path} should not be empty"
+            job_data = json.loads(content)
+        
+        # Check both 'id' and 'job_id' fields for compatibility
+        assert job_data.get('id', job_data.get('job_id')) == scan_id
+        assert job_data['generator'] == sample_scan_request['generator']
+        assert job_data['model_name'] == sample_scan_request['model_name']
+        
+        # Check that essential fields are present
+        assert job_data.get('probe_categories') == sample_scan_request['probe_categories']
+        assert job_data.get('description') == sample_scan_request.get('description')
+        
+        assert 'created_at' in job_data
+        assert job_data['status'] == 'pending'
+    
+    def test_scan_retrieval_from_disk(self, client, sample_scan_request):
+        """Test that scans can be retrieved from disk even if not in memory."""
+        import os
+        import json
+        from app import DATA_DIR, JOBS
+        
+        # Create a scan
+        create_response = client.post('/api/v1/scans', 
+                                    json=sample_scan_request,
+                                    content_type='application/json')
+        assert create_response.status_code == 201
+        
+        scan_id = create_response.get_json()['scan_id']
+        
+        # Simulate clearing the in-memory jobs dictionary
+        # This mimics what could happen during a server restart
+        if scan_id in JOBS:
+            del JOBS[scan_id]
+        
+        # Now try to retrieve the scan - it should reload from disk
+        response = client.get(f'/api/v1/scans/{scan_id}')
+        assert response.status_code == 200
+        
+        data = response.get_json()
+        assert data['metadata']['scan_id'] == scan_id
+        assert data['metadata']['generator'] == sample_scan_request['generator']
+        assert data['metadata']['model_name'] == sample_scan_request['model_name']
+        
+        # Verify the scan is back in memory
+        assert scan_id in JOBS
+    
+    def test_scan_status_retrieval_from_disk(self, client, sample_scan_request):
+        """Test that scan status can be retrieved from disk even if not in memory."""
+        import os
+        import json
+        from app import DATA_DIR, JOBS
+        
+        # Create a scan
+        create_response = client.post('/api/v1/scans', 
+                                    json=sample_scan_request,
+                                    content_type='application/json')
+        assert create_response.status_code == 201
+        
+        scan_id = create_response.get_json()['scan_id']
+        
+        # Simulate clearing the in-memory jobs dictionary
+        if scan_id in JOBS:
+            del JOBS[scan_id]
+        
+        # Now try to get scan status - it should reload from disk
+        response = client.get(f'/api/v1/scans/{scan_id}/status')
+        assert response.status_code == 200
+        
+        data = response.get_json()
+        assert data['scan_id'] == scan_id
+        assert 'status' in data
+        assert 'created_at' in data
+    
+    def test_scan_list_reloads_from_disk(self, client, sample_scan_request):
+        """Test that scan list endpoint reloads data from disk when memory is empty."""
+        from app import JOBS
+        
+        # Create a scan
+        create_response = client.post('/api/v1/scans', 
+                                    json=sample_scan_request,
+                                    content_type='application/json')
+        assert create_response.status_code == 201
+        
+        scan_id = create_response.get_json()['scan_id']
+        
+        # Clear all jobs from memory
+        JOBS.clear()
+        
+        # List scans should reload from disk
+        response = client.get('/api/v1/scans')
+        assert response.status_code == 200
+        
+        data = response.get_json()
+        assert 'scans' in data
+        assert data['total'] >= 1
+        
+        # Find our scan in the list
+        scan_found = False
+        for scan in data['scans']:
+            if scan['scan_id'] == scan_id:
+                scan_found = True
+                assert scan['generator'] == sample_scan_request['generator']
+                assert scan['model_name'] == sample_scan_request['model_name']
+                break
+        
+        assert scan_found, f"Scan {scan_id} should be found in the list after reload"
+    
+    def test_scan_persistence_error_handling(self, client, sample_scan_request):
+        """Test error handling when scan persistence fails."""
+        import os
+        from unittest.mock import patch
+        
+        # Mock os.path.join to cause a permission error during file write
+        with patch('builtins.open', side_effect=PermissionError("Access denied")):
+            response = client.post('/api/v1/scans', 
+                                 json=sample_scan_request,
+                                 content_type='application/json')
+            assert response.status_code == 500
+            
+            data = response.get_json()
+            assert data['error'] == 'scan_persistence_failed'
+            assert 'Failed to save scan to disk' in data['message']
 
 
 class TestErrorHandling:
