@@ -155,16 +155,23 @@ docker buildx build --platform linux/amd64 -f dashboard/Dockerfile -t gcr.io/PRO
 source load_env.sh
 ```
 
-### Local Testing and Error Catching
+### Dashboard Testing Commands
 ```bash
-# Always use virtual environment for local testing
+# Always use virtual environment for dashboard testing
 cd dashboard && source venv/bin/activate
 
-# Run comprehensive test suite (catches issues before deployment)
-python test_local.py
+# Run all dashboard tests with custom test runner
+python run_tests.py --all                    # All tests
+python run_tests.py --unit                   # Unit tests only  
+python run_tests.py --integration            # Integration tests only
+python run_tests.py --coverage --html        # With coverage report
 
-# Run quick smoke test
-python quick_test.py
+# Run standard pytest (alternative)  
+cd dashboard && pytest tests/
+pytest tests/unit/                           # Unit tests
+pytest tests/integration/                    # Integration tests
+pytest -m "not auth"                         # Skip auth tests (for DISABLE_AUTH=true)
+pytest -v -k "test_scan"                     # Run tests matching pattern
 
 # Test specific API endpoints locally
 export DISABLE_AUTH=true
@@ -244,6 +251,34 @@ python3 -c "from api.v1.scans import api_v1; print('✓ API imports working')"
 - **Documentation**: Interactive Swagger UI with usage examples
 - **Modular Design**: Clean separation of concerns with shared utilities to eliminate circular dependencies
 
+### Docker Deployment and Environment Issues
+
+The dashboard includes Docker support for deployment to Cloud Run. Key considerations:
+
+**Docker Build Commands**:
+```bash
+# Standard Docker build
+docker build -f dashboard/Dockerfile -t garak-dashboard .
+
+# Build for GCP (AMD64 required for Cloud Run)
+docker buildx build --platform linux/amd64 -f dashboard/Dockerfile -t gcr.io/PROJECT_ID/garak-dashboard:latest .
+
+# Test locally before deployment
+docker run -d -p 8080:8080 -e PORT=8080 -e DISABLE_AUTH=true garak-dashboard
+```
+
+**Common Environment Issues**:
+- Missing optional dependencies can cause garak plugin enumeration to fail
+- NLTK data downloads need proper cache directory permissions  
+- HuggingFace transformers require cache configuration
+- Garak scans may timeout without proper resource limits (30min default timeout implemented)
+
+**Environment Variables for Container**:
+- `HF_HOME=/home/garak/.cache/huggingface` - HuggingFace model cache
+- `NLTK_DATA=/usr/local/share/nltk_data:/home/garak/.nltk_data` - NLTK data paths
+- `TORCH_HOME=/home/garak/.cache/torch` - PyTorch cache
+- `DISABLE_AUTH=true` - Bypass authentication for development/testing
+
 Key endpoints:
 - `/api/v1/scans` - Scan management (create, list, get status, cancel, download reports)
 - `/api/v1/generators` - Available model generators and supported models
@@ -284,3 +319,35 @@ GET /api/v1/admin/api-keys              # List all keys
 GET /api/v1/admin/api-keys/{id}/rate-limit  # Check rate limit status
 DELETE /api/v1/admin/api-keys/{id}      # Delete key
 ```
+
+## Dashboard Testing Infrastructure
+
+The dashboard includes a comprehensive pytest-based testing system with 60+ tests covering all functionality:
+
+### Test Organization
+```
+dashboard/tests/
+├── conftest.py           # Shared fixtures and configuration
+├── unit/                 # Unit tests (34 tests)
+│   ├── test_models.py    # Pydantic model validation tests
+│   ├── test_utils.py     # Utility function tests
+│   ├── test_rate_limiter.py # Rate limiting tests
+│   └── test_database.py  # Database model tests
+└── integration/          # Integration tests (26 tests)
+    ├── test_api_endpoints.py # API endpoint tests
+    └── test_auth.py      # Authentication tests
+```
+
+### Test Markers and Categories
+- `@pytest.mark.unit` - Unit tests (fast, isolated)
+- `@pytest.mark.integration` - Integration tests (slower, full stack)
+- `@pytest.mark.auth` - Authentication-related tests
+- `@pytest.mark.api` - API endpoint tests
+- `@pytest.mark.models` - Pydantic model tests
+
+### Key Testing Patterns
+- **Fixtures in conftest.py**: `app`, `client`, `api_models`, `utils`, `rate_limiter`
+- **Test database isolation**: Each test uses temporary SQLite database
+- **API endpoint testing**: Uses Flask test client with JSON requests/responses
+- **Mock external dependencies**: Redis, Firebase, external APIs
+- **Environment setup**: `DISABLE_AUTH=true` and `FLASK_ENV=testing` automatically configured

@@ -16,9 +16,11 @@ import jsonlines
 try:
     # Try containerized import path first
     from dashboard import auth
+    from dashboard.storage_manager import create_storage_manager
 except ImportError:
     # Fallback to local import for development
     import auth
+    from storage_manager import create_storage_manager
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

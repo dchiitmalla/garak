@@ -248,6 +248,97 @@ gcloud run deploy garak-dashboard \
 
 3. **Resource Allocation**: Adjust memory and CPU based on your workload requirements
 
+## GCP Storage FUSE Integration
+
+The Garak Dashboard supports persistent storage using Google Cloud Storage FUSE for production deployments. This ensures job data and reports survive container restarts and can be shared across multiple instances.
+
+### Setting Up GCS FUSE Persistence
+
+#### Prerequisites
+- GCP project with Storage API enabled
+- Service account with Storage Object Admin permissions
+- GCS bucket for persistent storage
+
+#### Quick Setup Commands
+
+1. **Create GCS Bucket:**
+   ```bash
+   gsutil mb gs://garak-persistent-storage
+   ```
+
+2. **Create Service Account:**
+   ```bash
+   gcloud iam service-accounts create garak-dashboard \
+     --display-name="Garak Dashboard Service Account"
+   
+   gcloud projects add-iam-policy-binding PROJECT_ID \
+     --member="serviceAccount:garak-dashboard@PROJECT_ID.iam.gserviceaccount.com" \
+     --role="roles/storage.objectAdmin"
+   ```
+
+3. **Grant User Permissions:**
+   ```bash
+   gcloud iam service-accounts add-iam-policy-binding \
+     garak-dashboard@PROJECT_ID.iam.gserviceaccount.com \
+     --member="user:YOUR_EMAIL@domain.com" \
+     --role="roles/iam.serviceAccountUser"
+   ```
+
+4. **Deploy with GCS FUSE:**
+   ```bash
+   gcloud run deploy garak-dashboard \
+     --image=gcr.io/PROJECT_ID/garak-dashboard:latest \
+     --add-volume=name=gcs-storage,type=cloud-storage,bucket=garak-persistent-storage \
+     --add-volume-mount=volume=gcs-storage,mount-path=/mnt/gcs-storage \
+     --set-env-vars="DATA_DIR=/mnt/gcs-storage/data,REPORT_DIR=/mnt/gcs-storage/reports" \
+     --service-account=garak-dashboard@PROJECT_ID.iam.gserviceaccount.com \
+     --memory=2Gi --cpu=1000m --timeout=3600s \
+     --region=us-central1 \
+     --allow-unauthenticated
+   ```
+
+### How GCS FUSE Works
+
+- **Automatic Integration**: The dashboard uses `DATA_DIR` and `REPORT_DIR` environment variables, making GCS FUSE transparent to the application
+- **Persistent Storage**: All job data (`job_*.json`), API keys (SQLite database), and reports are stored in the mounted GCS bucket
+- **Scalability**: Multiple container instances can share the same persistent storage
+- **Cost Optimization**: Uses standard GCS pricing with optional lifecycle policies
+
+### Storage Structure
+
+```
+gs://garak-persistent-storage/
+├── data/
+│   ├── api_keys.db           # API keys database
+│   └── job_*.json           # Job metadata files
+└── reports/
+    ├── *.report.html        # HTML reports
+    ├── *.report.json        # JSON reports
+    ├── *.report.jsonl       # JSONL reports
+    └── *_live_output.txt    # Live scan output
+```
+
+### Key Benefits
+
+- **Zero Code Changes**: Existing storage abstraction works seamlessly
+- **High Availability**: Data persists across container restarts and deployments
+- **Shared Storage**: Multiple instances can access the same data
+- **Standard GCS Features**: Backup, versioning, and access controls available
+- **Cost Effective**: Pay only for storage used with standard GCS pricing
+
+### Verification
+
+After deployment, verify persistence is working:
+
+```bash
+# Check bucket contents
+gsutil ls gs://garak-persistent-storage/data/
+gsutil ls gs://garak-persistent-storage/reports/
+
+# Test API functionality
+curl https://your-service-url/api/v1/health
+```
+
 ## Parsing Reports for BigQuery Analysis
 
 The dashboard includes a Python script, `html_report_parser.py`, designed to parse the generated HTML reports, extract key findings, and upload them to Google BigQuery for advanced analysis and long-term storage.
