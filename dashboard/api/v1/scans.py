@@ -80,7 +80,7 @@ def create_scan(request_data: CreateScanRequest):
         
         # Create job entry
         jobs_data = get_jobs_data()
-        jobs_data[scan_id] = {
+        job_data = {
             'id': scan_id,
             'job_id': scan_id,  # For backward compatibility
             'name': request_data.name,
@@ -97,6 +97,12 @@ def create_scan(request_data: CreateScanRequest):
             'api_key_id': g.api_key_info['id']
         }
         
+        jobs_data[scan_id] = job_data
+        
+        # Also update the global JOBS dictionary for compatibility with run_garak_job
+        from app import JOBS
+        JOBS[scan_id] = job_data.copy()
+        
         # Ensure job is persisted to disk before starting execution
         from app import DATA_DIR
         import json
@@ -107,7 +113,7 @@ def create_scan(request_data: CreateScanRequest):
         try:
             # Use atomic write to prevent race conditions
             with open(temp_path, 'w') as f:
-                json.dump(jobs_data[scan_id], f, indent=2)
+                json.dump(job_data, f, indent=2)
                 f.flush()  # Ensure data is written
                 os.fsync(f.fileno())  # Force write to disk
             
@@ -131,13 +137,13 @@ def create_scan(request_data: CreateScanRequest):
         thread = threading.Thread(
             target=run_garak_job_wrapper,
             args=(scan_id, generator, model_name, selected_probes, 
-                  request_data.api_keys, request_data.parallel_attempts)
+                  request_data.api_keys, request_data.parallel_attempts, request_data.rest_config)
         )
         thread.daemon = True
         thread.start()
         
         # Return scan metadata
-        metadata = scan_to_metadata(jobs_data[scan_id])
+        metadata = scan_to_metadata(job_data)
         
         current_app.logger.info(
             f"Created scan {scan_id} via API - "

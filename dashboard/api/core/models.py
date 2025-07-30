@@ -68,6 +68,10 @@ class CreateScanRequest(BaseModel):
         default=None,
         description="Description of the scan purpose"
     )
+    rest_config: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="REST endpoint configuration (for REST generator only)"
+    )
     
     @validator('probe_categories')
     def validate_probe_categories(cls, v):
@@ -87,6 +91,7 @@ class CreateScanRequest(BaseModel):
         valid_generators = [
             'openai', 'huggingface', 'cohere', 'anthropic', 'ollama',
             'replicate', 'vertexai', 'llamacpp', 'mistral', 'litellm',
+            'rest',  # REST endpoint generator
             'test.Blank', 'test.Repeat'  # Test generators for development
         ]
         if v not in valid_generators:

@@ -413,7 +413,8 @@ GENERATORS = {
     'vertexai': 'Google VertexAI',
     'llamacpp': 'LlamaCPP',
     'mistral': 'Mistral',
-    'litellm': 'LiteLLM'
+    'litellm': 'LiteLLM',
+    'rest': 'REST Endpoint'
 }
 
 # List of Anthropic models available via LiteLLM
@@ -523,7 +524,7 @@ PROBE_CATEGORIES = {
     ]
 }
 
-def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_attempts=1):
+def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_attempts=1, rest_config=None):
     # Import needed modules - moved all imports to the beginning
     import subprocess, threading, io, select
     
@@ -549,6 +550,7 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
             'probes': probes,
             'api_keys': api_keys,
             'report_prefix': os.path.join(REPORT_DIR, job_id),
+            'rest_config': rest_config or {}
         })
         
         # Save updated job config
@@ -557,13 +559,18 @@ def run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_atte
             
         logging.info(f"Updated job file: {job_file_path}")
         
-        # Update job status to running
-        JOBS[job_id]['status'] = 'running'
-        JOBS[job_id]['start_time'] = datetime.now().isoformat()
-        
-        # Update the job file with running status
-        with open(job_file_path, 'w') as f:
-            json.dump(JOBS[job_id], f)
+        # Update job status to running (with defensive check)
+        if job_id in JOBS:
+            # Update in-memory job with all config data to ensure completeness
+            JOBS[job_id].update(job_config)
+            JOBS[job_id]['status'] = 'running'
+            JOBS[job_id]['start_time'] = datetime.now().isoformat()
+            
+            # Update the job file with running status
+            with open(job_file_path, 'w') as f:
+                json.dump(JOBS[job_id], f)
+        else:
+            logging.warning(f"Job {job_id} not found in JOBS dictionary when trying to mark as running")
         
         # Format probes for command line
         if isinstance(probes, list) and probes:
@@ -587,7 +594,7 @@ export GARAK_LOG_LEVEL=WARNING
         # Add API keys to environment variables
         # Determine if we should be in test mode. Test mode is only enabled when a generator
         # that requires API keys is selected, but no keys are provided.
-        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral', 'litellm', 'gemini']
+        KEY_REQUIRED_GENERATORS = ['openai', 'cohere', 'anthropic', 'replicate', 'vertexai', 'mistral', 'litellm', 'gemini', 'rest']
         logging.info(f"Job {job_id}: Generator: {generator}, API keys received: {list(api_keys.keys())}")
         
         # Debug the API keys values (without revealing actual keys)
@@ -604,6 +611,7 @@ export GARAK_LOG_LEVEL=WARNING
         elif generator == 'replicate': key_needed = 'replicate_api_token'
         elif generator == 'gemini': key_needed = 'google_api_key'
         elif generator == 'litellm': key_needed = 'anthropic_api_key'  # LiteLLM with Anthropic models uses the Anthropic API key
+        elif generator == 'rest': key_needed = 'rest_api_key'  # REST endpoints may require API keys
         
         if generator in KEY_REQUIRED_GENERATORS:
             # For key-requiring generators, check if we have the specific key needed
@@ -625,6 +633,31 @@ export GARAK_LOG_LEVEL=WARNING
                     logging.warning(f"Using test API key for {key} - real API calls will fail")
                 script_content += f"export {key.upper()}='{value}'\n"
         
+        # Create REST config file first if provided (regardless of test mode)
+        rest_config_file = None
+        if generator == 'rest' and rest_config:
+            logging.info(f"Job {job_id}: Creating REST configuration file with config: {rest_config.keys()}")
+            rest_config_file = os.path.join(DATA_DIR, f"rest_config_{job_id}.json")
+            
+            # Format configuration for garak (based on test examples)
+            garak_config = {
+                "plugins": {
+                    "generators": {
+                        "rest": {
+                            "RestGenerator": rest_config.copy()
+                        }
+                    }
+                }
+            }
+            
+            # Ensure URI is available for garak
+            if 'uri' in rest_config:
+                garak_config["plugins"]["generators"]["rest"]["RestGenerator"]["uri"] = rest_config['uri']
+            
+            with open(rest_config_file, 'w') as f:
+                json.dump(garak_config, f, indent=2)
+            logging.info(f"Job {job_id}: REST config file created at {rest_config_file}")
+        
         # Construct the garak CLI command
         if test_mode:
             # In test mode, use a special configuration that doesn't require valid API keys
@@ -641,6 +674,18 @@ export GARAK_LOG_LEVEL=WARNING
             except (ValueError, TypeError):
                 logging.warning(f"Invalid parallel_attempts value: {parallel_attempts}, using default of 1")
                 parallel_attempts = 1
+            
+            # Add REST-specific configuration if using REST generator
+            if generator == 'rest' and rest_config_file:
+                logging.info(f"Job {job_id}: Configuring REST endpoint with config file: {rest_config_file}")
+                
+                # Add REST-specific parameters to the command
+                if 'uri' in rest_config:
+                    # For REST generator, the model_name is the URI unless URI is specified separately
+                    cmd_str = cmd_str.replace(f'--model_name "{model_name}"', f'--model_name "{rest_config["uri"]}"')
+                
+                # Add configuration file parameter to garak command
+                cmd_str += f" --config {rest_config_file}"
             logging.info(f"Job {job_id}: Executing command: {cmd_str}")
         
         script_content += f"""
@@ -691,7 +736,8 @@ fi
         GARAK_TIMEOUT = 30 * 60
         
         # Store process ID for status checking
-        JOBS[job_id]['process_id'] = process.pid
+        if job_id in JOBS:
+            JOBS[job_id]['process_id'] = process.pid
         
         # Function to handle streaming output
         def stream_output():
@@ -730,7 +776,7 @@ fi
                                 output_file.flush()
                         
                         # Update the job output in memory
-                        if output_buffer:
+                        if output_buffer and job_id in JOBS:
                             JOBS[job_id]['output'] = output_buffer
                             
                             # Update the job file periodically
@@ -756,19 +802,23 @@ fi
                 report_json_path = f"{report_prefix}.report.json"
                 report_jsonl_path = f"{report_prefix}.report.jsonl"
                 
-                # Update job with final information
-                JOBS[job_id]['output'] = output_buffer
-                JOBS[job_id]['return_code'] = return_code
-                JOBS[job_id]['end_time'] = datetime.now().isoformat()
-                
-                # Check if report files exist
-                has_reports = False
-                if os.path.exists(report_json_path):
-                    JOBS[job_id]['report_path'] = report_json_path
-                    has_reports = True
-                if os.path.exists(report_jsonl_path):
-                    JOBS[job_id]['hits_path'] = report_jsonl_path
-                    has_reports = True
+                # Update job with final information (with defensive check)
+                if job_id in JOBS:
+                    JOBS[job_id]['output'] = output_buffer
+                    JOBS[job_id]['return_code'] = return_code
+                    JOBS[job_id]['end_time'] = datetime.now().isoformat()
+                    
+                    # Check if report files exist
+                    has_reports = False
+                    if os.path.exists(report_json_path):
+                        JOBS[job_id]['report_path'] = report_json_path
+                        has_reports = True
+                    if os.path.exists(report_jsonl_path):
+                        JOBS[job_id]['hits_path'] = report_jsonl_path
+                        has_reports = True
+                else:
+                    # If job not in JOBS, just check for reports
+                    has_reports = os.path.exists(report_json_path) or os.path.exists(report_jsonl_path)
                 
                 # Set job status based on return code, report existence, and check if output indicates completion
                 is_garak_finished = True
@@ -807,43 +857,67 @@ fi
                                 break
                 
                 # Only mark as complete if process exited successfully, reports exist, and output indicates completion
-                if return_code == 0 and has_reports and is_garak_finished:
-                    JOBS[job_id]['status'] = 'completed'
-                    logging.info(f'Job {job_id} marked as completed')
-                elif return_code != 0:
-                    JOBS[job_id]['status'] = 'failed'
-                    logging.info(f'Job {job_id} marked as failed with return code {return_code}')
-                else:
-                    # If process exited with code 0 but doesn't seem finished or doesn't have reports
-                    if not has_reports:
+                if job_id in JOBS:
+                    if return_code == 0 and has_reports and is_garak_finished:
+                        JOBS[job_id]['status'] = 'completed'
+                        logging.info(f'Job {job_id} marked as completed')
+                    elif return_code != 0:
                         JOBS[job_id]['status'] = 'failed'
-                        JOBS[job_id]['output'] += '\n\nWARNING: No report files were generated.'
-                        logging.warning(f'Job {job_id} has no reports but exited with code 0')
-                    elif not is_garak_finished:
-                        # Process exited but output doesn't indicate completion
-                        JOBS[job_id]['status'] = 'running'  # Keep as running until frontend refreshes
-                        logging.warning(f'Job {job_id} exited but output indicates it may still be running')
+                        logging.info(f'Job {job_id} marked as failed with return code {return_code}')
+                    else:
+                        # If process exited with code 0 but doesn't seem finished or doesn't have reports
+                        if not has_reports:
+                            JOBS[job_id]['status'] = 'failed'
+                            JOBS[job_id]['output'] += '\n\nWARNING: No report files were generated.'
+                            logging.warning(f'Job {job_id} has no reports but exited with code 0')
+                        elif not is_garak_finished:
+                            # Process exited but output doesn't indicate completion
+                            JOBS[job_id]['status'] = 'running'  # Keep as running until frontend refreshes
+                            logging.warning(f'Job {job_id} exited but output indicates it may still be running')
+                else:
+                    logging.warning(f"Job {job_id} not in JOBS dictionary during final status update")
                 
                 # Save final job state to disk
-                try:
-                    with open(job_file_path, "w") as f:
-                        json.dump(JOBS[job_id], f)
-                except Exception as e:
-                    logging.error(f"Failed to save final job state: {str(e)}")
+                if job_id in JOBS:
+                    try:
+                        with open(job_file_path, "w") as f:
+                            json.dump(JOBS[job_id], f)
+                    except Exception as e:
+                        logging.error(f"Failed to save final job state: {str(e)}")
+                else:
+                    logging.warning(f"Job {job_id} not in JOBS dictionary when trying to save final state")
                 
-                logging.info(f"Job {job_id} completed with status {JOBS[job_id]['status']}")
+                if job_id in JOBS:
+                    logging.info(f"Job {job_id} completed with status {JOBS[job_id]['status']}")
+                else:
+                    logging.info(f"Job {job_id} completed (status unknown - job not in JOBS dictionary)")
             
             except Exception as e:
                 logging.error(f"Error in streaming thread for job {job_id}: {str(e)}")
-                JOBS[job_id]['status'] = 'failed'
-                JOBS[job_id]['output'] += f"\n\nERROR in output streaming: {str(e)}"
-                JOBS[job_id]['end_time'] = datetime.now().isoformat()
                 
-                try:
-                    with open(job_file_path, "w") as f:
-                        json.dump(JOBS[job_id], f)
-                except Exception as write_err:
-                    logging.error(f"Failed to write error status: {str(write_err)}")
+                # Only update JOBS if the job exists (defensive check for testing)
+                if job_id in JOBS:
+                    JOBS[job_id]['status'] = 'failed'
+                    JOBS[job_id]['output'] += f"\n\nERROR in output streaming: {str(e)}"
+                    JOBS[job_id]['end_time'] = datetime.now().isoformat()
+                    
+                    try:
+                        with open(job_file_path, "w") as f:
+                            json.dump(JOBS[job_id], f)
+                    except Exception as write_err:
+                        logging.error(f"Failed to write error status: {str(write_err)}")
+                else:
+                    logging.warning(f"Job {job_id} not found in JOBS dictionary during error handling")
+                    # Try to update job file with error status using job_config if available  
+                    try:
+                        if 'job_config' in locals():
+                            job_config['status'] = 'failed'
+                            job_config['output'] = job_config.get('output', '') + f"\n\nERROR in output streaming: {str(e)}"
+                            job_config['end_time'] = datetime.now().isoformat()
+                            with open(job_file_path, "w") as f:
+                                json.dump(job_config, f)
+                    except Exception as write_err:
+                        logging.error(f"Failed to write error status to job file: {str(write_err)}")
         
         # Start the output streaming in a background thread
         stream_thread = threading.Thread(target=stream_output)
@@ -854,10 +928,13 @@ fi
         
     except Exception as e:
         logging.error(f"Error in job {job_id}: {str(e)}")
-        # Ensure the job is marked as failed
-        JOBS[job_id]['status'] = 'failed'
-        JOBS[job_id]['output'] = f"Job failed with an unexpected error: {str(e)}"
-        JOBS[job_id]['end_time'] = datetime.now().isoformat()
+        # Ensure the job is marked as failed (with defensive check)
+        if job_id in JOBS:
+            JOBS[job_id]['status'] = 'failed'
+            JOBS[job_id]['output'] = f"Job failed with an unexpected error: {str(e)}"
+            JOBS[job_id]['end_time'] = datetime.now().isoformat()
+        else:
+            logging.warning(f"Job {job_id} not found in JOBS dictionary during error handling")
         
         # Make sure to persist the failure to disk
         job_file_path = os.path.join(DATA_DIR, f"job_{job_id}.json")
@@ -874,11 +951,18 @@ fi
                 }
                 
             # Update with error information
-            job_config.update({
-                'status': 'failed',
-                'end_time': JOBS[job_id]['end_time'],
-                'output': JOBS[job_id]['output']
-            })
+            if job_id in JOBS:
+                job_config.update({
+                    'status': 'failed',
+                    'end_time': JOBS[job_id]['end_time'],
+                    'output': JOBS[job_id]['output']
+                })
+            else:
+                job_config.update({
+                    'status': 'failed',
+                    'end_time': datetime.now().isoformat(),
+                    'output': f"Job failed with an unexpected error: {str(e)}"
+                })
             
             # Write back to disk
             try:
@@ -1092,6 +1176,7 @@ def start_job():
         logging.info(f"Using LiteLLM for Anthropic model: {model_name}")
     api_keys = data.get('api_keys', {})
     parallel_attempts = data.get('parallel_attempts', 1)
+    rest_config = data.get('rest_config', {})
 
     # Validate inputs
     if not generator or not model_name:
@@ -1116,13 +1201,14 @@ def start_job():
         'status': 'pending',
         'created_at': datetime.now().isoformat(),
         'api_keys': {k: '***' for k, v in api_keys.items() if v},  # Don't store actual keys in job history
-        'parallel_attempts': parallel_attempts
+        'parallel_attempts': parallel_attempts,
+        'rest_config': rest_config if generator == 'rest' else {}
     }
 
     # Start job in background thread
     thread = threading.Thread(
         target=run_garak_job,
-        args=(job_id, generator, model_name, selected_probes, api_keys, parallel_attempts)
+        args=(job_id, generator, model_name, selected_probes, api_keys, parallel_attempts, rest_config)
     )
     thread.daemon = True
     thread.start()

@@ -244,7 +244,8 @@ class TestScanEndpoints:
         assert job_data.get('description') == sample_scan_request.get('description')
         
         assert 'created_at' in job_data
-        assert job_data['status'] == 'pending'
+        # Status could be 'pending' or 'running' depending on timing
+        assert job_data['status'] in ['pending', 'running']
     
     def test_scan_retrieval_from_disk(self, client, sample_scan_request):
         """Test that scans can be retrieved from disk even if not in memory."""

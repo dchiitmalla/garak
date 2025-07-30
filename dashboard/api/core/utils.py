@@ -41,10 +41,10 @@ def get_anthropic_models():
 
 def run_garak_job_wrapper(job_id: str, generator: str, model_name: str, 
                          probes: List[str], api_keys: Dict[str, str], 
-                         parallel_attempts: int = 1):
+                         parallel_attempts: int = 1, rest_config: Dict = None):
     """Wrapper for the run_garak_job function."""
     from app import run_garak_job
-    return run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_attempts)
+    return run_garak_job(job_id, generator, model_name, probes, api_keys, parallel_attempts, rest_config)
 
 
 def validate_json_request(model_class):

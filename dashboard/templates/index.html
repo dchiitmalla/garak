@@ -212,7 +212,38 @@
                                 <span class="input-group-text" style="width: 180px;">Google API Key</span>
                                 <input type="password" class="form-control" id="google_api_key" placeholder="AIza...">                                
                             </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" style="width: 180px;">REST API Key</span>
+                                <input type="password" class="form-control" id="rest_api_key" placeholder="Optional API key for REST endpoints">                                
+                            </div>
                             <div class="form-text">Your API keys are only used for this evaluation and never stored.</div>
+                        </div>
+
+                        <!-- REST Endpoint Configuration (hidden by default) -->
+                        <div class="mb-3" id="restConfigSection" style="display: none;">
+                            <label class="form-label">
+                                <i class="bi bi-globe me-2"></i>REST Endpoint Configuration
+                            </label>
+                            <div class="mb-3">
+                                <label for="restUri" class="form-label">Endpoint URI</label>
+                                <input type="url" class="form-control" id="restUri" placeholder="https://api.example.com/v1/chat/completions">
+                                <div class="form-text">The REST API endpoint URL to test</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="restRequestTemplate" class="form-label">Request Template</label>
+                                <textarea class="form-control" id="restRequestTemplate" rows="4" placeholder='{"messages": [{"role": "user", "content": "$INPUT"}], "model": "gpt-3.5-turbo"}'>{"messages": [{"role": "user", "content": "$INPUT"}], "model": "gpt-3.5-turbo"}</textarea>
+                                <div class="form-text">JSON template for requests. Use $INPUT for prompt text, $KEY for API key</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="restHeaders" class="form-label">Custom Headers (JSON)</label>
+                                <textarea class="form-control" id="restHeaders" rows="3" placeholder='{"Authorization": "Bearer $KEY", "Content-Type": "application/json"}'></textarea>
+                                <div class="form-text">Additional HTTP headers as JSON. Use $KEY for API key substitution</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="restResponseField" class="form-label">Response JSON Field</label>
+                                <input type="text" class="form-control" id="restResponseField" placeholder="$.choices[0].message.content">
+                                <div class="form-text">JSONPath to extract response text (e.g., $.choices[0].message.content)</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -322,6 +353,14 @@
         document.getElementById('modelHub').addEventListener('change', function() {
             const hub = this.value;
             const modelSelect = document.getElementById('modelName');
+            const restConfigSection = document.getElementById('restConfigSection');
+            
+            // Show/hide REST configuration section
+            if (hub === 'rest') {
+                restConfigSection.style.display = 'block';
+            } else {
+                restConfigSection.style.display = 'none';
+            }
             
             // In a real app, you would fetch models for the selected hub
             modelSelect.innerHTML = '<option value="" selected disabled>Loading models...</option>';
@@ -332,6 +371,19 @@
                 const modelOptions = getModelsForHub(hub);
                 modelSelect.innerHTML = modelOptions;
             }, 500);
+        });
+
+        // Custom model hub selection changes
+        document.getElementById('customModelHub').addEventListener('change', function() {
+            const hub = this.value;
+            const restConfigSection = document.getElementById('restConfigSection');
+            
+            // Show/hide REST configuration section for custom tab too
+            if (hub === 'rest') {
+                restConfigSection.style.display = 'block';
+            } else if (document.getElementById('custom-tab').classList.contains('active')) {
+                restConfigSection.style.display = 'none';
+            }
         });
 
         // Function to get models for a hub (simulated)
@@ -374,7 +426,8 @@
                     'gemini-2.5-pro-preview-text-to-speech', 'gemini-2.0-flash'
                 ],
                 'vertexai': ['gemini-pro', 'gemini-ultra'],
-                'llamacpp': ['llama-2-13b-chat.Q4_K_M', 'mistral-7b-instruct-v0.2.Q4_K_M']
+                'llamacpp': ['llama-2-13b-chat.Q4_K_M', 'mistral-7b-instruct-v0.2.Q4_K_M'],
+                'rest': ['custom-rest-endpoint']
             };
             
             let options = '<option value="" selected disabled>Select a model</option>';
@@ -419,7 +472,8 @@
                 'mistral_api_key',
                 'cohere_api_key',
                 'anthropic_api_key',
-                'google_api_key'
+                'google_api_key',
+                'rest_api_key'
             ];
             keyInputs.forEach(keyId => {
                 const input = document.getElementById(keyId);
@@ -452,6 +506,21 @@
                 alert('Please select at least one evaluation category');
                 return;
             }
+
+            // Validate REST configuration if REST generator is selected
+            if (generator === 'rest') {
+                const restUri = document.getElementById('restUri').value;
+                if (!restUri) {
+                    alert('Please enter a REST endpoint URI');
+                    return;
+                }
+                
+                const requestTemplate = document.getElementById('restRequestTemplate').value;
+                if (!requestTemplate) {
+                    alert('Please enter a request template for the REST endpoint');
+                    return;
+                }
+            }
             
             // Show loading
             document.getElementById('loading').style.display = 'block';
@@ -466,6 +535,48 @@
                 api_keys: apiKeys,
                 parallel_attempts: parallelAttempts
             };
+
+            // Add REST-specific configuration if REST generator is selected
+            if (generator === 'rest') {
+                const restConfig = {};
+                
+                // Get REST URI
+                const restUri = document.getElementById('restUri').value;
+                if (restUri) {
+                    restConfig.uri = restUri;
+                }
+                
+                // Get request template
+                const requestTemplate = document.getElementById('restRequestTemplate').value;
+                if (requestTemplate) {
+                    try {
+                        restConfig.req_template_json_object = JSON.parse(requestTemplate);
+                    } catch (e) {
+                        restConfig.req_template = requestTemplate;
+                    }
+                }
+                
+                // Get custom headers
+                const headers = document.getElementById('restHeaders').value;
+                if (headers) {
+                    try {
+                        restConfig.headers = JSON.parse(headers);
+                    } catch (e) {
+                        alert('Invalid JSON in custom headers');
+                        return;
+                    }
+                }
+                
+                // Get response field
+                const responseField = document.getElementById('restResponseField').value;
+                if (responseField) {
+                    restConfig.response_json = true;
+                    restConfig.response_json_field = responseField;
+                }
+                
+                // Add REST config to data
+                data.rest_config = restConfig;
+            }
 
             // Submit job
             fetch('/api/start_job', {
