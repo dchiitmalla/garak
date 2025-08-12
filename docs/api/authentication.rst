@@ -1,8 +1,12 @@
 Authentication
 ==============
 
-All API endpoints require authentication using API keys. This page describes how to obtain
+Most API endpoints require authentication using API keys. This page describes how to obtain
 and use API keys for accessing the Garak Scans API.
+
+**Endpoints that do NOT require authentication:**
+- ``/api/v1/health`` - System health check
+- ``/api/v1/info`` - API information
 
 API Key Types
 -------------
@@ -23,11 +27,11 @@ Header Authentication
 
    # Authorization header
    curl -H "Authorization: Bearer your_api_key_here" \
-        https://your-api-domain.com/api/v1/health
+        https://your-api-domain.com/api/v1/scans
 
    # X-API-Key header
    curl -H "X-API-Key: your_api_key_here" \
-        https://your-api-domain.com/api/v1/health
+        https://your-api-domain.com/api/v1/scans
 
 Query Parameter Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,7 +39,7 @@ Query Parameter Authentication
 
 .. code-block:: bash
 
-   curl "https://your-api-domain.com/api/v1/health?api_key=your_api_key_here"
+   curl "https://your-api-domain.com/api/v1/scans?api_key=your_api_key_here"
 
 Bootstrap Setup
 ---------------
@@ -81,10 +85,12 @@ Use your admin key to create additional keys with appropriate permissions:
         -d '{
           "name": "Scan API Key",
           "description": "For automated security scans", 
-          "permissions": ["read", "write"],
-          "rate_limit": 100,
-          "expires_days": 90
+          "permissions": ["read", "write"]
         }'
+
+**Optional fields:**
+- ``rate_limit`` - Requests per minute (default: 100, range: 1-10000)
+- ``expires_days`` - Days until expiration (default: no expiration, range: 1-365)
 
 Development Mode
 ----------------
@@ -95,8 +101,6 @@ For development and testing, authentication can be disabled:
 
    export DISABLE_AUTH=true
 
-.. warning::
-   Never disable authentication in production environments.
 
 Key Management
 --------------
