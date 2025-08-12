@@ -16,12 +16,12 @@ The API supports different permission levels:
 Authentication Methods
 ----------------------
 
-Header Authentication (Recommended)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Header Authentication
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   # Authorization header (recommended)
+   # Authorization header
    curl -H "Authorization: Bearer your_api_key_here" \
         https://your-api-domain.com/api/v1/health
 
@@ -32,8 +32,6 @@ Header Authentication (Recommended)
 Query Parameter Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. warning::
-   Query parameter authentication is less secure and not recommended for production use.
 
 .. code-block:: bash
 
@@ -56,13 +54,18 @@ Response:
 
    {
      "api_key": "your_admin_api_key_here",
-     "message": "Bootstrap admin key created successfully. Store this key securely.",
      "key_info": {
        "id": 1,
        "key_prefix": "your_key_prefix",
        "name": "Initial Admin Key",
        "permissions": ["read", "write", "admin"]
-     }
+     },
+     "message": "Bootstrap admin key created successfully. Store this key securely - it will not be shown again.",
+     "next_steps": [
+       "Store the API key in a secure location",
+       "Use this key to create additional API keys with appropriate permissions",
+       "Consider setting up rate limiting and monitoring"
+     ]
    }
 
 Creating Additional Keys
@@ -72,7 +75,7 @@ Use your admin key to create additional keys with appropriate permissions:
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/admin/api-keys \
+   curl -X POST https://your-api-domain.com/api/v1/admin/api-keys \
         -H "X-API-Key: your_admin_key" \
         -H "Content-Type: application/json" \
         -d '{
@@ -103,7 +106,7 @@ List API Keys
 
 .. code-block:: bash
 
-   curl -X GET http://localhost:8080/api/v1/admin/api-keys \
+   curl -X GET https://your-api-domain.com/api/v1/admin/api-keys \
         -H "X-API-Key: your_admin_key"
 
 Revoke API Key
@@ -111,7 +114,7 @@ Revoke API Key
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/admin/api-keys/123/revoke \
+   curl -X POST https://your-api-domain.com/api/v1/admin/api-keys/123/revoke \
         -H "X-API-Key: your_admin_key"
 
 Delete API Key
@@ -119,5 +122,5 @@ Delete API Key
 
 .. code-block:: bash
 
-   curl -X DELETE http://localhost:8080/api/v1/admin/api-keys/123 \
+   curl -X DELETE https://your-api-domain.com/api/v1/admin/api-keys/123 \
         -H "X-API-Key: your_admin_key"
