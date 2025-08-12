@@ -4,10 +4,6 @@ Authentication
 Most API endpoints require authentication using API keys. This page describes how to obtain
 and use API keys for accessing the Garak Scans API.
 
-**Endpoints that do NOT require authentication:**
-- ``/api/v1/health`` - System health check
-- ``/api/v1/info`` - API information
-
 API Key Types
 -------------
 
@@ -118,6 +114,7 @@ Revoke API Key
 
 .. code-block:: bash
 
+   # Replace 123 with the actual numeric ID of the API key to revoke
    curl -X POST https://your-api-domain.com/api/v1/admin/api-keys/123/revoke \
         -H "X-API-Key: your_admin_key"
 
@@ -126,5 +123,6 @@ Delete API Key
 
 .. code-block:: bash
 
+   # Replace 123 with the actual numeric ID of the API key to delete
    curl -X DELETE https://your-api-domain.com/api/v1/admin/api-keys/123 \
         -H "X-API-Key: your_admin_key"

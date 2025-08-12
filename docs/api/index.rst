@@ -42,8 +42,8 @@ injection, data leakage, toxicity generation, and other security weaknesses.
    
 .. toctree::
    :maxdepth: 2
-   :caption: Advanced Usage
-   
+   :caption: Additional Reference
+
    error-handling
    rate-limiting
    python-sdk

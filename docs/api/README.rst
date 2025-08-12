@@ -56,11 +56,11 @@ The documentation is organized into the following sections:
 * :doc:`endpoints/admin` - Administrative operations  
 * :doc:`endpoints/reports` - Report download and management
 
-**Advanced Usage**
+**Usage Tips**
 * :doc:`error-handling` - Error codes and troubleshooting
-* :doc:`rate-limiting` - Rate limit policies and handling
-* :doc:`python-sdk` - Python client library
-* :doc:`best-practices` - Production usage guidelines
+* :doc:`rate-limiting` - Understanding and managing rate limits
+* :doc:`python-sdk` - Using the Python SDK
+* :doc:`best-practices` - Best practices for API usage
 
 **Deployment**
 * :doc:`deployment/local` - Local development setup
