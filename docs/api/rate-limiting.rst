@@ -47,32 +47,40 @@ Response headers in API responses:
 * ``X-RateLimit-Reset`` - When limit resets
 * ``X-RateLimit-Window`` - Window duration
 
-Checking Your Rate Limit
+Check Rate Limit Status
 -----------------------
 
-You can check your current rate limit status by inspecting the response headers of any API request. The headers ``X-RateLimit-Limit``, ``X-RateLimit-Remaining``, and ``X-RateLimit-Reset`` are included in all responses.
+.. http:get:: /api/v1/admin/api-keys/(int:key_id)/rate-limit
 
-Example (using curl):
+   Get current rate limit usage for an API key.
 
-.. code-block:: bash
+   **Rate limit:** 100 requests/minute
 
-   curl -i -H "X-API-Key: your_api_key" https://your-api-domain.com/api/v1/scans
+   .. code-block:: bash
 
-Look for these headers in the response:
+      curl -H "X-API-Key: garak_admin_api_key_here" \
+           https://your-api-domain.com/api/v1/admin/api-keys/{key_id}/rate-limit
 
-.. code-block:: text
+   **Response:**
 
-   X-RateLimit-Limit: 100
-   X-RateLimit-Remaining: 99
-   X-RateLimit-Reset: 1723488000
-   X-RateLimit-Window: 60
+   .. code-block:: json
 
-Best Practices for Rate Limits
------------------------------
+      {
+        "api_key_id": 123,
+        "current_usage": {
+          "requests_in_window": 45,
+          "limit": 100,
+          "remaining": 55,
+          "reset_time": "2024-01-15T10:32:00Z"
+        }
+      }
 
-- Space out requests to avoid hitting the limit.
-- Monitor ``X-RateLimit-Remaining`` to know when you are close to the limit.
-- Handle HTTP 429 responses by backing off and retrying after the reset time.
+Usage Tips
+----------
+
+- Monitor ``X-RateLimit-Remaining`` header in responses
+- Handle HTTP 429 responses by waiting before retry
+- Space out requests to stay under limits
 
 Rate Limit Exceeded
 -------------------
