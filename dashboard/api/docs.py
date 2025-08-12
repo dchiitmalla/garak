@@ -105,7 +105,7 @@ Rate limit headers are included in all responses:
                     "generator": {
                         "type": "string",
                         "description": "Model generator type",
-                        "enum": ["openai", "huggingface", "cohere", "anthropic", "ollama", "replicate", "vertexai", "llamacpp", "mistral", "litellm"]
+                        "enum": ["openai", "huggingface", "cohere", "anthropic", "ollama", "replicate", "gemini", "mistral", "litellm", "azure", "groq", "nim", "nvcf", "rest", "watsonx", "rasa", "langchain", "test.Blank", "test.Repeat"]
                     },
                     "model_name": {
                         "type": "string",
@@ -116,7 +116,7 @@ Rate limit headers are included in all responses:
                         "type": "array",
                         "items": {"type": "string"},
                         "description": "List of probe categories to run",
-                        "example": ["dan", "security", "toxicity"]
+                        "example": ["dan", "promptinject", "realtoxicityprompts"]
                     },
                     "probes": {
                         "type": "array",
@@ -255,7 +255,7 @@ Rate limit headers are included in all responses:
                                     "value": {
                                         "generator": "openai",
                                         "model_name": "gpt-3.5-turbo",
-                                        "probe_categories": ["dan", "security"],
+                                        "probe_categories": ["dan", "promptinject"],
                                         "api_keys": {"openai_api_key": "sk-your-key-here"},
                                         "name": "GPT-3.5 DAN Test",
                                         "description": "Testing GPT-3.5-turbo for DAN attacks"
@@ -266,7 +266,7 @@ Rate limit headers are included in all responses:
                                     "value": {
                                         "generator": "huggingface", 
                                         "model_name": "gpt2",
-                                        "probe_categories": ["toxicity", "hallucination"],
+                                        "probe_categories": ["realtoxicityprompts", "misleading"],
                                         "parallel_attempts": 2,
                                         "name": "GPT-2 Safety Test"
                                     }
@@ -339,6 +339,73 @@ Rate limit headers are included in all responses:
                             }
                         }
                     },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
+                    "429": {"$ref": "#/components/responses/RateLimitError"}
+                }
+            }
+        },
+        "/scans/{scan_id}/status": {
+            "get": {
+                "summary": "Get scan status",
+                "description": "Get the current status of a specific scan",
+                "tags": ["Scan Management"],
+                "parameters": [
+                    {
+                        "name": "scan_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"},
+                        "description": "Unique scan identifier"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scan status information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {"$ref": "#/components/schemas/ScanStatus"},
+                                        "progress": {"$ref": "#/components/schemas/ScanProgressInfo"},
+                                        "created_at": {"type": "string", "format": "date-time"},
+                                        "started_at": {"type": "string", "format": "date-time"},
+                                        "completed_at": {"type": "string", "format": "date-time"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {"$ref": "#/components/responses/NotFoundError"},
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
+                    "429": {"$ref": "#/components/responses/RateLimitError"}
+                }
+            }
+        },
+        "/scans/{scan_id}/progress": {
+            "get": {
+                "summary": "Get scan progress",
+                "description": "Get detailed progress information for a running scan",
+                "tags": ["Scan Management"],
+                "parameters": [
+                    {
+                        "name": "scan_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"},
+                        "description": "Unique scan identifier"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed progress information",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/ScanProgressInfo"}
+                            }
+                        }
+                    },
+                    "404": {"$ref": "#/components/responses/NotFoundError"},
                     "401": {"$ref": "#/components/responses/UnauthorizedError"},
                     "429": {"$ref": "#/components/responses/RateLimitError"}
                 }
@@ -465,6 +532,124 @@ Rate limit headers are included in all responses:
                     "429": {"$ref": "#/components/responses/RateLimitError"}
                 }
             }
+        },
+        "/scans/{scan_id}/reports": {
+            "get": {
+                "summary": "List available reports",
+                "description": "Get a list of available report files for a scan",
+                "tags": ["Scan Management"],
+                "parameters": [
+                    {
+                        "name": "scan_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"},
+                        "description": "Unique scan identifier"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of available reports",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "reports": {"type": "array", "items": {"type": "object"}},
+                                        "scan_id": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {"$ref": "#/components/responses/NotFoundError"},
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
+                    "429": {"$ref": "#/components/responses/RateLimitError"}
+                }
+            }
+        },
+        "/scans/{scan_id}/reports/{report_type}": {
+            "get": {
+                "summary": "Download report",
+                "description": "Download a specific report file",
+                "tags": ["Scan Management"],
+                "parameters": [
+                    {
+                        "name": "scan_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"},
+                        "description": "Unique scan identifier"
+                    },
+                    {
+                        "name": "report_type",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"$ref": "#/components/schemas/ReportType"},
+                        "description": "Type of report to download"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Report file",
+                        "content": {
+                            "application/json": {},
+                            "text/html": {},
+                            "application/octet-stream": {}
+                        }
+                    },
+                    "404": {"$ref": "#/components/responses/NotFoundError"},
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
+                    "429": {"$ref": "#/components/responses/RateLimitError"}
+                }
+            }
+        },
+        "/info": {
+            "get": {
+                "summary": "Get API information",
+                "description": "Get general information about the API capabilities",
+                "tags": ["Discovery"],
+                "responses": {
+                    "200": {
+                        "description": "API information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "version": {"type": "string"},
+                                        "capabilities": {"type": "array", "items": {"type": "string"}},
+                                        "garak_version": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health check",
+                "description": "Check API health status",
+                "tags": ["Discovery"],
+                "responses": {
+                    "200": {
+                        "description": "Health status",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {"type": "string"},
+                                        "timestamp": {"type": "string", "format": "date-time"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "tags": [
@@ -580,7 +765,7 @@ curl -X GET http://localhost:8000/api/v1/probes \\
   -d '{
     "generator": "openai",
     "model_name": "gpt-3.5-turbo", 
-    "probe_categories": ["dan", "security"],
+    "probe_categories": ["dan", "promptinject"],
     "api_keys": {
       "openai_api_key": "sk-your-openai-key"
     },
@@ -634,7 +819,7 @@ headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
 scan_data = {
     "generator": "huggingface",
     "model_name": "gpt2", 
-    "probe_categories": ["toxicity", "hallucination"],
+    "probe_categories": ["realtoxicityprompts", "misleading"],
     "name": "GPT-2 Safety Test"
 }
 

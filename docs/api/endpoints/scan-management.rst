@@ -21,7 +21,7 @@ Create Scan
       {
         "generator": "openai",
         "model_name": "gpt-3.5-turbo",
-        "probe_categories": ["dan", "security"],
+        "probe_categories": ["dan", "promptinject"],
         "api_keys": {
           "openai_api_key": "sk-..."
         },
@@ -50,7 +50,7 @@ Create Scan
       * - probe_categories
         - array
         - ✗
-        - Probe categories (dan, security, etc.)
+        - Probe categories (dan, promptinject, etc.)
       * - probes
         - array
         - ✗
