@@ -266,7 +266,7 @@ Rate limit headers are included in all responses:
                                     "value": {
                                         "generator": "huggingface", 
                                         "model_name": "gpt2",
-                                        "probe_categories": ["realtoxicityprompts", "misleading"],
+                                        "probe_categories": ["toxicity", "hallucination"],
                                         "parallel_attempts": 2,
                                         "name": "GPT-2 Safety Test"
                                     }
@@ -765,7 +765,7 @@ curl -X GET https://your-api-domain.com/api/v1/probes \\
   -d '{
     "generator": "openai",
     "model_name": "gpt-3.5-turbo", 
-    "probe_categories": ["dan", "promptinject"],
+    "probe_categories": ["dan", "security"],
     "api_keys": {
       "openai_api_key": "sk-your-openai-key"
     },
@@ -819,7 +819,7 @@ headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
 scan_data = {
     "generator": "huggingface",
     "model_name": "gpt2", 
-    "probe_categories": ["realtoxicityprompts", "misleading"],
+    "probe_categories": ["toxicity", "hallucination"],
     "name": "GPT-2 Safety Test"
 }
 
