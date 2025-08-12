@@ -105,7 +105,7 @@ Rate limit headers are included in all responses:
                     "generator": {
                         "type": "string",
                         "description": "Model generator type",
-                        "enum": ["openai", "huggingface", "cohere", "anthropic", "ollama", "replicate", "gemini", "mistral", "litellm", "azure", "groq", "nim", "nvcf", "rest", "watsonx", "rasa", "langchain", "test.Blank", "test.Repeat"]
+                        "enum": ["openai", "huggingface", "cohere", "anthropic", "ollama", "replicate", "vertexai", "llamacpp", "mistral", "litellm", "rest"]
                     },
                     "model_name": {
                         "type": "string",
@@ -116,7 +116,7 @@ Rate limit headers are included in all responses:
                         "type": "array",
                         "items": {"type": "string"},
                         "description": "List of probe categories to run",
-                        "example": ["dan", "promptinject", "realtoxicityprompts"]
+                        "example": ["dan", "security", "toxicity"]
                     },
                     "probes": {
                         "type": "array",
@@ -255,7 +255,7 @@ Rate limit headers are included in all responses:
                                     "value": {
                                         "generator": "openai",
                                         "model_name": "gpt-3.5-turbo",
-                                        "probe_categories": ["dan", "promptinject"],
+                                        "probe_categories": ["dan", "security"],
                                         "api_keys": {"openai_api_key": "sk-your-key-here"},
                                         "name": "GPT-3.5 DAN Test",
                                         "description": "Testing GPT-3.5-turbo for DAN attacks"
