@@ -725,7 +725,7 @@ def api_examples():
     <div class="example">
         <h3>1. Create an Admin API Key (Bootstrap)</h3>
         <p>First, create the initial admin API key for system setup:</p>
-        <pre><code>curl -X POST http://localhost:8000/api/v1/admin/bootstrap \\
+        <pre><code>curl -X POST https://your-api-domain.com/api/v1/admin/bootstrap \\
   -H "Content-Type: application/json"</code></pre>
         <p>Save the returned API key securely - it won't be shown again!</p>
     </div>
@@ -733,7 +733,7 @@ def api_examples():
     <div class="example">
         <h3>2. Create a Regular API Key</h3>
         <p>Use your admin key to create regular API keys:</p>
-        <pre><code>curl -X POST http://localhost:8000/api/v1/admin/api-keys \\
+        <pre><code>curl -X POST https://your-api-domain.com/api/v1/admin/api-keys \\
   -H "X-API-Key: your_admin_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -748,18 +748,18 @@ def api_examples():
         <h3>3. List Available Generators and Probes</h3>
         <p>Discover what's available before creating scans:</p>
         <pre><code># List generators
-curl -X GET http://localhost:8000/api/v1/generators \\
+curl -X GET https://your-api-domain.com/api/v1/generators \\
   -H "X-API-Key: your_api_key_here"
 
 # List probe categories  
-curl -X GET http://localhost:8000/api/v1/probes \\
+curl -X GET https://your-api-domain.com/api/v1/probes \\
   -H "X-API-Key: your_api_key_here"</code></pre>
     </div>
     
     <div class="example">
         <h3>4. Create a Security Scan</h3>
         <p>Start a scan with OpenAI GPT-3.5:</p>
-        <pre><code>curl -X POST http://localhost:8000/api/v1/scans \\
+        <pre><code>curl -X POST https://your-api-domain.com/api/v1/scans \\
   -H "X-API-Key: your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -778,11 +778,11 @@ curl -X GET http://localhost:8000/api/v1/probes \\
         <h3>5. Monitor Scan Progress</h3>
         <p>Check scan status and progress:</p>
         <pre><code># Get scan status
-curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/status \\
+curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/status \\
   -H "X-API-Key: your_api_key_here"
 
 # Get detailed progress  
-curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/progress \\
+curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/progress \\
   -H "X-API-Key: your_api_key_here"</code></pre>
     </div>
     
@@ -790,16 +790,16 @@ curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/progress \\
         <h3>6. Download Results</h3>
         <p>Get results and download reports when scan completes:</p>
         <pre><code># Get scan details and results
-curl -X GET http://localhost:8000/api/v1/scans/{scan_id} \\
+curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id} \\
   -H "X-API-Key: your_api_key_here"
 
 # Download JSON report
-curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/reports/json \\
+curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/reports/json \\
   -H "X-API-Key: your_api_key_here" \\
   -o scan_report.json
 
 # Download HTML report
-curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/reports/html \\
+curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/reports/html \\
   -H "X-API-Key: your_api_key_here" \\
   -o scan_report.html</code></pre>
     </div>
@@ -811,7 +811,7 @@ curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/reports/html \\
 import time
 
 # Configuration
-API_BASE = "http://localhost:8000/api/v1"
+API_BASE = "https://your-api-domain.com/api/v1"
 API_KEY = "your_api_key_here"
 headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
 

@@ -13,15 +13,6 @@ The API supports different permission levels:
 * **write** - Can create and modify scans  
 * **admin** - Full system access including API key management
 
-API Key Formats
----------------
-
-API keys have the following characteristics:
-
-* **Format**: ``garak_{32_random_bytes}``
-* **Storage**: SHA256 hashed in database
-* **Identification**: First 8 characters used for display
-
 Authentication Methods
 ----------------------
 
@@ -31,12 +22,12 @@ Header Authentication (Recommended)
 .. code-block:: bash
 
    # Authorization header (recommended)
-   curl -H "Authorization: Bearer garak_abc123..." \
-        http://localhost:8080/api/v1/health
+   curl -H "Authorization: Bearer your_api_key_here" \
+        https://your-api-domain.com/api/v1/health
 
    # X-API-Key header
-   curl -H "X-API-Key: garak_abc123..." \
-        http://localhost:8080/api/v1/health
+   curl -H "X-API-Key: your_api_key_here" \
+        https://your-api-domain.com/api/v1/health
 
 Query Parameter Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +37,7 @@ Query Parameter Authentication
 
 .. code-block:: bash
 
-   curl "http://localhost:8080/api/v1/health?api_key=garak_abc123..."
+   curl "https://your-api-domain.com/api/v1/health?api_key=your_api_key_here"
 
 Bootstrap Setup
 ---------------
@@ -55,7 +46,7 @@ For first-time setup, create an initial admin API key:
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/admin/bootstrap
+   curl -X POST https://your-api-domain.com/api/v1/admin/bootstrap
 
 This endpoint is only available when no admin keys exist in the system.
 
@@ -64,11 +55,11 @@ Response:
 .. code-block:: json
 
    {
-     "api_key": "garak_admin_abc123...",
+     "api_key": "your_admin_api_key_here",
      "message": "Bootstrap admin key created successfully. Store this key securely.",
      "key_info": {
        "id": 1,
-       "key_prefix": "garak_admin_abc",
+       "key_prefix": "your_key_prefix",
        "name": "Initial Admin Key",
        "permissions": ["read", "write", "admin"]
      }

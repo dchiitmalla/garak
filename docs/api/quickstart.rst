@@ -17,9 +17,9 @@ All API requests are made to:
 
 .. code-block:: text
 
-   http://localhost:8080/api/v1
+   https://your-api-domain.com/api/v1
 
-Replace ``localhost:8080`` with your server's address.
+Replace ``your-api-domain.com`` with your actual API endpoint.
 
 Step 1: Get an API Key
 ----------------------
@@ -28,7 +28,7 @@ Create your first admin API key:
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/admin/bootstrap
+   curl -X POST https://your-api-domain.com/api/v1/admin/bootstrap
 
 Save the returned API key securely - you'll need it for all future requests.
 
@@ -39,8 +39,8 @@ Verify your API key works:
 
 .. code-block:: bash
 
-   export API_KEY="garak_your_api_key_here"
-   curl -H "X-API-Key: $API_KEY" http://localhost:8080/api/v1/health
+   export API_KEY="your_api_key_here"
+   curl -H "X-API-Key: $API_KEY" https://your-api-domain.com/api/v1/health
 
 Expected response:
 
@@ -98,14 +98,14 @@ Check scan status:
 .. code-block:: bash
 
    curl -H "X-API-Key: $API_KEY" \
-        http://localhost:8080/api/v1/scans/{scan_id}/status
+        https://your-api-domain.com/api/v1/scans/{scan_id}/status
 
 Get detailed progress:
 
 .. code-block:: bash
 
    curl -H "X-API-Key: $API_KEY" \
-        http://localhost:8080/api/v1/scans/{scan_id}/progress
+        https://your-api-domain.com/api/v1/scans/{scan_id}/progress
 
 Step 6: Download Results
 ------------------------
@@ -116,12 +116,12 @@ Once the scan completes, download the report:
 
    # JSON report
    curl -H "X-API-Key: $API_KEY" \
-        http://localhost:8080/api/v1/scans/{scan_id}/reports/json \
+        https://your-api-domain.com/api/v1/scans/{scan_id}/reports/json \
         -o scan_report.json
 
    # HTML report  
    curl -H "X-API-Key: $API_KEY" \
-        http://localhost:8080/api/v1/scans/{scan_id}/reports/html \
+        https://your-api-domain.com/api/v1/scans/{scan_id}/reports/html \
         -o scan_report.html
 
 Next Steps

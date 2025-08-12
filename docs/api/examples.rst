@@ -13,13 +13,13 @@ Test a model for toxic content generation:
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/scans \
+   curl -X POST https://your-api-domain.com/api/v1/scans \
         -H "X-API-Key: your_api_key" \
         -H "Content-Type: application/json" \
         -d '{
           "generator": "huggingface",
           "model_name": "gpt2",
-          "probe_categories": ["toxicity"],
+          "probe_categories": ["realtoxicityprompts"],
           "name": "GPT-2 Toxicity Test",
           "description": "Testing GPT-2 for toxic content generation"
         }'
@@ -31,13 +31,13 @@ Run multiple probe categories for thorough testing:
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/scans \
+   curl -X POST https://your-api-domain.com/api/v1/scans \
         -H "X-API-Key: your_api_key" \
         -H "Content-Type: application/json" \
         -d '{
           "generator": "openai", 
           "model_name": "gpt-3.5-turbo",
-          "probe_categories": ["dan", "security", "privacy", "toxicity"],
+          "probe_categories": ["dan", "promptinject", "realtoxicityprompts"],
           "api_keys": {
             "openai_api_key": "sk-your-openai-key"
           },
@@ -53,7 +53,7 @@ Target specific probes instead of categories:
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/scans \
+   curl -X POST https://your-api-domain.com/api/v1/scans \
         -H "X-API-Key: your_api_key" \
         -H "Content-Type: application/json" \
         -d '{
@@ -83,15 +83,15 @@ Poll scan status and download results:
    # Check status
    SCAN_ID="your-scan-id"
    curl -H "X-API-Key: your_api_key" \
-        "http://localhost:8080/api/v1/scans/$SCAN_ID/status"
+        "https://your-api-domain.com/api/v1/scans/$SCAN_ID/status"
 
    # Get detailed progress
    curl -H "X-API-Key: your_api_key" \
-        "http://localhost:8080/api/v1/scans/$SCAN_ID/progress"
+        "https://your-api-domain.com/api/v1/scans/$SCAN_ID/progress"
 
    # Download results when complete
    curl -H "X-API-Key: your_api_key" \
-        "http://localhost:8080/api/v1/scans/$SCAN_ID/reports/json" \
+        "https://your-api-domain.com/api/v1/scans/$SCAN_ID/reports/json" \
         -o results.json
 
 Example 5: List and Filter Scans
@@ -109,7 +109,7 @@ Example 5: List and Filter Scans
 
    # Get specific scan details
    curl -H "X-API-Key: your_api_key" \
-        "http://localhost:8080/api/v1/scans/$SCAN_ID"
+        "https://your-api-domain.com/api/v1/scans/$SCAN_ID"
 
 Python Examples
 ---------------
@@ -200,7 +200,7 @@ Example 7: Batch Testing Multiple Models
    def test_model(model):
        config = {
            **model,
-           "probe_categories": ["toxicity"],
+           "probe_categories": ["realtoxicityprompts"],
            "name": f"Toxicity Test - {model['model_name']}"
        }
        
@@ -325,7 +325,7 @@ Example 11: Custom REST Endpoint Testing
 
 .. code-block:: bash
 
-   curl -X POST http://localhost:8080/api/v1/scans \
+   curl -X POST https://your-api-domain.com/api/v1/scans \
         -H "X-API-Key: your_api_key" \
         -H "Content-Type: application/json" \
         -d '{
