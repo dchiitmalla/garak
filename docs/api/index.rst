@@ -5,14 +5,7 @@ The Garak Dashboard API provides programmatic access to LLM security scanning ca
 
 .. note::
    This API documentation is under active development. Let us know if there's anything
-   wrong, confusing, or missing by emailing docs@garak.ai
-
-Quick Links
------------
-
-* `User Guide <https://docs.garak.ai>`_
-* `Discord <https://discord.gg/uVch4puUCs>`_  
-* `Twitter <https://twitter.com/garak_llm>`_
+   wrong, confusing, or missing by emailing docs@getgarak.com
 
 Overview
 --------
@@ -57,3 +50,7 @@ injection, data leakage, toxicity generation, and other security weaknesses.
    deployment/local
    deployment/docker
    deployment/cloud
+
+----
+
+Copyright © Garak Security Team. All rights reserved.

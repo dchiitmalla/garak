@@ -1,9 +1,9 @@
 # Configuration file for the Garak API documentation built with Sphinx.
 
 # Project information
-project = 'Garak Scans API'
-copyright = '2024, Garak Team'
-author = 'Garak Team'
+project = 'Garak Security Scans API'
+copyright = 'Garak Security Team'
+author = 'Garak Security Team'
 release = '1.0.0'
 
 # General configuration
@@ -60,5 +60,5 @@ autodoc_default_options = {
 
 # HTTP domain configuration  
 http_index_shortname = 'api'
-http_index_localname = 'Garak Scans API'
+http_index_localname = 'Garak Security Scans API'
 http_strict_mode = False

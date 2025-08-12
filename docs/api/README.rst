@@ -1,7 +1,7 @@
-Garak Scans API Documentation
-=============================
+Garak Security API Documentation
+================================
 
-This directory contains the complete API reference documentation for the Garak Scans API,
+This directory contains the complete API reference documentation for the Garak Security Scans API,
 following the same structure and format as the main Garak project documentation.
 
 Building the Documentation
@@ -111,4 +111,8 @@ When updating the API documentation:
 5. **Maintain the hierarchical structure** established in the index
 
 For questions about the documentation structure or content, contact the
-Garak team at docs@garak.ai.
+Garak Security team at docs@getgarak.com.
+
+----
+
+Copyright © Garak Security Team. All rights reserved.
