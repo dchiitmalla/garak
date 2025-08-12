@@ -58,7 +58,7 @@ Check Rate Limit Status
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_admin_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/admin/api-keys/{key_id}/rate-limit
 
    **Response:**

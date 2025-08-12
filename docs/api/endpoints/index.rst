@@ -15,7 +15,7 @@ Quick Reference
 
 **Base URL:** ``https://your-api-domain.com/api/v1``
 
-**Authentication:** ``X-API-Key: garak_your_api_key`` (required for all endpoints)
+**Authentication:** ``X-API-Key: your_api_key`` (required for all endpoints)
 
 **Content-Type:** ``application/json``
 

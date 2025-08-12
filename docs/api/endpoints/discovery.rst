@@ -14,7 +14,7 @@ List Generators
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/generators
 
    **Response:**
@@ -49,7 +49,7 @@ List Probes
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/probes
 
    **Response:**
@@ -94,7 +94,7 @@ Get Generator Details
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/generators/openai
 
    **Response:**
@@ -119,7 +119,7 @@ Get Category Probes
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/probes/hallucination
 
    **Response:**

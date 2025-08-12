@@ -14,7 +14,7 @@ Create Scan
 
    **Headers:**
    
-   * ``X-API-Key: garak_your_api_key`` (required)
+   * ``X-API-Key: your_api_key`` (required)
    * ``Content-Type: application/json``
 
    **Request Example:**
@@ -22,7 +22,7 @@ Create Scan
    .. code-block:: bash
 
       curl -X POST https://your-api-domain.com/api/v1/scans \
-           -H "X-API-Key: garak_your_api_key_here" \
+           -H "X-API-Key: your_api_key_here" \
            -H "Content-Type: application/json" \
            -d '{
              "generator": "openai",
@@ -75,7 +75,7 @@ Monitor Scan
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/progress
 
    **Response:**
@@ -119,7 +119,7 @@ Get Results
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}
 
 Download Reports
@@ -133,7 +133,7 @@ Download Reports
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports/json \
            -o report.json
 
@@ -143,7 +143,7 @@ Download Reports
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports/html \
            -o report.html
 
@@ -164,7 +164,7 @@ List Scans
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            "https://your-api-domain.com/api/v1/scans?status=completed&per_page=50"
 
 Manage Scans
@@ -178,7 +178,7 @@ Manage Scans
 
    .. code-block:: bash
 
-      curl -X PATCH -H "X-API-Key: garak_your_api_key_here" \
+      curl -X PATCH -H "X-API-Key: your_api_key_here" \
            -H "Content-Type: application/json" \
            -d '{"name": "Updated scan name"}' \
            https://your-api-domain.com/api/v1/scans/{scan_id}
@@ -191,7 +191,7 @@ Manage Scans
 
    .. code-block:: bash
 
-      curl -X DELETE -H "X-API-Key: garak_your_api_key_here" \
+      curl -X DELETE -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}
 
    .. note::
@@ -222,4 +222,4 @@ Notes
 
 * **Test Mode:** Cloud providers fall back to GPT-2 test mode if API keys missing
 * **Discovery:** Use ``/api/v1/generators`` and ``/api/v1/probes`` to find valid values
-* **Authentication:** All endpoints require ``X-API-Key: garak_your_key`` header
+* **Authentication:** All endpoints require ``X-API-Key: your_api_key`` header

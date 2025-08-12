@@ -14,7 +14,7 @@ List Reports
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports
 
    **Response:**
@@ -46,7 +46,7 @@ Download JSON Report
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports/json \
            -o scan_report.json
 
@@ -61,7 +61,7 @@ Download HTML Report
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports/html \
            -o scan_report.html
 
@@ -76,7 +76,7 @@ Download JSONL Report
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports/jsonl \
            -o scan_report.jsonl
 
@@ -91,7 +91,7 @@ Download Hits Report
 
    .. code-block:: bash
 
-      curl -H "X-API-Key: garak_your_api_key_here" \
+      curl -H "X-API-Key: your_api_key_here" \
            https://your-api-domain.com/api/v1/scans/{scan_id}/reports/hits \
            -o scan_hits.json
 
