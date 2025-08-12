@@ -28,6 +28,7 @@ injection, data leakage, toxicity generation, and other security weaknesses.
 
    authentication
    quickstart
+   api-keys-reference
    endpoints/index
    examples
    

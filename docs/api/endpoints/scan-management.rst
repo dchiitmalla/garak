@@ -43,7 +43,7 @@ Create Scan
 
    * ``probe_categories`` - Categories like ["hallucination", "security"] (default: all)
    * ``probes`` - Specific probe names (overrides categories)
-   * ``api_keys`` - Provider API keys (falls back to test mode if missing)
+   * ``api_keys`` - Provider API keys (see :doc:`../api-keys-reference` for key names by generator)
    * ``name`` - Scan name
    * ``description`` - Scan description  
    * ``parallel_attempts`` - Parallel attempts 1-10 (default: 1)

@@ -105,7 +105,7 @@ Rate limit headers are included in all responses:
                     "generator": {
                         "type": "string",
                         "description": "Model generator type",
-                        "enum": ["openai", "huggingface", "cohere", "anthropic", "ollama", "replicate", "vertexai", "llamacpp", "mistral", "litellm", "rest"]
+                        "enum": ["openai", "huggingface", "cohere", "anthropic", "ollama", "replicate", "vertexai", "llamacpp", "mistral", "litellm"]
                     },
                     "model_name": {
                         "type": "string",
@@ -344,73 +344,6 @@ Rate limit headers are included in all responses:
                 }
             }
         },
-        "/scans/{scan_id}/status": {
-            "get": {
-                "summary": "Get scan status",
-                "description": "Get the current status of a specific scan",
-                "tags": ["Scan Management"],
-                "parameters": [
-                    {
-                        "name": "scan_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "string"},
-                        "description": "Unique scan identifier"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Scan status information",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {"$ref": "#/components/schemas/ScanStatus"},
-                                        "progress": {"$ref": "#/components/schemas/ScanProgressInfo"},
-                                        "created_at": {"type": "string", "format": "date-time"},
-                                        "started_at": {"type": "string", "format": "date-time"},
-                                        "completed_at": {"type": "string", "format": "date-time"}
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {"$ref": "#/components/responses/NotFoundError"},
-                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
-                    "429": {"$ref": "#/components/responses/RateLimitError"}
-                }
-            }
-        },
-        "/scans/{scan_id}/progress": {
-            "get": {
-                "summary": "Get scan progress",
-                "description": "Get detailed progress information for a running scan",
-                "tags": ["Scan Management"],
-                "parameters": [
-                    {
-                        "name": "scan_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "string"},
-                        "description": "Unique scan identifier"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detailed progress information",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ScanProgressInfo"}
-                            }
-                        }
-                    },
-                    "404": {"$ref": "#/components/responses/NotFoundError"},
-                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
-                    "429": {"$ref": "#/components/responses/RateLimitError"}
-                }
-            }
-        },
         "/scans/{scan_id}": {
             "get": {
                 "summary": "Get scan details",
@@ -532,124 +465,6 @@ Rate limit headers are included in all responses:
                     "429": {"$ref": "#/components/responses/RateLimitError"}
                 }
             }
-        },
-        "/scans/{scan_id}/reports": {
-            "get": {
-                "summary": "List available reports",
-                "description": "Get a list of available report files for a scan",
-                "tags": ["Scan Management"],
-                "parameters": [
-                    {
-                        "name": "scan_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "string"},
-                        "description": "Unique scan identifier"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of available reports",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "reports": {"type": "array", "items": {"type": "object"}},
-                                        "scan_id": {"type": "string"}
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {"$ref": "#/components/responses/NotFoundError"},
-                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
-                    "429": {"$ref": "#/components/responses/RateLimitError"}
-                }
-            }
-        },
-        "/scans/{scan_id}/reports/{report_type}": {
-            "get": {
-                "summary": "Download report",
-                "description": "Download a specific report file",
-                "tags": ["Scan Management"],
-                "parameters": [
-                    {
-                        "name": "scan_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "string"},
-                        "description": "Unique scan identifier"
-                    },
-                    {
-                        "name": "report_type",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"$ref": "#/components/schemas/ReportType"},
-                        "description": "Type of report to download"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Report file",
-                        "content": {
-                            "application/json": {},
-                            "text/html": {},
-                            "application/octet-stream": {}
-                        }
-                    },
-                    "404": {"$ref": "#/components/responses/NotFoundError"},
-                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
-                    "429": {"$ref": "#/components/responses/RateLimitError"}
-                }
-            }
-        },
-        "/info": {
-            "get": {
-                "summary": "Get API information",
-                "description": "Get general information about the API capabilities",
-                "tags": ["Discovery"],
-                "responses": {
-                    "200": {
-                        "description": "API information",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "version": {"type": "string"},
-                                        "capabilities": {"type": "array", "items": {"type": "string"}},
-                                        "garak_version": {"type": "string"}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/health": {
-            "get": {
-                "summary": "Health check",
-                "description": "Check API health status",
-                "tags": ["Discovery"],
-                "responses": {
-                    "200": {
-                        "description": "Health status",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {"type": "string"},
-                                        "timestamp": {"type": "string", "format": "date-time"}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "tags": [
@@ -725,7 +540,7 @@ def api_examples():
     <div class="example">
         <h3>1. Create an Admin API Key (Bootstrap)</h3>
         <p>First, create the initial admin API key for system setup:</p>
-        <pre><code>curl -X POST https://your-api-domain.com/api/v1/admin/bootstrap \\
+        <pre><code>curl -X POST http://localhost:8000/api/v1/admin/bootstrap \\
   -H "Content-Type: application/json"</code></pre>
         <p>Save the returned API key securely - it won't be shown again!</p>
     </div>
@@ -733,7 +548,7 @@ def api_examples():
     <div class="example">
         <h3>2. Create a Regular API Key</h3>
         <p>Use your admin key to create regular API keys:</p>
-        <pre><code>curl -X POST https://your-api-domain.com/api/v1/admin/api-keys \\
+        <pre><code>curl -X POST http://localhost:8000/api/v1/admin/api-keys \\
   -H "X-API-Key: your_admin_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -748,18 +563,18 @@ def api_examples():
         <h3>3. List Available Generators and Probes</h3>
         <p>Discover what's available before creating scans:</p>
         <pre><code># List generators
-curl -X GET https://your-api-domain.com/api/v1/generators \\
+curl -X GET http://localhost:8000/api/v1/generators \\
   -H "X-API-Key: your_api_key_here"
 
 # List probe categories  
-curl -X GET https://your-api-domain.com/api/v1/probes \\
+curl -X GET http://localhost:8000/api/v1/probes \\
   -H "X-API-Key: your_api_key_here"</code></pre>
     </div>
     
     <div class="example">
         <h3>4. Create a Security Scan</h3>
         <p>Start a scan with OpenAI GPT-3.5:</p>
-        <pre><code>curl -X POST https://your-api-domain.com/api/v1/scans \\
+        <pre><code>curl -X POST http://localhost:8000/api/v1/scans \\
   -H "X-API-Key: your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -778,11 +593,11 @@ curl -X GET https://your-api-domain.com/api/v1/probes \\
         <h3>5. Monitor Scan Progress</h3>
         <p>Check scan status and progress:</p>
         <pre><code># Get scan status
-curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/status \\
+curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/status \\
   -H "X-API-Key: your_api_key_here"
 
 # Get detailed progress  
-curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/progress \\
+curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/progress \\
   -H "X-API-Key: your_api_key_here"</code></pre>
     </div>
     
@@ -790,16 +605,16 @@ curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/progress \\
         <h3>6. Download Results</h3>
         <p>Get results and download reports when scan completes:</p>
         <pre><code># Get scan details and results
-curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id} \\
+curl -X GET http://localhost:8000/api/v1/scans/{scan_id} \\
   -H "X-API-Key: your_api_key_here"
 
 # Download JSON report
-curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/reports/json \\
+curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/reports/json \\
   -H "X-API-Key: your_api_key_here" \\
   -o scan_report.json
 
 # Download HTML report
-curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/reports/html \\
+curl -X GET http://localhost:8000/api/v1/scans/{scan_id}/reports/html \\
   -H "X-API-Key: your_api_key_here" \\
   -o scan_report.html</code></pre>
     </div>
@@ -811,7 +626,7 @@ curl -X GET https://your-api-domain.com/api/v1/scans/{scan_id}/reports/html \\
 import time
 
 # Configuration
-API_BASE = "https://your-api-domain.com/api/v1"
+API_BASE = "http://localhost:8000/api/v1"
 API_KEY = "your_api_key_here"
 headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
 
